@@ -1,0 +1,150 @@
+{
+  "entities": {
+    "Admin": {
+      "title": "Admin",
+      "description": "System administrator",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["email", "createdAt"]
+    },
+    "Student": {
+      "title": "Student",
+      "description": "Student profile",
+      "type": "object",
+      "properties": {
+        "regNumber": { "type": "string" },
+        "fullName": { "type": "string" },
+        "email": { "type": "string" },
+        "course": { "type": "string" },
+        "status": { "type": "string", "enum": ["active", "inactive"] },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["regNumber", "fullName", "email", "course", "status", "createdAt"]
+    },
+    "Module": {
+      "title": "Module",
+      "description": "A course or module offering",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "code": { "type": "string" },
+        "description": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["name", "code", "description", "createdAt"]
+    },
+    "Enrollment": {
+      "title": "Enrollment",
+      "description": "Student enrollment in a module",
+      "type": "object",
+      "properties": {
+        "studentId": { "type": "string" },
+        "enrolledAt": { "type": "number" }
+      },
+      "required": ["studentId", "enrolledAt"]
+    },
+    "Lecture": {
+      "title": "Lecture",
+      "description": "Scheduled online class",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "meetLink": { "type": "string" },
+        "date": { "type": "string" },
+        "time": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["title", "meetLink", "date", "time", "createdAt"]
+    },
+    "Assignment": {
+      "title": "Assignment",
+      "description": "Module assignment",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "deadline": { "type": "number" },
+        "marks": { "type": "number" },
+        "fileUrl": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["title", "description", "deadline", "marks", "createdAt"]
+    },
+    "Submission": {
+      "title": "Submission",
+      "description": "Student assignment submission",
+      "type": "object",
+      "properties": {
+        "fileUrl": { "type": "string" },
+        "submittedAt": { "type": "number" },
+        "grade": { "type": "number" },
+        "feedback": { "type": "string" }
+      },
+      "required": ["fileUrl", "submittedAt"]
+    },
+    "LearningMaterial": {
+      "title": "LearningMaterial",
+      "description": "File or resource for learning",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "fileUrl": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["title", "fileUrl", "createdAt"]
+    },
+    "Announcement": {
+      "title": "Announcement",
+      "description": "System or module-wide announcement",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "moduleId": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["title", "content", "moduleId", "createdAt"]
+    }
+  },
+  "firestore": {
+    "admins/{adminId}": {
+      "schema": { "$ref": "#/entities/Admin" },
+      "description": "Stores admin user profiles"
+    },
+    "students/{studentId}": {
+      "schema": { "$ref": "#/entities/Student" },
+      "description": "Stores student user profiles"
+    },
+    "modules/{moduleId}": {
+      "schema": { "$ref": "#/entities/Module" },
+      "description": "Stores available modules"
+    },
+    "modules/{moduleId}/enrollments/{studentId}": {
+      "schema": { "$ref": "#/entities/Enrollment" },
+      "description": "Tracks which students are in which module"
+    },
+    "modules/{moduleId}/lectures/{lectureId}": {
+      "schema": { "$ref": "#/entities/Lecture" },
+      "description": "Scheduled lectures for a module"
+    },
+    "modules/{moduleId}/assignments/{assignmentId}": {
+      "schema": { "$ref": "#/entities/Assignment" },
+      "description": "Assignments within a module"
+    },
+    "modules/{moduleId}/assignments/{assignmentId}/submissions/{studentId}": {
+      "schema": { "$ref": "#/entities/Submission" },
+      "description": "Student submissions for an assignment. StudentId is doc ID."
+    },
+    "modules/{moduleId}/learningMaterials/{materialId}": {
+      "schema": { "$ref": "#/entities/LearningMaterial" },
+      "description": "Learning resources for a module"
+    },
+    "announcements/{announcementId}": {
+      "schema": { "$ref": "#/entities/Announcement" },
+      "description": "General system-wide and module-specific announcements"
+    }
+  }
+}

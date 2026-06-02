@@ -1,0 +1,8 @@
+{
+  "name": "JIRVI EDU",
+  "description": "E-Learning Management System for students and admins.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
