@@ -44,22 +44,22 @@ export default function StudentModules({ studentId }: { studentId: string }) {
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold text-neutral-900">My Modules</h1>
-        <p className="mt-1 text-sm text-neutral-500">View and enroll in courses.</p>
+        <h1 className="text-2xl font-bold text-white">My Modules</h1>
+        <p className="mt-1 text-sm text-neutral-400">View and enroll in courses.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {modules.map(mod => {
           const isEnrolled = enrolledModuleIds.has(mod.id);
           return (
-            <div key={mod.id} className="bg-white rounded-xl border border-neutral-200 shadow-sm p-6 flex flex-col">
+            <div key={mod.id} className="bg-neutral-800 rounded-xl border border-neutral-700 shadow-sm p-6 flex flex-col">
               <div className="flex-1">
-                <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
-                  <BookOpen className="w-6 h-6 text-indigo-600" />
+                <div className="w-12 h-12 bg-neutral-800 rounded-lg flex items-center justify-center mb-4">
+                  <BookOpen className="w-6 h-6 text-blue-600" />
                 </div>
-                <h3 className="text-lg font-bold text-neutral-900">{mod.name}</h3>
-                <p className="text-sm font-medium text-neutral-500 mb-2">{mod.code}</p>
-                <p className="text-sm text-neutral-600 line-clamp-3">{mod.description}</p>
+                <h3 className="text-lg font-bold text-white">{mod.name}</h3>
+                <p className="text-sm font-medium text-neutral-400 mb-2">{mod.code}</p>
+                <p className="text-sm text-neutral-300 line-clamp-3">{mod.description}</p>
               </div>
               <div className="mt-6">
                 {isEnrolled ? (
@@ -67,7 +67,7 @@ export default function StudentModules({ studentId }: { studentId: string }) {
                     <CheckCircle className="w-4 h-4 mr-2" /> Enrolled
                   </button>
                 ) : (
-                  <button onClick={() => handleEnroll(mod.id)} className="w-full flex justify-center items-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 text-sm font-medium">
+                  <button onClick={() => handleEnroll(mod.id)} className="w-full flex justify-center items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium">
                     Enroll Now
                   </button>
                 )}
@@ -76,7 +76,7 @@ export default function StudentModules({ studentId }: { studentId: string }) {
           );
         })}
         {modules.length === 0 && (
-          <div className="col-span-full bg-white p-8 rounded-xl border border-neutral-200 text-center text-neutral-500">
+          <div className="col-span-full bg-neutral-800 p-8 rounded-xl border border-neutral-700 text-center text-neutral-400">
             No modules available.
           </div>
         )}

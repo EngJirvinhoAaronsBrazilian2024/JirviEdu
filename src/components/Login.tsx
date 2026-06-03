@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BookOpen, AlertCircle, ArrowRight, Loader2 } from 'lucide-react';
+import { BookOpen, AlertCircle, ArrowRight, Loader2, Eye, EyeOff } from 'lucide-react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import clsx from 'clsx';
@@ -7,6 +7,7 @@ import clsx from 'clsx';
 export default function Login({ setRole }: { setRole: (role: string | null) => void }) {
   const [regNumber, setRegNumber] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -32,6 +33,14 @@ export default function Login({ setRole }: { setRole: (role: string | null) => v
         setRole('student');
       } else {
         const docSnap = snap.docs[0];
+        const studentData = docSnap.data();
+        
+        if (studentData.password && studentData.password !== password) {
+          setError('Invalid password.');
+          setLoading(false);
+          return;
+        }
+
         localStorage.setItem('jirvi_student_reg', regNumber);
         localStorage.setItem('jirvi_student_id', docSnap.id);
         setRole('student');
@@ -50,7 +59,7 @@ export default function Login({ setRole }: { setRole: (role: string | null) => v
       
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
         <div className="flex justify-center">
-          <div className="h-16 w-16 bg-indigo-500 rounded-2xl flex items-center justify-center shadow-lg transform rotate-3">
+          <div className="h-16 w-16 bg-blue-500 rounded-2xl flex items-center justify-center shadow-lg transform rotate-3">
             <BookOpen className="h-8 w-8 text-white -rotate-3" />
           </div>
         </div>
@@ -59,9 +68,6 @@ export default function Login({ setRole }: { setRole: (role: string | null) => v
         </h2>
         <p className="mt-2 text-center text-sm text-neutral-300">
           E-Learning Management System
-        </p>
-        <p className="mt-2 text-center text-xs text-amber-300">
-          Demo Mode. Admin: REG-ADMIN-2026
         </p>
       </div>
 
@@ -86,7 +92,7 @@ export default function Login({ setRole }: { setRole: (role: string | null) => v
                   required
                   value={regNumber}
                   onChange={(e) => setRegNumber(e.target.value)}
-                  className="block w-full appearance-none rounded-lg border border-neutral-600 px-3 py-2 placeholder-neutral-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm bg-neutral-900 text-white"
+                  className="block w-full appearance-none rounded-lg border border-neutral-600 px-3 py-2 placeholder-neutral-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm bg-neutral-900 text-white"
                   placeholder="e.g. REG-ADMIN-2026"
                 />
               </div>
@@ -96,15 +102,26 @@ export default function Login({ setRole }: { setRole: (role: string | null) => v
               <label htmlFor="password" className="block text-sm font-medium text-neutral-200">
                 Password
               </label>
-              <div className="mt-1">
+              <div className="mt-1 relative">
                 <input
                   id="password"
                   name="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full appearance-none rounded-lg border border-neutral-600 px-3 py-2 placeholder-neutral-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm bg-neutral-900 text-white"
+                  className="block w-full appearance-none rounded-lg border border-neutral-600 px-3 py-2 pr-10 placeholder-neutral-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm bg-neutral-900 text-white"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 hover:text-white"
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" aria-hidden="true" />
+                  ) : (
+                    <Eye className="h-5 w-5" aria-hidden="true" />
+                  )}
+                </button>
               </div>
             </div>
 
@@ -112,7 +129,7 @@ export default function Login({ setRole }: { setRole: (role: string | null) => v
               <button
                 type="submit"
                 disabled={loading}
-                className="flex w-full justify-center rounded-lg border border-transparent bg-indigo-600 py-3 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-neutral-900 transition-all disabled:opacity-50"
+                className="flex w-full justify-center rounded-lg border border-transparent bg-blue-600 py-3 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-neutral-900 transition-all disabled:opacity-50"
               >
                 {loading ? (
                   <span className="flex items-center">

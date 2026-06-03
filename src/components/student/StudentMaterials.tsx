@@ -28,36 +28,36 @@ export default function StudentMaterials({ studentId }: { studentId: string }) {
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold text-neutral-900">Learning Materials</h1>
-        <p className="mt-1 text-sm text-neutral-500">Download course materials and notes.</p>
+        <h1 className="text-2xl font-bold text-white">Learning Materials</h1>
+        <p className="mt-1 text-sm text-neutral-400">Download course materials and notes.</p>
       </div>
 
-      <div className="bg-white rounded-xl border border-neutral-200 shadow-sm overflow-hidden">
+      <div className="bg-neutral-800 rounded-xl border border-neutral-700 shadow-sm overflow-hidden">
         <ul className="divide-y divide-neutral-200">
           {materials.map((item, idx) => (
-            <li key={idx} className="p-4 hover:bg-neutral-50 transition-colors flex items-center justify-between">
+            <li key={idx} className="p-4 hover:bg-neutral-700 transition-colors flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <div className="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                <div className="flex-shrink-0 w-10 h-10 bg-neutral-800 rounded-lg flex items-center justify-center">
                   <FileDown className="w-5 h-5 text-blue-600" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-neutral-900">{item.mat.title}</h3>
-                  <div className="flex items-center text-xs text-neutral-500 mt-1">
-                    <span className="font-medium text-neutral-700 mr-2">{item.mod.code}</span>
+                  <h3 className="text-sm font-bold text-white">{item.mat.title}</h3>
+                  <div className="flex items-center text-xs text-neutral-400 mt-1">
+                    <span className="font-medium text-neutral-200 mr-2">{item.mod.code}</span>
                     <span className="text-neutral-400">•</span>
                     <span className="ml-2">{item.mod.name}</span>
                   </div>
                 </div>
               </div>
               <div>
-                <a href={item.mat.fileUrl} target="_blank" rel="noreferrer" className="inline-flex items-center px-4 py-2 border border-neutral-300 shadow-sm text-sm font-medium rounded-md text-neutral-700 bg-white hover:bg-neutral-50">
-                  <FileDown className="w-4 h-4 mr-2 text-neutral-500" /> Download
+                <a href={item.mat.fileUrl} target="_blank" rel="noreferrer" className="inline-flex items-center px-4 py-2 border border-neutral-600 shadow-sm text-sm font-medium rounded-md text-neutral-200 bg-neutral-800 hover:bg-neutral-700">
+                  <FileDown className="w-4 h-4 mr-2 text-neutral-400" /> Download
                 </a>
               </div>
             </li>
           ))}
           {materials.length === 0 && (
-            <li className="p-8 text-center text-neutral-500">
+            <li className="p-8 text-center text-neutral-400">
               No learning materials have been uploaded yet.
             </li>
           )}

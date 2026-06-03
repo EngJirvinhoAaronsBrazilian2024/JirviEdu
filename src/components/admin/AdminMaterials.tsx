@@ -64,13 +64,13 @@ export default function AdminMaterials() {
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold text-neutral-900">Learning Materials</h1>
-        <p className="mt-1 text-sm text-neutral-500">Upload notes, slides, and files.</p>
+        <h1 className="text-2xl font-bold text-white">Learning Materials</h1>
+        <p className="mt-1 text-sm text-neutral-400">Upload notes, slides, and files.</p>
       </div>
 
-      <div className="bg-white p-6 rounded-xl border border-neutral-200 shadow-sm">
-        <label className="block text-sm font-medium text-neutral-700 mb-2">Select Module</label>
-        <select value={selectedModule} onChange={(e) => setSelectedModule(e.target.value)} className="w-full border border-neutral-300 rounded-md p-2 text-sm focus:ring-indigo-500 focus:border-indigo-500">
+      <div className="bg-neutral-800 p-6 rounded-xl border border-neutral-700 shadow-sm">
+        <label className="block text-sm font-medium text-neutral-200 mb-2">Select Module</label>
+        <select value={selectedModule} onChange={(e) => setSelectedModule(e.target.value)} className="w-full border border-neutral-600 rounded-md p-2 text-sm focus:ring-blue-500 focus:border-blue-500">
           <option value="">-- Choose Module --</option>
           {modules.map(m => <option key={m.id} value={m.id}>{m.code} - {m.name}</option>)}
         </select>
@@ -78,11 +78,11 @@ export default function AdminMaterials() {
 
       {selectedModule && (
         <>
-          <div className="bg-white p-6 rounded-xl border border-neutral-200 shadow-sm">
-            <h2 className="text-lg font-medium text-neutral-900 mb-4">Add Material</h2>
+          <div className="bg-neutral-800 p-6 rounded-xl border border-neutral-700 shadow-sm">
+            <h2 className="text-lg font-medium text-white mb-4">Add Material</h2>
             <form onSubmit={handleAdd} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <input required placeholder="Title / Description" value={title} onChange={e=>setTitle(e.target.value)} className="border border-neutral-300 rounded-md p-2 text-sm" />
-              <input required type="file" onChange={e => setFile(e.target.files?.[0] || null)} className="border border-neutral-300 rounded-md p-2 text-sm" />
+              <input required placeholder="Title / Description" value={title} onChange={e=>setTitle(e.target.value)} className="border border-neutral-600 rounded-md p-2 text-sm" />
+              <input required type="file" onChange={e => setFile(e.target.files?.[0] || null)} className="border border-neutral-600 rounded-md p-2 text-sm" />
               <button type="submit" disabled={uploading || !file} className="md:col-span-2 flex justify-center items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium disabled:opacity-50">
                 {uploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Plus className="w-4 h-4 mr-2" />} 
                 {uploading ? 'Uploading...' : 'Upload Material'}
@@ -90,28 +90,28 @@ export default function AdminMaterials() {
             </form>
           </div>
 
-          <div className="bg-white rounded-xl border border-neutral-200 shadow-sm overflow-hidden">
+          <div className="bg-neutral-800 rounded-xl border border-neutral-700 shadow-sm overflow-hidden overflow-x-auto">
             <table className="min-w-full divide-y divide-neutral-200">
-              <thead className="bg-neutral-50">
+              <thead className="bg-neutral-900">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase">Title</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase">Link</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase">Title</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase">Link</th>
                   <th className="px-6 py-3"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-200">
                 {materials.map(mat => (
                   <tr key={mat.id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-neutral-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
                       <div className="flex items-center"><FileDown className="w-4 h-4 mr-2 text-blue-500"/>{mat.title}</div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-indigo-600 hover:text-indigo-900"><a href={mat.fileUrl} target="_blank" rel="noreferrer">Download / View</a></td>
+                    <td className="px-6 py-4 text-sm text-blue-600 hover:text-blue-900"><a href={mat.fileUrl} target="_blank" rel="noreferrer">Download / View</a></td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <button onClick={() => handleDelete(mat.id)} className="text-red-600 hover:text-red-900"><Trash2 className="w-5 h-5"/></button>
                     </td>
                   </tr>
                 ))}
-                {materials.length === 0 && <tr><td colSpan={3} className="px-6 py-4 text-center text-sm text-neutral-500">No materials uploaded.</td></tr>}
+                {materials.length === 0 && <tr><td colSpan={3} className="px-6 py-4 text-center text-sm text-neutral-400">No materials uploaded.</td></tr>}
               </tbody>
             </table>
           </div>

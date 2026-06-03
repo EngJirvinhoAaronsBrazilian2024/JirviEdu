@@ -53,11 +53,11 @@ const RichTextEditor = ({ value, onChange, onFocus }: { value: string, onChange:
   };
 
   return (
-    <div className="border border-neutral-300 rounded-lg overflow-hidden bg-white flex flex-col">
-      <div className="flex flex-wrap gap-1 p-2 border-b border-neutral-300 bg-neutral-50 shadow-sm items-center">
+    <div className="border border-neutral-600 rounded-lg overflow-hidden bg-neutral-800 flex flex-col">
+      <div className="flex flex-wrap gap-1 p-2 border-b border-neutral-600 bg-neutral-900 shadow-sm items-center">
         <select 
           onChange={(e) => exec('fontSize', e.target.value)} 
-          className="p-1 border border-neutral-300 rounded bg-white text-sm focus:outline-none"
+          className="p-1 border border-neutral-600 rounded bg-neutral-800 text-sm focus:outline-none"
           defaultValue="3"
           title="Font Size"
         >
@@ -68,29 +68,29 @@ const RichTextEditor = ({ value, onChange, onFocus }: { value: string, onChange:
           <option value="5">Largest</option>
         </select>
         <div className="w-px h-6 bg-neutral-300 mx-1" />
-        <button type="button" onClick={() => exec('bold')} className="p-1.5 hover:bg-neutral-200 rounded text-neutral-700 font-bold" title="Bold">B</button>
-        <button type="button" onClick={() => exec('italic')} className="p-1.5 hover:bg-neutral-200 rounded text-neutral-700 italic font-serif" title="Italic">I</button>
-        <button type="button" onClick={() => exec('underline')} className="p-1.5 hover:bg-neutral-200 rounded text-neutral-700 underline" title="Underline">U</button>
+        <button type="button" onClick={() => exec('bold')} className="p-1.5 hover:bg-neutral-200 rounded text-neutral-200 font-bold" title="Bold">B</button>
+        <button type="button" onClick={() => exec('italic')} className="p-1.5 hover:bg-neutral-200 rounded text-neutral-200 italic font-serif" title="Italic">I</button>
+        <button type="button" onClick={() => exec('underline')} className="p-1.5 hover:bg-neutral-200 rounded text-neutral-200 underline" title="Underline">U</button>
         <div className="w-px h-6 bg-neutral-300 mx-1" />
-        <button type="button" onClick={() => exec('insertOrderedList')} className="p-1.5 hover:bg-neutral-200 rounded-md text-neutral-700 text-sm font-medium" title="Numbered List">1.</button>
-        <button type="button" onClick={() => exec('insertUnorderedList')} className="p-1.5 hover:bg-neutral-200 rounded-md text-neutral-700 text-sm font-medium" title="Bulleted List">•</button>
+        <button type="button" onClick={() => exec('insertOrderedList')} className="p-1.5 hover:bg-neutral-200 rounded-md text-neutral-200 text-sm font-medium" title="Numbered List">1.</button>
+        <button type="button" onClick={() => exec('insertUnorderedList')} className="p-1.5 hover:bg-neutral-200 rounded-md text-neutral-200 text-sm font-medium" title="Bulleted List">•</button>
         <div className="w-px h-6 bg-neutral-300 mx-1" />
-        <button type="button" onClick={() => exec('justifyLeft')} className="p-1.5 hover:bg-neutral-200 rounded-md text-neutral-700 text-sm font-medium" title="Align Left">Left</button>
-        <button type="button" onClick={() => exec('justifyCenter')} className="p-1.5 hover:bg-neutral-200 rounded-md text-neutral-700 text-sm font-medium" title="Align Center">Center</button>
+        <button type="button" onClick={() => exec('justifyLeft')} className="p-1.5 hover:bg-neutral-200 rounded-md text-neutral-200 text-sm font-medium" title="Align Left">Left</button>
+        <button type="button" onClick={() => exec('justifyCenter')} className="p-1.5 hover:bg-neutral-200 rounded-md text-neutral-200 text-sm font-medium" title="Align Center">Center</button>
         <div className="w-px h-6 bg-neutral-300 mx-1" />
         <div className="relative">
-          <button type="button" onClick={() => setShowTableMenu(!showTableMenu)} className="p-1.5 hover:bg-neutral-200 rounded-md text-neutral-700 text-sm font-medium" title="Insert Table">Table</button>
+          <button type="button" onClick={() => setShowTableMenu(!showTableMenu)} className="p-1.5 hover:bg-neutral-200 rounded-md text-neutral-200 text-sm font-medium" title="Insert Table">Table</button>
           
           {showTableMenu && (
-            <div className="absolute top-full mt-1 left-0 bg-white border border-neutral-200 shadow-lg rounded-md p-3 z-10 w-48">
+            <div className="absolute top-full mt-1 left-0 bg-neutral-800 border border-neutral-700 shadow-lg rounded-md p-3 z-10 w-48">
               <div className="flex flex-col space-y-2">
                 <div className="flex justify-between items-center">
-                  <label className="text-xs text-neutral-600 font-medium">Rows</label>
-                  <input type="number" min="1" max="20" value={tableRows} onChange={(e) => setTableRows(parseInt(e.target.value) || 1)} className="w-16 p-1 border border-neutral-300 rounded text-sm focus:outline-none focus:border-indigo-500" />
+                  <label className="text-xs text-neutral-300 font-medium">Rows</label>
+                  <input type="number" min="1" max="20" value={tableRows} onChange={(e) => setTableRows(parseInt(e.target.value) || 1)} className="w-16 p-1 border border-neutral-600 rounded text-sm focus:outline-none focus:border-blue-500" />
                 </div>
                 <div className="flex justify-between items-center">
-                  <label className="text-xs text-neutral-600 font-medium">Cols</label>
-                  <input type="number" min="1" max="20" value={tableCols} onChange={(e) => setTableCols(parseInt(e.target.value) || 1)} className="w-16 p-1 border border-neutral-300 rounded text-sm focus:outline-none focus:border-indigo-500" />
+                  <label className="text-xs text-neutral-300 font-medium">Cols</label>
+                  <input type="number" min="1" max="20" value={tableCols} onChange={(e) => setTableCols(parseInt(e.target.value) || 1)} className="w-16 p-1 border border-neutral-600 rounded text-sm focus:outline-none focus:border-blue-500" />
                 </div>
                 <button type="button" onClick={insertTable} className="w-full mt-2 py-1.5 bg-neutral-900 text-white rounded-md text-sm font-medium hover:bg-neutral-800 transition-colors">Insert</button>
               </div>
@@ -226,8 +226,8 @@ export default function StudentAssignments({ studentId }: { studentId: string })
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold text-neutral-900">Assignments</h1>
-        <p className="mt-1 text-sm text-neutral-500">View and submit coursework tasks.</p>
+        <h1 className="text-2xl font-bold text-white">Assignments</h1>
+        <p className="mt-1 text-sm text-neutral-400">View and submit coursework tasks.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -238,19 +238,19 @@ export default function StudentAssignments({ studentId }: { studentId: string })
 
           if (!isWriting && !isSubmitted) {
             return (
-              <div key={idx} className="bg-white rounded-xl border border-neutral-200 shadow-sm p-6 flex flex-col justify-between">
+              <div key={idx} className="bg-neutral-800 rounded-xl border border-neutral-700 shadow-sm p-6 flex flex-col justify-between">
                 <div>
-                  <h3 className="text-xl font-bold text-neutral-900 mb-4">{item.asn.title}</h3>
+                  <h3 className="text-xl font-bold text-white mb-4">{item.asn.title}</h3>
                   <div className="space-y-2 mb-6">
-                    <p className="text-sm text-neutral-600"><span className="font-semibold text-neutral-900">Name:</span> {item.mod.code}</p>
-                    <p className="text-sm text-neutral-600"><span className="font-semibold text-neutral-900">Date:</span> {new Date(item.asn.createdAt).toLocaleDateString()}</p>
-                    <p className="text-sm text-neutral-600"><span className="font-semibold text-neutral-900">Start Time:</span> {new Date(item.asn.createdAt).toLocaleTimeString()}</p>
-                    <p className="text-sm text-neutral-600"><span className="font-semibold text-neutral-900">End Time:</span> {new Date(item.asn.deadline).toLocaleString()}</p>
+                    <p className="text-sm text-neutral-300"><span className="font-semibold text-white">Name:</span> {item.mod.code}</p>
+                    <p className="text-sm text-neutral-300"><span className="font-semibold text-white">Date:</span> {new Date(item.asn.createdAt).toLocaleDateString()}</p>
+                    <p className="text-sm text-neutral-300"><span className="font-semibold text-white">Start Time:</span> {new Date(item.asn.createdAt).toLocaleTimeString()}</p>
+                    <p className="text-sm text-neutral-300"><span className="font-semibold text-white">End Time:</span> {new Date(item.asn.deadline).toLocaleString()}</p>
                   </div>
                 </div>
                 <button 
                   onClick={() => { setActiveSheet(item.asn.id); setAnswerText(''); setSubmitMenuOpen(null); }}
-                  className="w-full py-2 bg-indigo-600 text-white rounded-md text-sm font-medium hover:bg-indigo-700 transition flex justify-center items-center"
+                  className="w-full py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition flex justify-center items-center"
                 >
                   Start Assignment
                 </button>
@@ -259,34 +259,34 @@ export default function StudentAssignments({ studentId }: { studentId: string })
           }
 
           return (
-            <div key={idx} className="bg-white rounded-xl border border-neutral-200 shadow-sm overflow-hidden flex flex-col">
+            <div key={idx} className="bg-neutral-800 rounded-xl border border-neutral-700 shadow-sm overflow-hidden flex flex-col">
               <div className="p-6 flex-1">
                 <div className="flex justify-between items-start mb-4">
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                     {item.mod.code}
                   </span>
-                  <span className="text-sm font-bold text-neutral-900">{item.asn.marks} Marks</span>
+                  <span className="text-sm font-bold text-white">{item.asn.marks} Marks</span>
                 </div>
-                <h3 className="text-lg font-bold text-neutral-900 mb-2 flex items-center">
+                <h3 className="text-lg font-bold text-white mb-2 flex items-center">
                   <FileText className="w-5 h-5 mr-2 text-green-600" />
                   {item.asn.title}
                 </h3>
-                <p className="text-sm text-neutral-600 line-clamp-3 mb-4">{item.asn.description}</p>
+                <p className="text-sm text-neutral-300 line-clamp-3 mb-4">{item.asn.description}</p>
                 {item.asn.fileUrl && (
-                  <a href={item.asn.fileUrl} target="_blank" rel="noreferrer" className="text-sm text-indigo-600 hover:text-indigo-900 font-medium block mb-4">Download Assignment</a>
+                  <a href={item.asn.fileUrl} target="_blank" rel="noreferrer" className="text-sm text-blue-600 hover:text-blue-900 font-medium block mb-4">Download Assignment</a>
                 )}
                 
                 {item.sub && item.sub.grade !== undefined && (
-                  <div className="mt-4 p-3 bg-indigo-50 border border-indigo-100 rounded-lg mb-4">
-                    <p className="text-sm font-bold text-indigo-900">Grade: {item.sub.grade} / {item.asn.marks}</p>
-                    {item.sub.feedback && <p className="text-xs text-indigo-700 mt-1">Feedback: {item.sub.feedback}</p>}
+                  <div className="mt-4 p-3 bg-neutral-900 border border-blue-100 rounded-lg mb-4">
+                    <p className="text-sm font-bold text-blue-900">Grade: {item.sub.grade} / {item.asn.marks}</p>
+                    {item.sub.feedback && <p className="text-xs text-blue-700 mt-1">Feedback: {item.sub.feedback}</p>}
                   </div>
                 )}
                 
                 {isWriting && (
-                  <div className="mt-6 border-t border-neutral-200 pt-6 flex flex-col flex-1">
+                  <div className="mt-6 border-t border-neutral-700 pt-6 flex flex-col flex-1">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 space-y-4 sm:space-y-0 w-full relative">
-                      <span className="text-sm font-bold text-neutral-700">Online Answer Sheet</span>
+                      <span className="text-sm font-bold text-neutral-200">Online Answer Sheet</span>
                       
                       <div className="flex items-center space-x-2">
                         <div className="relative">
@@ -299,9 +299,9 @@ export default function StudentAssignments({ studentId }: { studentId: string })
                           </button>
                           
                           {submitMenuOpen === item.asn.id && (
-                            <div className="absolute right-0 top-full mt-2 bg-white border border-neutral-200 shadow-xl rounded-md p-2 z-20 w-56 flex flex-col space-y-1">
-                              <label className="cursor-pointer w-full text-left px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-100 rounded flex items-center">
-                                <Upload className="w-4 h-4 mr-2 text-neutral-500" />
+                            <div className="absolute right-0 top-full mt-2 bg-neutral-800 border border-neutral-700 shadow-xl rounded-md p-2 z-20 w-56 flex flex-col space-y-1">
+                              <label className="cursor-pointer w-full text-left px-3 py-2 text-sm text-neutral-200 hover:bg-neutral-800 rounded flex items-center">
+                                <Upload className="w-4 h-4 mr-2 text-neutral-400" />
                                 Upload AnswerSheet
                                 <input 
                                   type="file" 
@@ -323,21 +323,21 @@ export default function StudentAssignments({ studentId }: { studentId: string })
                                   setSubmitMenuOpen(null);
                                 }}
                                 disabled={uploading === item.asn.id || !answerText.trim()}
-                                className="w-full text-left px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-100 rounded disabled:opacity-50 flex items-center"
+                                className="w-full text-left px-3 py-2 text-sm text-neutral-200 hover:bg-neutral-800 rounded disabled:opacity-50 flex items-center"
                               >
-                                <Edit3 className="w-4 h-4 mr-2 text-neutral-500" />
+                                <Edit3 className="w-4 h-4 mr-2 text-neutral-400" />
                                 Submit Online Answers
                               </button>
                             </div>
                           )}
                         </div>
-                        <button onClick={() => {setActiveSheet(null); setAnswerText(''); setSubmitMenuOpen(null);}} className="p-2 border border-neutral-300 rounded-md text-neutral-500 hover:text-neutral-700 bg-white shadow-sm flex items-center justify-center h-[38px] w-[38px]" title="Close Editor">
+                        <button onClick={() => {setActiveSheet(null); setAnswerText(''); setSubmitMenuOpen(null);}} className="p-2 border border-neutral-600 rounded-md text-neutral-400 hover:text-neutral-200 bg-neutral-800 shadow-sm flex items-center justify-center h-[38px] w-[38px]" title="Close Editor">
                             <X className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
                     
-                    <div className="bg-white rounded-lg flex-1">
+                    <div className="bg-neutral-800 rounded-lg flex-1">
                       <RichTextEditor 
                         value={answerText}
                         onChange={setAnswerText}
@@ -349,13 +349,13 @@ export default function StudentAssignments({ studentId }: { studentId: string })
               </div>
               
               {!isWriting && item.sub && (
-                 <div className="px-6 py-4 bg-neutral-50 border-t border-neutral-100 flex items-center justify-between">
+                 <div className="px-6 py-4 bg-neutral-900 border-t border-neutral-100 flex items-center justify-between">
                    <div className="flex items-center text-green-600 text-sm font-medium">
                      <CheckCircle className="w-4 h-4 mr-1" /> Submitted
                      {item.sub.type === 'text' ? (
-                       <button onClick={() => setViewingSubmission(item.sub.content)} className="ml-2 text-indigo-600 hover:underline">View</button>
+                       <button onClick={() => setViewingSubmission(item.sub.content)} className="ml-2 text-blue-600 hover:underline">View</button>
                      ) : (
-                       <a href={item.sub.fileUrl} target="_blank" rel="noreferrer" className="ml-2 text-indigo-600 hover:underline">View</a>
+                       <a href={item.sub.fileUrl} target="_blank" rel="noreferrer" className="ml-2 text-blue-600 hover:underline">View</a>
                      )}
                    </div>
                  </div>
@@ -364,7 +364,7 @@ export default function StudentAssignments({ studentId }: { studentId: string })
           );
         })}
         {assignments.length === 0 && (
-          <div className="col-span-full bg-white p-8 rounded-xl border border-neutral-200 text-center text-neutral-500">
+          <div className="col-span-full bg-neutral-800 p-8 rounded-xl border border-neutral-700 text-center text-neutral-400">
             No assignments due.
           </div>
         )}
@@ -372,10 +372,10 @@ export default function StudentAssignments({ studentId }: { studentId: string })
 
       {viewingSubmission && (
         <div className="fixed inset-0 bg-neutral-900/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[80vh] flex flex-col">
-            <div className="p-4 border-b border-neutral-200 flex justify-between items-center">
-              <h3 className="font-bold text-neutral-900">Your Submitted Answer</h3>
-              <button onClick={() => setViewingSubmission(null)} className="text-neutral-500 hover:text-neutral-700">
+          <div className="bg-neutral-800 rounded-xl shadow-xl max-w-2xl w-full max-h-[80vh] flex flex-col">
+            <div className="p-4 border-b border-neutral-700 flex justify-between items-center">
+              <h3 className="font-bold text-white">Your Submitted Answer</h3>
+              <button onClick={() => setViewingSubmission(null)} className="text-neutral-400 hover:text-neutral-200">
                 Close
               </button>
             </div>

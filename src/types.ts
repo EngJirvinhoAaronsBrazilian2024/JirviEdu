@@ -11,6 +11,8 @@ export interface Student {
   email: string;
   course: string;
   status: 'active' | 'inactive';
+  photoUrl?: string;
+  password?: string;
   createdAt: number;
 }
 
