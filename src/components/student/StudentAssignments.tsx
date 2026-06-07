@@ -148,6 +148,7 @@ export default function StudentAssignments({ studentId }: { studentId: string })
   const [answerText, setAnswerText] = useState('');
   const [viewingSubmission, setViewingSubmission] = useState<string | null>(null);
   const [submitMenuOpen, setSubmitMenuOpen] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<{file: File, moduleId: string, assignmentId: string} | null>(null);
 
   useEffect(() => {
     if (!studentId) return;
@@ -407,7 +408,7 @@ export default function StudentAssignments({ studentId }: { studentId: string })
                                   accept=".pdf,.doc,.docx,.zip"
                                   onChange={(e) => {
                                     const file = e.target.files?.[0];
-                                    if (file) handleUpload(item.mod.id, item.asn.id, file);
+                                    if (file) setSelectedFile({ file, moduleId: item.mod.id, assignmentId: item.asn.id });
                                     e.target.value = '';
                                     setSubmitMenuOpen(null);
                                   }} 
@@ -434,6 +435,38 @@ export default function StudentAssignments({ studentId }: { studentId: string })
                         </button>
                       </div>
                     </div>
+                    
+                    {selectedFile?.assignmentId === item.asn.id && (
+                      <div className="mb-4 p-4 border border-blue-500/30 bg-blue-500/10 rounded-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div className="flex items-center space-x-3">
+                          <FileText className="w-5 h-5 text-blue-400" />
+                          <div>
+                            <p className="text-sm font-medium text-white">{selectedFile.file.name}</p>
+                            <p className="text-xs text-neutral-400">{(selectedFile.file.size / 1024 / 1024).toFixed(2)} MB</p>
+                          </div>
+                        </div>
+                        <div className="flex space-x-2">
+                          <button 
+                            onClick={() => setSelectedFile(null)} 
+                            disabled={uploading === item.asn.id}
+                            className="px-3 py-1.5 bg-neutral-800 text-white rounded hover:bg-neutral-700 text-sm disabled:opacity-50 transition-colors"
+                          >
+                            Cancel
+                          </button>
+                          <button 
+                            onClick={() => {
+                              handleUpload(selectedFile.moduleId, selectedFile.assignmentId, selectedFile.file);
+                              setSelectedFile(null);
+                            }} 
+                            disabled={uploading === item.asn.id}
+                            className="px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm flex items-center disabled:opacity-50 transition-colors"
+                          >
+                            {uploading === item.asn.id ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Send className="w-4 h-4 mr-2" />}
+                            Confirm Upload
+                          </button>
+                        </div>
+                      </div>
+                    )}
                     
                     <div className="bg-neutral-800 rounded-lg flex-1">
                       <RichTextEditor 
