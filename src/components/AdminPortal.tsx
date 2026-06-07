@@ -169,53 +169,77 @@ function AdminDashboard() {
 
   useEffect(() => {
     const fetchStats = async () => {
+      let stCount = 0;
+      let mCount = 0;
+      let assignmentsCount = 0;
+      let lecturesCount = 0;
+      const allSubs: any[] = [];
+
       try {
         const studentsSnap = await getDocs(collection(fbDb, 'students'));
+        stCount = studentsSnap.docs.length;
         const sMap: Record<string, string> = {};
         studentsSnap.docs.forEach(d => {
           sMap[d.id] = (d.data() as unknown as Record<string, any>).fullName || 'Unknown Student';
         });
         setStudentsMap(sMap);
+      } catch (err) {
+        console.error("Failed to fetch students in dashboard", err);
+      }
 
+      try {
         const modulesSnap = await getDocs(collection(fbDb, 'modules'));
+        mCount = modulesSnap.docs.length;
         
-        let assignmentsCount = 0;
-        let lecturesCount = 0;
-        const allSubs: any[] = [];
-
         for (const modDoc of modulesSnap.docs) {
           const modData = modDoc.data() as any;
-          const assignmentsSnap = await getDocs(collection(fbDb, `modules/${modDoc.id}/assignments`));
-          assignmentsCount += assignmentsSnap.docs.length;
+          try {
+            const assignmentsSnap = await getDocs(collection(fbDb, `modules/${modDoc.id}/assignments`));
+            assignmentsCount += assignmentsSnap.docs.length;
 
-          for (const aDoc of assignmentsSnap.docs) {
-            const aData = aDoc.data() as any;
-            const subsSnap = await getDocs(collection(fbDb, `modules/${modDoc.id}/assignments/${aDoc.id}/submissions`));
-            subsSnap.docs.forEach(subDoc => {
-               allSubs.push({
-                 id: subDoc.id,
-                 assignmentTitle: aData.title,
-                 moduleCode: modData.code,
-                 ...subDoc.data()
-               });
-            });
+            for (const aDoc of assignmentsSnap.docs) {
+              const aData = aDoc.data() as any;
+              try {
+                const subsSnap = await getDocs(collection(fbDb, `modules/${modDoc.id}/assignments/${aDoc.id}/submissions`));
+                subsSnap.docs.forEach(subDoc => {
+                   allSubs.push({
+                     id: subDoc.id,
+                     assignmentTitle: aData.title,
+                     moduleCode: modData.code,
+                     ...subDoc.data()
+                   });
+                });
+              } catch (subErr) {
+                console.error("Failed fetching submissions", subErr);
+              }
+            }
+          } catch (aErr) {
+            console.error("Failed fetching assignments", aErr);
           }
 
-          const lecturesSnap = await getDocs(collection(fbDb, `modules/${modDoc.id}/lectures`));
-          lecturesCount += lecturesSnap.docs.length;
+          try {
+            const lecturesSnap = await getDocs(collection(fbDb, `modules/${modDoc.id}/lectures`));
+            lecturesCount += lecturesSnap.docs.length;
+          } catch (lErr) {
+            console.error("Failed fetching lectures", lErr);
+          }
         }
+      } catch (err) {
+        console.error("Failed to fetch modules in dashboard", err);
+      }
 
-        allSubs.sort((a,b) => b.submittedAt - a.submittedAt);
+      try {
+        allSubs.sort((a,b) => (b.submittedAt || 0) - (a.submittedAt || 0));
         setRecentSubmissions(allSubs.slice(0, 10)); // Top 10 most recent
 
         setStats({
-          students: studentsSnap.docs.length,
-          modules: modulesSnap.docs.length,
+          students: stCount,
+          modules: mCount,
           assignments: assignmentsCount,
           lectures: lecturesCount
         });
       } catch (err) {
-        console.error("Failed to fetch dashboard stats", err);
+        console.error("Failed closing stats setup", err);
       }
     };
     fetchStats();
