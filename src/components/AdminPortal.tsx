@@ -164,23 +164,49 @@ function AdminDashboard() {
     assignments: 0,
     lectures: 0,
   });
+  const [recentSubmissions, setRecentSubmissions] = useState<any[]>([]);
+  const [studentsMap, setStudentsMap] = useState<Record<string, string>>({});
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
         const studentsSnap = await getDocs(collection(fbDb, 'students'));
+        const sMap: Record<string, string> = {};
+        studentsSnap.docs.forEach(d => {
+          sMap[d.id] = (d.data() as unknown as Record<string, any>).fullName || 'Unknown Student';
+        });
+        setStudentsMap(sMap);
+
         const modulesSnap = await getDocs(collection(fbDb, 'modules'));
         
         let assignmentsCount = 0;
         let lecturesCount = 0;
+        const allSubs: any[] = [];
 
         for (const modDoc of modulesSnap.docs) {
+          const modData = modDoc.data() as any;
           const assignmentsSnap = await getDocs(collection(fbDb, `modules/${modDoc.id}/assignments`));
           assignmentsCount += assignmentsSnap.docs.length;
+
+          for (const aDoc of assignmentsSnap.docs) {
+            const aData = aDoc.data() as any;
+            const subsSnap = await getDocs(collection(fbDb, `modules/${modDoc.id}/assignments/${aDoc.id}/submissions`));
+            subsSnap.docs.forEach(subDoc => {
+               allSubs.push({
+                 id: subDoc.id,
+                 assignmentTitle: aData.title,
+                 moduleCode: modData.code,
+                 ...subDoc.data()
+               });
+            });
+          }
 
           const lecturesSnap = await getDocs(collection(fbDb, `modules/${modDoc.id}/lectures`));
           lecturesCount += lecturesSnap.docs.length;
         }
+
+        allSubs.sort((a,b) => b.submittedAt - a.submittedAt);
+        setRecentSubmissions(allSubs.slice(0, 10)); // Top 10 most recent
 
         setStats({
           students: studentsSnap.docs.length,
@@ -277,6 +303,56 @@ function AdminDashboard() {
             </ResponsiveContainer>
           </div>
         </div>
+      </div>
+
+      {/* Submissions Section */}
+      <div className="bg-neutral-800 rounded-2xl p-6 md:p-8 shadow-sm border border-neutral-700/60 ring-1 ring-neutral-900/5">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-lg font-bold text-white">Recent Assignment Submissions</h2>
+          <span className="text-sm font-medium text-neutral-400">{recentSubmissions.length} submissions</span>
+        </div>
+        
+        {recentSubmissions.length === 0 ? (
+           <div className="py-8 text-center text-neutral-500 text-sm">No recent submissions found.</div>
+        ) : (
+          <div className="overflow-x-auto -mx-6 md:mx-0">
+            <div className="inline-block min-w-full align-middle md:px-0 px-6">
+              <table className="min-w-full divide-y divide-neutral-700">
+                <thead>
+                  <tr>
+                    <th scope="col" className="py-3 text-left text-xs font-semibold text-neutral-400 uppercase tracking-wider">Student</th>
+                    <th scope="col" className="py-3 text-left text-xs font-semibold text-neutral-400 uppercase tracking-wider">Assignment</th>
+                    <th scope="col" className="py-3 text-left text-xs font-semibold text-neutral-400 uppercase tracking-wider">Status</th>
+                    <th scope="col" className="py-3 text-right text-xs font-semibold text-neutral-400 uppercase tracking-wider">Time</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-neutral-700/50">
+                  {recentSubmissions.map((sub, i) => (
+                    <tr key={i} className="hover:bg-neutral-900/30 transition-colors">
+                      <td className="py-4 whitespace-nowrap text-sm">
+                        <div className="font-medium text-white">{studentsMap[sub.id] || sub.id}</div>
+                      </td>
+                      <td className="py-4 whitespace-nowrap text-sm text-neutral-300">
+                        <span className="font-medium">{sub.assignmentTitle}</span>
+                        <span className="text-xs text-neutral-500 ml-2">({sub.moduleCode})</span>
+                      </td>
+                      <td className="py-4 whitespace-nowrap text-sm">
+                         {sub.grade !== undefined ? (
+                           <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Graded</span>
+                         ) : (
+                           <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">Needs Grading</span>
+                         )}
+                      </td>
+                      <td className="py-4 whitespace-nowrap text-sm text-right text-neutral-400">
+                        {new Date(sub.submittedAt).toLocaleDateString()} {new Date(sub.submittedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
