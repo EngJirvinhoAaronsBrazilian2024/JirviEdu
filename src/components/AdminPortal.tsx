@@ -406,15 +406,7 @@ function StudentManagement() {
     setCreating(true);
     try {
       const email = `${newReg.toLowerCase().replace(/\s+/g, '')}@student.jirvi.edu`;
-      let docRef;
-      
-      if (editingId) {
-        docRef = doc(fbDb, 'students', editingId);
-      } else {
-        docRef = doc(collection(fbDb, 'students'));
-      }
-      
-      const uid = docRef.id;
+      const uid = editingId || crypto.randomUUID();
 
       const studentData: any = {
         regNumber: newReg,

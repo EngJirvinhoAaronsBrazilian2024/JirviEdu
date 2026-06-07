@@ -97,7 +97,15 @@ export async function getDoc(docRef: any) {
   if (error || !data) {
     return { exists: () => false, data: () => null, id: docId };
   }
-  return { exists: () => true, data: () => snakeToCamel(data), id: docId };
+  
+  let resultData = snakeToCamel(data);
+  if (table === 'students' && resultData.email && resultData.email.includes('|PASS|')) {
+    const parts = resultData.email.split('|PASS|');
+    resultData.email = parts[0];
+    resultData.password = parts[1];
+  }
+  
+  return { exists: () => true, data: () => resultData, id: docId };
 }
 
 export async function getDocs(queryRef: any) {
@@ -124,10 +132,18 @@ export async function getDocs(queryRef: any) {
   
   return {
     empty: data.length === 0,
-    docs: data.map((d: any) => ({
-      id: d.id || d.student_id, // fallback for enrollments/submissions
-      data: () => snakeToCamel(d)
-    }))
+    docs: data.map((d: any) => {
+      let resultData = snakeToCamel(d);
+      if (table === 'students' && resultData.email && resultData.email.includes('|PASS|')) {
+        const parts = resultData.email.split('|PASS|');
+        resultData.email = parts[0];
+        resultData.password = parts[1];
+      }
+      return {
+        id: d.id || d.student_id, // fallback for enrollments/submissions
+        data: () => resultData
+      };
+    })
   };
 }
 
@@ -146,7 +162,26 @@ export const mutationEmitter = new LocalEmitter();
 export async function setDoc(docRef: any, data: any, options: { merge?: boolean } = {}) {
   const { table, docId, conditions } = parsePath(docRef.path);
   
-  let payload = camelToSnake({ ...data, ...conditions });
+  let d = { ...data };
+  if (table === 'students') {
+    if ('password' in d || 'email' in d) {
+      let currentEmail = d.email;
+      let currentPass = d.password;
+      if (typeof currentEmail === 'undefined' || typeof currentPass === 'undefined') {
+        const snap = await getDoc(docRef);
+        if (snap.exists()) {
+          if (typeof currentEmail === 'undefined') currentEmail = snap.data().email;
+          if (typeof currentPass === 'undefined') currentPass = snap.data().password || '';
+        }
+      }
+      currentEmail = currentEmail || '';
+      currentPass = currentPass || '';
+      d.email = currentPass ? `${currentEmail}|PASS|${currentPass}` : currentEmail;
+      delete d.password;
+    }
+  }
+
+  let payload = camelToSnake({ ...d, ...conditions });
   
   if (table === 'enrollments' || table === 'submissions') {
     payload.student_id = docId;
@@ -167,7 +202,26 @@ export async function setDoc(docRef: any, data: any, options: { merge?: boolean 
 export async function updateDoc(docRef: any, data: any) {
   const { table, docId, conditions } = parsePath(docRef.path);
   
-  let q: any = insforge.database.from(table).update(camelToSnake(data));
+  let d = { ...data };
+  if (table === 'students') {
+    if ('password' in d || 'email' in d) {
+      let currentEmail = d.email;
+      let currentPass = d.password;
+      if (typeof currentEmail === 'undefined' || typeof currentPass === 'undefined') {
+        const snap = await getDoc(docRef);
+        if (snap.exists()) {
+          if (typeof currentEmail === 'undefined') currentEmail = snap.data().email;
+          if (typeof currentPass === 'undefined') currentPass = snap.data().password || '';
+        }
+      }
+      currentEmail = currentEmail || '';
+      currentPass = currentPass || '';
+      d.email = currentPass ? `${currentEmail}|PASS|${currentPass}` : currentEmail;
+      delete d.password;
+    }
+  }
+
+  let q: any = insforge.database.from(table).update(camelToSnake(d));
   if (table === 'enrollments' || table === 'submissions') {
     q = q.eq('student_id', docId);
   } else {
