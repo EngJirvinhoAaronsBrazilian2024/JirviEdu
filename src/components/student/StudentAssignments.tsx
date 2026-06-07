@@ -1,8 +1,37 @@
 import React, { useState, useEffect } from 'react';
-import { db } from '../../lib/firebase';
-import { collection, query, getDocs, doc, setDoc, getDoc } from 'firebase/firestore';
+import { db, collection, query, getDocs, doc, setDoc, getDoc, storage, ref, uploadBytes, getDownloadURL, mutationEmitter } from '../../lib/db';
 import { FileText, Clock, Upload, CheckCircle, Loader2, Edit3, X, Send } from 'lucide-react';
+import clsx from 'clsx';
 import { Module } from '../../types';
+
+const CountdownTimer = ({ targetTime, onExpire }: { targetTime: number, onExpire?: () => void }) => {
+  const [timeLeft, setTimeLeft] = useState(targetTime - Date.now());
+  const onExpireRef = React.useRef(onExpire);
+  
+  useEffect(() => {
+    onExpireRef.current = onExpire;
+  }, [onExpire]);
+
+  useEffect(() => {
+    const int = setInterval(() => {
+      const remaining = targetTime - Date.now();
+      setTimeLeft(remaining);
+      if (remaining <= 0) {
+        clearInterval(int);
+        if (onExpireRef.current) onExpireRef.current();
+      }
+    }, 1000);
+    return () => clearInterval(int);
+  }, [targetTime]);
+
+  if (timeLeft <= 0) return <span>00:00:00</span>;
+
+  const m = Math.floor(timeLeft / 1000 / 60);
+  const s = Math.floor((timeLeft / 1000) % 60);
+  const h = Math.floor(m / 60);
+  const mm = m % 60;
+  return <span>{h.toString().padStart(2, '0')}:{mm.toString().padStart(2, '0')}:{s.toString().padStart(2, '0')}</span>;
+};
 
 const RichTextEditor = ({ value, onChange, onFocus }: { value: string, onChange: (v: string) => void, onFocus?: () => void }) => {
   const editorRef = React.useRef<HTMLDivElement>(null);
@@ -122,30 +151,71 @@ export default function StudentAssignments({ studentId }: { studentId: string })
 
   useEffect(() => {
     if (!studentId) return;
+    
+    let isMounted = true;
+    let isFetching = false;
+    let lastHash = '';
+    
     const fetchAssignments = async () => {
-      const q = query(collection(db, 'modules'));
-      const snap = await getDocs(q);
-      const mods = snap.docs.map(d => ({ id: d.id, ...d.data() } as Module));
+      if (isFetching) return;
+      isFetching = true;
+      try {
+        const q = query(collection(db, 'modules'));
+        const snap = await getDocs(q);
+        if (!isMounted) return;
+        
+        const mods = snap.docs.map(d => ({ id: d.id, ...d.data() } as Module));
 
-      const allAsn: {mod: Module, asn: any, sub: any | null}[] = [];
-      for (const m of mods) {
-        const asnSnap = await getDocs(collection(db, `modules/${m.id}/assignments`));
-        for (const asnDoc of asnSnap.docs) {
-          const asnData = { id: asnDoc.id, ...asnDoc.data() };
-          // Check for submission
-          const subDocRef = doc(db, `modules/${m.id}/assignments/${asnDoc.id}/submissions`, studentId);
-          const subDocSnap = await getDoc(subDocRef);
-          
-          allAsn.push({ 
-            mod: m, 
-            asn: asnData,
-            sub: subDocSnap.exists() ? subDocSnap.data() : null
-          });
+        const enrolledMods: Module[] = [];
+        for (const m of mods) {
+          const docRef = doc(db, `modules/${m.id}/enrollments`, studentId);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            enrolledMods.push(m);
+          }
         }
+
+        const allAsn: {mod: Module, asn: any, sub: any | null}[] = [];
+        for (const m of enrolledMods) {
+          const asnSnap = await getDocs(collection(db, `modules/${m.id}/assignments`));
+          for (const asnDoc of asnSnap.docs) {
+            const asnData = { id: asnDoc.id, ...asnDoc.data() };
+            // Check for submission
+            const subDocRef = doc(db, `modules/${m.id}/assignments/${asnDoc.id}/submissions`, studentId);
+            const subDocSnap = await getDoc(subDocRef);
+            
+            allAsn.push({ 
+              mod: m, 
+              asn: asnData,
+              sub: subDocSnap.exists() ? subDocSnap.data() : null
+            });
+          }
+        }
+        
+        if (!isMounted) return;
+        
+        const sorted = allAsn.sort((a,b) => a.asn.deadline - b.asn.deadline);
+        const newHash = JSON.stringify(sorted);
+        if (newHash !== lastHash) {
+          setAssignments(sorted);
+          lastHash = newHash;
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        isFetching = false;
       }
-      setAssignments(allAsn.sort((a,b) => a.asn.deadline - b.asn.deadline));
     };
+    
     fetchAssignments();
+    const interval = setInterval(fetchAssignments, 3000);
+    const unsub = mutationEmitter.subscribe(fetchAssignments);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+      unsub();
+    };
   }, [studentId]);
 
   const handleUpload = async (moduleId: string, assignmentId: string, file: File) => {
@@ -153,16 +223,9 @@ export default function StudentAssignments({ studentId }: { studentId: string })
     setUploading(assignmentId);
     
     try {
-      if (file.size > 800 * 1024) {
-        throw new Error("File is too large. Please select a file smaller than 800KB.");
-      }
-      
-      const fileUrl = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result as string);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
+      const fileRef = ref(storage, `submissions/${moduleId}_${assignmentId}_${studentId}_${file.name}`);
+      await uploadBytes(fileRef, file);
+      const fileUrl = await getDownloadURL(fileRef);
 
       const subRef = doc(db, `modules/${moduleId}/assignments/${assignmentId}/submissions`, studentId);
       const subData = {
@@ -232,9 +295,15 @@ export default function StudentAssignments({ studentId }: { studentId: string })
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {assignments.map((item, idx) => {
-          const isOverdue = item.asn.deadline < Date.now() && !item.sub;
           const isWriting = activeSheet === item.asn.id;
           const isSubmitted = !!item.sub;
+          
+          let data = { text: item.asn.description, start: item.asn.createdAt || Date.now() };
+          if (typeof item.asn.description === 'string' && item.asn.description.startsWith('{')) {
+            try { data = JSON.parse(item.asn.description); } catch(e) {}
+          }
+          const hasStarted = Date.now() >= data.start;
+          const hasEnded = Date.now() > item.asn.deadline;
 
           if (!isWriting && !isSubmitted) {
             return (
@@ -242,24 +311,39 @@ export default function StudentAssignments({ studentId }: { studentId: string })
                 <div>
                   <h3 className="text-xl font-bold text-white mb-4">{item.asn.title}</h3>
                   <div className="space-y-2 mb-6">
-                    <p className="text-sm text-neutral-300"><span className="font-semibold text-white">Name:</span> {item.mod.code}</p>
-                    <p className="text-sm text-neutral-300"><span className="font-semibold text-white">Date:</span> {new Date(item.asn.createdAt).toLocaleDateString()}</p>
-                    <p className="text-sm text-neutral-300"><span className="font-semibold text-white">Start Time:</span> {new Date(item.asn.createdAt).toLocaleTimeString()}</p>
-                    <p className="text-sm text-neutral-300"><span className="font-semibold text-white">End Time:</span> {new Date(item.asn.deadline).toLocaleString()}</p>
+                    <p className="text-sm text-neutral-300"><span className="font-semibold text-white">Module:</span> {item.mod.code}</p>
+                    <p className="text-sm text-neutral-300"><span className="font-semibold text-white">Start Time:</span> {new Date(data.start).toLocaleString()}</p>
+                    <p className="text-sm text-neutral-300"><span className="font-semibold text-white">End Time (Deadline):</span> {new Date(item.asn.deadline).toLocaleString()}</p>
                   </div>
                 </div>
-                <button 
-                  onClick={() => { setActiveSheet(item.asn.id); setAnswerText(''); setSubmitMenuOpen(null); }}
-                  className="w-full py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition flex justify-center items-center"
-                >
-                  Start Assignment
-                </button>
+                {!hasStarted ? (
+                  <button 
+                    disabled
+                    className="w-full py-2 bg-neutral-700 text-neutral-300 rounded-md text-sm font-medium flex justify-center items-center opacity-70 cursor-not-allowed"
+                  >
+                    <Clock className="w-4 h-4 mr-2" /> Starts in: <span className="ml-1 font-mono font-bold"><CountdownTimer targetTime={data.start} /></span>
+                  </button>
+                ) : hasEnded ? (
+                  <button 
+                    disabled
+                    className="w-full py-2 bg-neutral-700 text-red-400 rounded-md text-sm font-medium flex justify-center items-center opacity-70 cursor-not-allowed"
+                  >
+                    Deadline Passed
+                  </button>
+                ) : (
+                  <button 
+                    onClick={() => { setActiveSheet(item.asn.id); setAnswerText(''); setSubmitMenuOpen(null); }}
+                    className="w-full py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition flex justify-center items-center"
+                  >
+                    Start Assignment
+                  </button>
+                )}
               </div>
             );
           }
 
           return (
-            <div key={idx} className="bg-neutral-800 rounded-xl border border-neutral-700 shadow-sm overflow-hidden flex flex-col">
+            <div key={idx} className={clsx("bg-neutral-800 rounded-xl border border-neutral-700 shadow-sm overflow-hidden flex flex-col", isWriting && "md:col-span-2")}>
               <div className="p-6 flex-1">
                 <div className="flex justify-between items-start mb-4">
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
@@ -271,7 +355,7 @@ export default function StudentAssignments({ studentId }: { studentId: string })
                   <FileText className="w-5 h-5 mr-2 text-green-600" />
                   {item.asn.title}
                 </h3>
-                <p className="text-sm text-neutral-300 line-clamp-3 mb-4">{item.asn.description}</p>
+                <p className="text-sm text-neutral-300 line-clamp-3 mb-4">{data.text}</p>
                 {item.asn.fileUrl && (
                   <a href={item.asn.fileUrl} target="_blank" rel="noreferrer" className="text-sm text-blue-600 hover:text-blue-900 font-medium block mb-4">Download Assignment</a>
                 )}
@@ -286,7 +370,21 @@ export default function StudentAssignments({ studentId }: { studentId: string })
                 {isWriting && (
                   <div className="mt-6 border-t border-neutral-700 pt-6 flex flex-col flex-1">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 space-y-4 sm:space-y-0 w-full relative">
-                      <span className="text-sm font-bold text-neutral-200">Online Answer Sheet</span>
+                      <div className="flex items-center space-x-4">
+                        <span className="text-sm font-bold text-neutral-200">Online Answer Sheet</span>
+                        <div className="flex items-center space-x-2 text-red-500 bg-red-500/10 px-3 py-1.5 rounded border border-red-500/20 shadow-sm" title="Time Remaining">
+                          <Clock className="w-4 h-4 ml-1" />
+                          <CountdownTimer targetTime={item.asn.deadline} onExpire={() => {
+                            if (answerText.trim() && !uploading) {
+                               alert("Time is up! Your answers are being automatically submitted.");
+                               handleOnlineSubmit(item.mod.id, item.asn.id, answerText);
+                            } else {
+                               alert("Time is up! You are being logged out of this assignment.");
+                               setActiveSheet(null);
+                            }
+                          }} />
+                        </div>
+                      </div>
                       
                       <div className="flex items-center space-x-2">
                         <div className="relative">
@@ -380,7 +478,7 @@ export default function StudentAssignments({ studentId }: { studentId: string })
               </button>
             </div>
             <div 
-              className="p-6 overflow-y-auto w-full prose text-sm text-neutral-800 font-medium"
+              className="p-6 overflow-y-auto w-full prose text-sm text-neutral-200 font-medium prose-invert"
               dangerouslySetInnerHTML={{ __html: viewingSubmission }}
             />
           </div>

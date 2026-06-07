@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { db } from '../../lib/firebase';
-import { collection, query, getDocs } from 'firebase/firestore';
+import { db } from '../../lib/db';
+import { collection, query, getDocs, doc, getDoc, mutationEmitter } from '../../lib/db';
 import { FileDown, BookOpen } from 'lucide-react';
 import { Module } from '../../types';
 
@@ -8,22 +8,61 @@ export default function StudentMaterials({ studentId }: { studentId: string }) {
   const [materials, setMaterials] = useState<{mod: Module, mat: any}[]>([]);
 
   useEffect(() => {
+    let isMounted = true;
+    let isFetching = false;
+    let lastHash = '';
+    
     const fetchMaterials = async () => {
-      const q = query(collection(db, 'modules'));
-      const snap = await getDocs(q);
-      const mods = snap.docs.map(d => ({ id: d.id, ...d.data() } as Module));
+      if (isFetching) return;
+      isFetching = true;
+      try {
+        const q = query(collection(db, 'modules'));
+        const snap = await getDocs(q);
+        if (!isMounted) return;
+        const mods = snap.docs.map(d => ({ id: d.id, ...d.data() } as Module));
 
-      const allMats: {mod: Module, mat: any}[] = [];
-      for (const m of mods) {
-        const matSnap = await getDocs(collection(db, `modules/${m.id}/learningMaterials`));
-        matSnap.docs.forEach(d => {
-          allMats.push({ mod: m, mat: { id: d.id, ...d.data() } });
-        });
+        const enrolledMods: Module[] = [];
+        if (studentId) {
+          for (const m of mods) {
+            const docRef = doc(db, `modules/${m.id}/enrollments`, studentId);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+              enrolledMods.push(m);
+            }
+          }
+        }
+
+        const allMats: {mod: Module, mat: any}[] = [];
+        for (const m of enrolledMods) {
+          const matSnap = await getDocs(collection(db, `modules/${m.id}/learningMaterials`));
+          matSnap.docs.forEach(d => {
+            allMats.push({ mod: m, mat: { id: d.id, ...d.data() } });
+          });
+        }
+        
+        if (!isMounted) return;
+        const newHash = JSON.stringify(allMats);
+        if (newHash !== lastHash) {
+          setMaterials(allMats);
+          lastHash = newHash;
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        isFetching = false;
       }
-      setMaterials(allMats);
     };
+    
     fetchMaterials();
-  }, []);
+    const interval = setInterval(fetchMaterials, 3000);
+    const unsub = mutationEmitter.subscribe(fetchMaterials);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+      unsub();
+    };
+  }, [studentId]);
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { db } from '../../lib/firebase';
-import { collection, query, onSnapshot, getDocs } from 'firebase/firestore';
+import { db } from '../../lib/db';
+import { collection, query, getDocs, doc, getDoc, mutationEmitter } from '../../lib/db';
 import { Video, Calendar as CalendarIcon } from 'lucide-react';
 import { Module } from '../../types';
 
@@ -9,24 +9,63 @@ export default function StudentLectures({ studentId }: { studentId: string }) {
   const [lectures, setLectures] = useState<{mod: Module, lec: any}[]>([]);
 
   useEffect(() => {
+    let isMounted = true;
+    let isFetching = false;
+    let lastHash = '';
+    
     const fetchLectures = async () => {
-      const q = query(collection(db, 'modules'));
-      const snap = await getDocs(q);
-      const mods = snap.docs.map(d => ({ id: d.id, ...d.data() } as Module));
-      setModules(mods);
+      if (isFetching) return;
+      isFetching = true;
+      try {
+        const q = query(collection(db, 'modules'));
+        const snap = await getDocs(q);
+        if (!isMounted) return;
+        
+        const mods = snap.docs.map(d => ({ id: d.id, ...d.data() } as Module));
+        
+        const enrolledMods: Module[] = [];
+        for (const m of mods) {
+          const docRef = doc(db, `modules/${m.id}/enrollments`, studentId);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            enrolledMods.push(m);
+          }
+        }
+        
+        setModules(enrolledMods);
 
-      const allLecs: {mod: Module, lec: any}[] = [];
-      for (const m of mods) {
-        const lecsSnap = await getDocs(collection(db, `modules/${m.id}/lectures`));
-        lecsSnap.docs.forEach(d => {
-          allLecs.push({ mod: m, lec: { id: d.id, ...d.data() } });
-        });
+        const allLecs: {mod: Module, lec: any}[] = [];
+        for (const m of enrolledMods) {
+          const lecsSnap = await getDocs(collection(db, `modules/${m.id}/lectures`));
+          lecsSnap.docs.forEach(d => {
+            allLecs.push({ mod: m, lec: { id: d.id, ...d.data() } });
+          });
+        }
+        
+        if (!isMounted) return;
+        
+        const newHash = JSON.stringify(allLecs);
+        if (newHash !== lastHash) {
+          setLectures(allLecs);
+          lastHash = newHash;
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        isFetching = false;
       }
-      // Sort by date/time ideally, simplified here
-      setLectures(allLecs);
     };
+    
     fetchLectures();
-  }, []);
+    const interval = setInterval(fetchLectures, 3000);
+    const unsub = mutationEmitter.subscribe(fetchLectures);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+      unsub();
+    };
+  }, [studentId]);
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
@@ -52,9 +91,22 @@ export default function StudentLectures({ studentId }: { studentId: string }) {
                 <CalendarIcon className="w-4 h-4 mr-2" />
                 {item.lec.date} at {item.lec.time}
               </div>
-              <a href={item.lec.meetLink} target="_blank" rel="noreferrer" className="w-full flex justify-center items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium transition-colors">
-                Join Class
-              </a>
+              {(() => {
+                const lecDate = new Date(`${item.lec.date}T${item.lec.time}`).getTime();
+                const now = Date.now();
+                if (lecDate > now) {
+                   return (
+                     <button disabled className="w-full flex justify-center items-center px-4 py-2 bg-neutral-700 text-neutral-400 rounded-md text-sm font-medium transition-colors opacity-70 cursor-not-allowed">
+                       Starts later
+                     </button>
+                   );
+                }
+                return (
+                  <a href={item.lec.meetLink} target="_blank" rel="noreferrer" className="w-full flex justify-center items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium transition-colors">
+                    Join Class
+                  </a>
+                );
+              })()}
             </div>
           </div>
         ))}

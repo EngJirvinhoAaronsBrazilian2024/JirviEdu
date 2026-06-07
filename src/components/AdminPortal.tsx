@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
-import { db } from '../lib/firebase';
-import { collection, getDocs, doc, setDoc, query, onSnapshot } from 'firebase/firestore';
+import { db } from '../lib/db';
+import { collection, getDocs, doc, setDoc, deleteDoc, query, onSnapshot } from '../lib/db';
 import { 
   LayoutDashboard, Users, BookOpen, Video, FileText, 
   Settings, LogOut, Menu, X, Calendar, FileDown, Plus
@@ -10,11 +10,13 @@ import clsx from 'clsx';
 import { handleFirestoreError, OperationType } from '../lib/error-handler';
 import { Student, Module } from '../types';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip } from 'recharts';
+import ThemeToggle from './ThemeToggle';
 
 import AdminModules from './admin/AdminModules';
 import AdminLectures from './admin/AdminLectures';
 import AdminAssignments from './admin/AdminAssignments';
 import AdminMaterials from './admin/AdminMaterials';
+import Timetable from './Timetable';
 
 export default function AdminPortal({ setRole }: { setRole: (role: string | null) => void }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -129,17 +131,24 @@ export default function AdminPortal({ setRole }: { setRole: (role: string | null
             <Menu className="h-6 w-6" />
           </button>
           <span className="font-bold text-white tracking-tight">JIRVI EDU ADMIN</span>
-          <div className="w-6" />
+          <ThemeToggle />
         </div>
 
-        <main className="flex-1 p-6 lg:p-8">
+        {/* Desktop Header Theme Toggle */}
+        <div className="hidden lg:flex justify-end p-4 absolute top-0 right-0 w-full z-10 pointer-events-none">
+          <div className="pointer-events-auto">
+            <ThemeToggle />
+          </div>
+        </div>
+
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 w-full max-w-full overflow-x-hidden">
           <Routes>
             <Route path="/" element={<AdminDashboard />} />
             <Route path="/students" element={<StudentManagement />} />
             <Route path="/modules" element={<AdminModules />} />
             <Route path="/lectures" element={<AdminLectures />} />
             <Route path="/assignments" element={<AdminAssignments />} />
-            <Route path="/timetable" element={<div className="max-w-5xl mx-auto p-6 bg-neutral-800 rounded-xl shadow-sm border border-neutral-700"><h2 className="text-xl font-bold mb-2">Timetable</h2><p className="text-neutral-400">The timetable is automatically generated from scheduled Lectures. Go to the Lectures tab to schedule new classes.</p></div>} />
+            <Route path="/timetable" element={<Timetable />} />
             <Route path="/materials" element={<AdminMaterials />} />
           </Routes>
         </main>
@@ -273,12 +282,13 @@ function AdminDashboard() {
   );
 }
 
-import { db as fbDb } from '../lib/firebase';
+import { db as fbDb } from '../lib/db';
 
 function StudentManagement() {
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [newReg, setNewReg] = useState('');
   const [newName, setNewName] = useState('');
   const [newCourse, setNewCourse] = useState('');
@@ -297,31 +307,54 @@ function StudentManagement() {
     return () => unsubscribe();
   }, []);
 
-  const handleAddStudent = async (e: React.FormEvent) => {
+  const openAddModal = () => {
+    setEditingId(null);
+    setNewReg('');
+    setNewName('');
+    setNewCourse('');
+    setNewPassword('');
+    setModalOpen(true);
+  };
+
+  const openEditModal = (student: Student) => {
+    setEditingId(student.id);
+    setNewReg(student.regNumber);
+    setNewName(student.fullName);
+    setNewCourse(student.course);
+    setNewPassword('');
+    setModalOpen(true);
+  };
+
+  const handleSaveStudent = async (e: React.FormEvent) => {
     e.preventDefault();
     setCreating(true);
     try {
       const email = `${newReg.toLowerCase().replace(/\s+/g, '')}@student.jirvi.edu`;
-      const uid = `stu_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+      const uid = editingId || crypto.randomUUID();
 
-      // Create the Firestore document directly
-      await setDoc(doc(fbDb, 'students', uid), {
+      const studentData = {
         regNumber: newReg,
         fullName: newName,
         email: email,
         course: newCourse,
         status: 'active',
         createdAt: Date.now()
+      };
+
+      await setDoc(doc(fbDb, 'students', uid), studentData);
+
+      setStudents(prev => {
+        if (editingId) {
+          return prev.map(s => s.id === uid ? { ...s, ...studentData } : s);
+        } else {
+          return [...prev, { id: uid, ...studentData } as Student];
+        }
       });
 
       setModalOpen(false);
-      setNewReg('');
-      setNewName('');
-      setNewCourse('');
-      setNewPassword('');
     } catch (err: any) {
       console.error(err);
-      alert("Error creating student. See console.");
+      alert("Error saving student. See console.");
     } finally {
       setCreating(false);
     }
@@ -333,12 +366,12 @@ function StudentManagement() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/60 p-4">
           <div className="bg-neutral-800 rounded-xl shadow-xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh]">
             <div className="px-6 py-4 border-b border-neutral-700 flex justify-between items-center bg-neutral-900 shrink-0">
-              <h3 className="text-lg font-medium text-white">Add New Student</h3>
+              <h3 className="text-lg font-medium text-white">{editingId ? 'Edit Student' : 'Add New Student'}</h3>
               <button onClick={() => setModalOpen(false)} className="text-neutral-400 hover:text-neutral-400">
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <form onSubmit={handleAddStudent} className="p-6 space-y-4 overflow-y-auto">
+            <form onSubmit={handleSaveStudent} className="p-6 space-y-4 overflow-y-auto">
               <div>
                 <label className="block text-sm font-medium text-neutral-200">Registration Number</label>
                 <input required value={newReg} onChange={e=>setNewReg(e.target.value)} type="text" className="mt-1 block w-full rounded-md border-neutral-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2" placeholder="e.g. REG12345" />
@@ -372,7 +405,7 @@ function StudentManagement() {
           <p className="mt-1 text-sm text-neutral-400">Manage student accounts, registration, and access limits.</p>
         </div>
         <div className="mt-4 sm:mt-0">
-          <button onClick={() => setModalOpen(true)} className="flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+          <button onClick={openAddModal} className="flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
             <Plus className="w-4 h-4 mr-2" /> Add Student
           </button>
         </div>
@@ -407,8 +440,18 @@ function StudentManagement() {
                     {student.status}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <button className="text-blue-600 hover:text-blue-900">Edit</button>
+                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
+                  <button onClick={() => openEditModal(student)} className="text-blue-600 hover:text-blue-900">Edit</button>
+                  <button onClick={async () => {
+                    if (confirm('Delete this student?')) {
+                      try {
+                        await deleteDoc(doc(fbDb, 'students', student.id));
+                        setStudents(prev => prev.filter(s => s.id !== student.id));
+                      } catch (err) {
+                        alert('Failed to delete student');
+                      }
+                    }
+                  }} className="text-red-600 hover:text-red-900">Delete</button>
                 </td>
               </tr>
             ))}

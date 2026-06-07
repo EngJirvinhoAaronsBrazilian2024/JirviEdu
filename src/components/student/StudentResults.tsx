@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { db } from '../../lib/firebase';
-import { collection, query, getDocs, doc, getDoc } from 'firebase/firestore';
+import { db } from '../../lib/db';
+import { collection, query, getDocs, doc, getDoc, mutationEmitter } from '../../lib/db';
 import { Award, FileText, CheckCircle, Printer, BookOpen } from 'lucide-react';
 import { Module, Student } from '../../types';
 
@@ -10,10 +10,18 @@ export default function StudentResults({ student }: { student: Student | null })
 
   useEffect(() => {
     if (!student?.id) return;
+    
+    let isMounted = true;
+    let isFetching = false;
+    let lastHash = '';
+    
     const fetchResults = async () => {
+      if (isFetching) return;
+      isFetching = true;
       try {
         const q = query(collection(db, 'modules'));
         const snap = await getDocs(q);
+        if (!isMounted) return;
         const mods = snap.docs.map(d => ({ id: d.id, ...d.data() } as Module));
 
         const gradedSubmissions: {mod: Module, asn: any, sub: any}[] = [];
@@ -38,14 +46,31 @@ export default function StudentResults({ student }: { student: Student | null })
             }
           }
         }
-        setResults(gradedSubmissions.sort((a,b) => b.sub.submittedAt - a.sub.submittedAt));
+        if (!isMounted) return;
+        
+        const sorted = gradedSubmissions.sort((a,b) => b.sub.submittedAt - a.sub.submittedAt);
+        const newHash = JSON.stringify(sorted);
+        if (newHash !== lastHash) {
+          setResults(sorted);
+          lastHash = newHash;
+        }
       } catch (err) {
         console.error(err);
       } finally {
-        setLoading(false);
+        isFetching = false;
+        if (isMounted) setLoading(false);
       }
     };
+    
     fetchResults();
+    const interval = setInterval(fetchResults, 3000);
+    const unsub = mutationEmitter.subscribe(fetchResults);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+      unsub();
+    };
   }, [student?.id]);
 
   const handlePrint = () => {

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { db } from '../../lib/firebase';
-import { collection, query, onSnapshot, doc, setDoc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { db, collection, query, onSnapshot, doc, setDoc, deleteDoc, updateDoc, storage, ref, uploadBytes, getDownloadURL } from '../../lib/db';
 import { Plus, Trash2, FileText, Loader2, Users, CheckCircle, ChevronLeft } from 'lucide-react';
 import { Module } from '../../types';
 
@@ -12,6 +11,7 @@ export default function AdminAssignments() {
 
   const [title, setTitle] = useState('');
   const [desc, setDesc] = useState('');
+  const [startTime, setStartTime] = useState('');
   const [deadline, setDeadline] = useState('');
   const [marks, setMarks] = useState('');
   const [file, setFile] = useState<File | null>(null);
@@ -35,24 +35,24 @@ export default function AdminAssignments() {
     const form = e.currentTarget;
     setUploading(true);
     try {
+      const id = crypto.randomUUID();
       let fileUrl = '';
       if (file) {
-        if (file.size > 800 * 1024) {
-          throw new Error("File is too large. Please select a file smaller than 800KB.");
-        }
-        fileUrl = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result as string);
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        });
+        const fileRef = ref(storage, `assignments/${id}_${file.name}`);
+        await uploadBytes(fileRef, file);
+        fileUrl = await getDownloadURL(fileRef);
       }
 
-      const id = `asn_${Date.now()}`;
-      await setDoc(doc(db, `modules/${selectedModule}/assignments`, id), {
-        title, description: desc, deadline: new Date(deadline).getTime(), marks: Number(marks), fileUrl, createdAt: Date.now()
-      });
-      setTitle(''); setDesc(''); setDeadline(''); setMarks(''); setFile(null);
+      const payloadDesc = JSON.stringify({ text: desc, start: new Date(startTime).getTime() });
+
+      const newAssignment = {
+        title, description: payloadDesc, deadline: new Date(deadline).getTime(), marks: Number(marks), fileUrl, createdAt: Date.now()
+      };
+      await setDoc(doc(db, `modules/${selectedModule}/assignments`, id), newAssignment);
+      
+      setAssignments(prev => [...prev, { id, ...newAssignment }]);
+
+      setTitle(''); setDesc(''); setStartTime(''); setDeadline(''); setMarks(''); setFile(null);
       form.reset();
     } catch (err: any) {
       console.error("Upload failed", err);
@@ -64,8 +64,13 @@ export default function AdminAssignments() {
 
   const handleDelete = async (id: string) => {
     if (confirm('Delete this assignment?')) {
-      await deleteDoc(doc(db, `modules/${selectedModule}/assignments`, id));
-      if (selectedAssignment?.id === id) setSelectedAssignment(null);
+      try {
+        await deleteDoc(doc(db, `modules/${selectedModule}/assignments`, id));
+        setAssignments(prev => prev.filter(ast => ast.id !== id));
+        if (selectedAssignment?.id === id) setSelectedAssignment(null);
+      } catch (err: any) {
+        alert(err.message || "Failed to delete assignment.");
+      }
     }
   };
 
@@ -91,10 +96,17 @@ export default function AdminAssignments() {
           <div className="bg-neutral-800 p-6 rounded-xl border border-neutral-700 shadow-sm">
             <h2 className="text-lg font-medium text-white mb-4">Add New Assignment</h2>
             <form onSubmit={handleAdd} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <input required placeholder="Assignment Title" value={title} onChange={e=>setTitle(e.target.value)} className="border border-neutral-600 rounded-md p-2 text-sm" />
+              <input required placeholder="Assignment Title" value={title} onChange={e=>setTitle(e.target.value)} className="border border-neutral-600 rounded-md p-2 text-sm md:col-span-2" />
               <input required placeholder="Total Marks" type="number" min="0" value={marks} onChange={e=>setMarks(e.target.value)} className="border border-neutral-600 rounded-md p-2 text-sm" />
-              <input required placeholder="Deadline" type="datetime-local" value={deadline} onChange={e=>setDeadline(e.target.value)} className="border border-neutral-600 rounded-md p-2 text-sm" />
-              <input type="file" onChange={e => setFile(e.target.files?.[0] || null)} className="border border-neutral-600 rounded-md p-2 text-sm" />
+              <input type="file" onChange={e => setFile(e.target.files?.[0] || null)} className="border border-neutral-600 rounded-md p-2 text-sm" title="Assignment File (Optional)" />
+              <div className="flex flex-col">
+                <label className="text-xs text-neutral-400 mb-1">Start Time</label>
+                <input required type="datetime-local" value={startTime} onChange={e=>setStartTime(e.target.value)} className="border border-neutral-600 rounded-md p-2 text-sm w-full" />
+              </div>
+              <div className="flex flex-col">
+                <label className="text-xs text-neutral-400 mb-1">Deadline</label>
+                <input required type="datetime-local" value={deadline} onChange={e=>setDeadline(e.target.value)} className="border border-neutral-600 rounded-md p-2 text-sm w-full" />
+              </div>
               <textarea required placeholder="Instructions / Description" value={desc} onChange={e=>setDesc(e.target.value)} className="border border-neutral-600 rounded-md p-2 text-sm md:col-span-2" rows={3}></textarea>
               <button type="submit" disabled={uploading} className="md:col-span-2 flex justify-center items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm font-medium disabled:opacity-50">
                 {uploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Plus className="w-4 h-4 mr-2" />} 
@@ -108,26 +120,32 @@ export default function AdminAssignments() {
               <thead className="bg-neutral-900">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase">Assignment</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase">Deadline</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase">Timing</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase">Marks</th>
                   <th className="px-6 py-3"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-200">
-                {assignments.map(ast => (
+                {assignments.map(ast => {
+                  const isJson = typeof ast.description === 'string' && ast.description.startsWith('{');
+                  const data = isJson ? JSON.parse(ast.description) : { text: ast.description, start: ast.createdAt || Date.now() };
+                  return (
                   <tr key={ast.id}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
                       <div className="flex items-center"><FileText className="w-4 h-4 mr-2 text-green-500"/>{ast.title}</div>
                       {ast.fileUrl && <a href={ast.fileUrl} target="_blank" rel="noreferrer" className="text-xs text-blue-600 hover:underline mt-1 block">View Attachment</a>}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-400">{new Date(ast.deadline).toLocaleString()}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-400">
+                      <div><span className="text-neutral-500 text-xs">Start:</span> {new Date(data.start).toLocaleString()}</div>
+                      <div><span className="text-neutral-500 text-xs">End:</span> {new Date(ast.deadline).toLocaleString()}</div>
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-400">{ast.marks}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-4">
                       <button onClick={() => setSelectedAssignment(ast)} className="text-blue-600 hover:text-blue-900 font-medium">Submissions</button>
                       <button onClick={() => handleDelete(ast.id)} className="text-red-600 hover:text-red-900"><Trash2 className="w-4 h-4 inline"/></button>
                     </td>
                   </tr>
-                ))}
+                )})}
                 {assignments.length === 0 && <tr><td colSpan={4} className="px-6 py-4 text-center text-sm text-neutral-400">No assignments posted.</td></tr>}
               </tbody>
             </table>
@@ -308,7 +326,7 @@ function AssignmentSubmissions({ moduleId, assignment, onBack }: { moduleId: str
               </button>
             </div>
             <div 
-              className="p-6 overflow-y-auto w-full prose text-sm text-neutral-800 font-medium"
+              className="p-6 overflow-y-auto w-full prose text-sm text-neutral-200 font-medium prose-invert"
               dangerouslySetInnerHTML={{ __html: viewingContent }}
             />
           </div>

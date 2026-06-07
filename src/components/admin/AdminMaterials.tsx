@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { db } from '../../lib/firebase';
-import { collection, query, onSnapshot, doc, setDoc, deleteDoc } from 'firebase/firestore';
+import { db, collection, query, onSnapshot, doc, setDoc, deleteDoc, storage, ref, uploadBytes, getDownloadURL } from '../../lib/db';
 import { Plus, Trash2, FileDown, Loader2 } from 'lucide-react';
 import { Module } from '../../types';
 
@@ -31,20 +30,14 @@ export default function AdminMaterials() {
     const form = e.currentTarget;
     setUploading(true);
     try {
-      if (file.size > 800 * 1024) {
-        throw new Error("File is too large. Please select a file smaller than 800KB.");
-      }
-      const fileUrl = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result as string);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
+      const id = crypto.randomUUID();
+      const fileRef = ref(storage, `materials/${id}_${file.name}`);
+      await uploadBytes(fileRef, file);
+      const fileUrl = await getDownloadURL(fileRef);
 
-      const id = `mat_${Date.now()}`;
-      await setDoc(doc(db, `modules/${selectedModule}/learningMaterials`, id), {
-        title, fileUrl, createdAt: Date.now()
-      });
+      const newMat = { title, fileUrl, createdAt: Date.now() };
+      await setDoc(doc(db, `modules/${selectedModule}/learningMaterials`, id), newMat);
+      setMaterials(prev => [...prev, { id, ...newMat }]);
       setTitle(''); setFile(null);
       form.reset();
     } catch(err: any) {
@@ -58,6 +51,7 @@ export default function AdminMaterials() {
   const handleDelete = async (id: string) => {
     if (confirm('Delete this material?')) {
       await deleteDoc(doc(db, `modules/${selectedModule}/learningMaterials`, id));
+      setMaterials(prev => prev.filter(m => m.id !== id));
     }
   };
 

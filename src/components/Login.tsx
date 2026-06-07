@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { BookOpen, AlertCircle, ArrowRight, Loader2, Eye, EyeOff } from 'lucide-react';
-import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '../lib/firebase';
+import { collection, query, where, getDocs } from '../lib/db';
+import { db } from '../lib/db';
 import clsx from 'clsx';
+import ThemeToggle from './ThemeToggle';
 
 export default function Login({ setRole }: { setRole: (role: string | null) => void }) {
-  const [regNumber, setRegNumber] = useState('');
-  const [password, setPassword] = useState('');
+  const [regNumber, setRegNumber] = useState(localStorage.getItem('jirvi_saved_reg') || '');
+  const [password, setPassword] = useState(localStorage.getItem('jirvi_saved_pass') || '');
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(localStorage.getItem('jirvi_saved_reg') !== null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -15,7 +17,16 @@ export default function Login({ setRole }: { setRole: (role: string | null) => v
     e.preventDefault();
     setError('');
 
+    if (rememberMe) {
+      localStorage.setItem('jirvi_saved_reg', regNumber);
+      localStorage.setItem('jirvi_saved_pass', password);
+    } else {
+      localStorage.removeItem('jirvi_saved_reg');
+      localStorage.removeItem('jirvi_saved_pass');
+    }
+
     if (regNumber === 'REG-ADMIN-2026') {
+      sessionStorage.setItem('jirvi_role', 'admin');
       setRole('admin');
       return;
     }
@@ -26,11 +37,9 @@ export default function Login({ setRole }: { setRole: (role: string | null) => v
       const snap = await getDocs(q);
       
       if (snap.empty) {
-        // Fallback for demo: if not found, just let them in as mock
-        console.warn('Student not found in DB, proceeding with mock auth');
-        localStorage.setItem('jirvi_student_reg', regNumber);
-        localStorage.setItem('jirvi_student_id', 'mock_student_1');
-        setRole('student');
+        setError('Student not found. Please check your registration number.');
+        setLoading(false);
+        return;
       } else {
         const docSnap = snap.docs[0];
         const studentData = docSnap.data();
@@ -41,8 +50,14 @@ export default function Login({ setRole }: { setRole: (role: string | null) => v
           return;
         }
 
-        localStorage.setItem('jirvi_student_reg', regNumber);
-        localStorage.setItem('jirvi_student_id', docSnap.id);
+        sessionStorage.setItem('jirvi_student_reg', regNumber);
+        sessionStorage.setItem('jirvi_student_id', docSnap.id);
+        sessionStorage.setItem('jirvi_role', 'student');
+        if (rememberMe) {
+          localStorage.setItem('jirvi_student_reg', regNumber);
+          localStorage.setItem('jirvi_student_id', docSnap.id);
+          localStorage.setItem('jirvi_role', 'student');
+        }
         setRole('student');
       }
     } catch (err: any) {
@@ -54,9 +69,13 @@ export default function Login({ setRole }: { setRole: (role: string | null) => v
   };
 
   return (
-    <div className="min-h-screen bg-neutral-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-[url('https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80')] bg-cover bg-center">
-      <div className="absolute inset-0 bg-neutral-900/80 backdrop-blur-sm" />
+    <div className="min-h-screen bg-neutral-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-[url('https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80')] bg-cover bg-center transition-colors duration-300">
+      <div className="absolute inset-0 bg-neutral-900/80 backdrop-blur-sm transition-colors duration-300" />
       
+      <div className="absolute top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
+
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
         <div className="flex justify-center">
           <div className="h-16 w-16 bg-blue-500 rounded-2xl flex items-center justify-center shadow-lg transform rotate-3">
@@ -123,6 +142,20 @@ export default function Login({ setRole }: { setRole: (role: string | null) => v
                   )}
                 </button>
               </div>
+            </div>
+            
+            <div className="flex items-center">
+              <input
+                id="remember-me"
+                name="remember-me"
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="h-4 w-4 rounded border-neutral-600 bg-neutral-900 text-blue-600 focus:ring-blue-500 focus:ring-offset-neutral-900"
+              />
+              <label htmlFor="remember-me" className="ml-2 block text-sm text-neutral-300">
+                Remember me
+              </label>
             </div>
 
             <div>

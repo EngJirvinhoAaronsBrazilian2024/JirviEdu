@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { db } from '../../lib/firebase';
-import { collection, query, onSnapshot, doc, setDoc, deleteDoc } from 'firebase/firestore';
+import { db } from '../../lib/db';
+import { collection, query, onSnapshot, doc, setDoc, deleteDoc } from '../../lib/db';
 import { Plus, Trash2 } from 'lucide-react';
 import { Module } from '../../types';
 
@@ -20,16 +20,17 @@ export default function AdminModules() {
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
-    const id = `mod_${Date.now()}`;
-    await setDoc(doc(db, 'modules', id), {
-      name, code, description: desc, createdAt: Date.now()
-    });
+    const id = crypto.randomUUID();
+    const newMod = { name, code, description: desc, createdAt: Date.now() };
+    await setDoc(doc(db, 'modules', id), newMod);
+    setModules(prev => [...prev, { id, ...newMod } as Module]);
     setName(''); setCode(''); setDesc('');
   };
 
   const handleDelete = async (id: string) => {
     if (confirm('Delete this module?')) {
       await deleteDoc(doc(db, 'modules', id));
+      setModules(prev => prev.filter(m => m.id !== id));
     }
   };
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
-import { db } from '../lib/firebase';
-import { doc, getDoc, collection, query, getDocs } from 'firebase/firestore';
+import { db } from '../lib/db';
+import { doc, getDoc, collection, query, getDocs } from '../lib/db';
 import { 
   LayoutDashboard, BookOpen, Video, FileText, 
   Calendar, FileDown, LogOut, Menu, X, Bell, Settings, PieChart, ChevronLeft, ChevronRight, TrendingUp
@@ -10,6 +10,7 @@ import clsx from 'clsx';
 import { Student, Module } from '../types';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, startOfWeek, endOfWeek, isSameMonth, isSameDay, addDays, isToday } from 'date-fns';
 import { ResponsiveContainer, PieChart as RePieChart, Pie, Cell, Tooltip, LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
+import ThemeToggle from './ThemeToggle';
 
 import StudentModules from './student/StudentModules';
 import StudentLectures from './student/StudentLectures';
@@ -17,6 +18,7 @@ import StudentAssignments from './student/StudentAssignments';
 import StudentMaterials from './student/StudentMaterials';
 import StudentResults from './student/StudentResults';
 import StudentSettings from './student/StudentSettings';
+import Timetable from './Timetable';
 import { Award } from 'lucide-react';
 
 export default function StudentPortal({ setRole }: { setRole: (role: string | null) => void }) {
@@ -28,41 +30,26 @@ export default function StudentPortal({ setRole }: { setRole: (role: string | nu
 
   useEffect(() => {
     const fetchStudent = async () => {
-      const studentId = localStorage.getItem('jirvi_student_id');
-      const regNumber = localStorage.getItem('jirvi_student_reg') || 'Unknown';
+      const studentId = sessionStorage.getItem('jirvi_student_id') || localStorage.getItem('jirvi_student_id');
       
-      if (studentId && studentId !== 'mock_student_1') {
+      if (studentId) {
         try {
           const docRef = doc(db, 'students', studentId);
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
             setStudent({ id: docSnap.id, ...docSnap.data() } as Student);
           } else {
-            // Fallback
-            setStudent({
-              id: studentId,
-              regNumber: regNumber,
-              fullName: 'Demo Student',
-              email: 'demo@student.jirvi.edu',
-              course: 'Demo Course',
-              status: 'active',
-              createdAt: Date.now()
-            } as Student);
+            handleLogout();
+            return;
           }
         } catch (e) {
           console.error(e);
+          handleLogout();
+          return;
         }
       } else {
-        // Fallback mock
-        setStudent({
-          id: 'mock_student_1',
-          regNumber: regNumber,
-          fullName: 'Demo Student',
-          email: 'demo@student.jirvi.edu',
-          course: 'Demo Course',
-          status: 'active',
-          createdAt: Date.now()
-        } as Student);
+        handleLogout();
+        return;
       }
       setLoading(false);
     };
@@ -74,6 +61,8 @@ export default function StudentPortal({ setRole }: { setRole: (role: string | nu
     setRole(null);
     localStorage.removeItem('jirvi_student_reg');
     localStorage.removeItem('jirvi_student_id');
+    sessionStorage.removeItem('jirvi_student_reg');
+    sessionStorage.removeItem('jirvi_student_id');
     navigate('/');
   };
 
@@ -189,17 +178,24 @@ export default function StudentPortal({ setRole }: { setRole: (role: string | nu
             <Menu className="h-6 w-6" />
           </button>
           <span className="font-bold text-white tracking-tight">JIRVI EDU</span>
-          <div className="w-6" />
+          <ThemeToggle />
         </div>
 
-        <main className="flex-1 p-6 lg:p-8">
+        {/* Desktop Header Theme Toggle */}
+        <div className="hidden lg:flex justify-end p-4 absolute top-0 right-0 w-full z-10 pointer-events-none print:hidden">
+          <div className="pointer-events-auto">
+            <ThemeToggle />
+          </div>
+        </div>
+
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 w-full max-w-full overflow-x-hidden">
           <Routes>
             <Route path="/" element={<StudentDashboard student={student} />} />
             <Route path="/modules" element={<StudentModules studentId={student?.id || ''} />} />
             <Route path="/lectures" element={<StudentLectures studentId={student?.id || ''} />} />
             <Route path="/assignments" element={<StudentAssignments studentId={student?.id || ''} />} />
             <Route path="/results" element={<StudentResults student={student} />} />
-            <Route path="/timetable" element={<div className="max-w-5xl mx-auto p-6 bg-neutral-800 rounded-xl shadow-sm border border-neutral-700"><h2 className="text-xl font-bold mb-2">My Timetable</h2><p className="text-neutral-400">Your timetable is automatically constructed from your upcoming scheduled lectures. Visit the Lectures tab to join classes.</p></div>} />
+            <Route path="/timetable" element={<Timetable studentId={student?.id || ''} />} />
             <Route path="/materials" element={<StudentMaterials studentId={student?.id || ''} />} />
             <Route path="/settings" element={<StudentSettings student={student} studentId={student?.id || ''} />} />
           </Routes>
@@ -215,7 +211,7 @@ function StudentDashboard({ student }: { student: Student | null }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!student?.id || student.id === 'mock_student_1') {
+    if (!student?.id) {
       setLoading(false);
       return;
     }
@@ -226,8 +222,17 @@ function StudentDashboard({ student }: { student: Student | null }) {
         const snap = await getDocs(q);
         const mods = snap.docs.map(d => ({ id: d.id, ...d.data() } as Module));
 
-        const allLecs: {mod: Module, lec: any}[] = [];
+        const enrolledMods: Module[] = [];
         for (const m of mods) {
+          const docRef = doc(db, `modules/${m.id}/enrollments`, student.id);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            enrolledMods.push(m);
+          }
+        }
+
+        const allLecs: {mod: Module, lec: any}[] = [];
+        for (const m of enrolledMods) {
           const lecsSnap = await getDocs(collection(db, `modules/${m.id}/lectures`));
           lecsSnap.docs.forEach(d => {
             allLecs.push({ mod: m, lec: { id: d.id, ...d.data() } });

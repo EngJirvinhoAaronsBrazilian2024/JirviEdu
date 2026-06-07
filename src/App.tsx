@@ -10,12 +10,11 @@ import AdminPortal from './components/AdminPortal';
 import StudentPortal from './components/StudentPortal';
 
 export default function App() {
-  const [role, setRole] = useState<string | null>(localStorage.getItem('jirvi_role'));
+  const [role, setRole] = useState<string | null>(sessionStorage.getItem('jirvi_role') || localStorage.getItem('jirvi_role'));
 
   useEffect(() => {
-    if (role) {
-      localStorage.setItem('jirvi_role', role);
-    } else {
+    if (!role) {
+      sessionStorage.removeItem('jirvi_role');
       localStorage.removeItem('jirvi_role');
     }
   }, [role]);

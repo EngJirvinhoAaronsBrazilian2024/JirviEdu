@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { db, storage } from '../../lib/firebase';
-import { doc, updateDoc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { db, storage } from '../../lib/db';
+import { doc, updateDoc } from '../../lib/db';
+import { ref, uploadBytes, getDownloadURL } from '../../lib/db';
 import { Loader2, Camera, Mail, Lock, CheckCircle, AlertCircle, Save } from 'lucide-react';
 import { Student } from '../../types';
 
@@ -10,7 +10,7 @@ export default function StudentSettings({ student, studentId }: { student: Stude
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
 
-  const [email, setEmail] = useState(student?.email || '');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [photo, setPhoto] = useState<File | null>(null);
@@ -25,8 +25,8 @@ export default function StudentSettings({ student, studentId }: { student: Stude
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!studentId || studentId === 'mock_student_1') {
-      setError('Cannot edit mock demo student.');
+    if (!studentId) {
+      setError('Cannot edit student profile. Invalid student ID.');
       return;
     }
 
@@ -42,7 +42,7 @@ export default function StudentSettings({ student, studentId }: { student: Stude
     try {
       const updates: any = {};
       
-      if (email !== student?.email) {
+      if (email && email !== student?.email) {
         updates.email = email;
       }
       if (password) {
@@ -140,8 +140,7 @@ export default function StudentSettings({ student, studentId }: { student: Stude
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full p-2 border border-neutral-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                    placeholder="Enter your email"
+                    className="w-full p-2 bg-black text-white border border-neutral-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   />
                 </div>
               </div>
@@ -155,8 +154,7 @@ export default function StudentSettings({ student, studentId }: { student: Stude
                       type="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full p-2 border border-neutral-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                      placeholder="Leave blank to keep current password"
+                      className="w-full p-2 bg-black text-white border border-neutral-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
                     />
                   </div>
                   <div>
@@ -165,8 +163,7 @@ export default function StudentSettings({ student, studentId }: { student: Stude
                       type="password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="w-full p-2 border border-neutral-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                      placeholder="Confirm new password"
+                      className="w-full p-2 bg-black text-white border border-neutral-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
                     />
                   </div>
                 </div>

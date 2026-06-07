@@ -43,6 +43,7 @@ export interface Assignment {
   id: string;
   title: string;
   description: string;
+  startTime?: number;
   deadline: number;
   marks: number;
   fileUrl: string;

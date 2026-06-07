@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { db } from '../../lib/firebase';
-import { collection, query, onSnapshot, doc, setDoc, deleteDoc } from 'firebase/firestore';
+import { db } from '../../lib/db';
+import { collection, query, onSnapshot, doc, setDoc, deleteDoc } from '../../lib/db';
 import { Plus, Trash2, Video } from 'lucide-react';
 import { Module } from '../../types';
 
@@ -28,16 +28,17 @@ export default function AdminLectures() {
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedModule) return;
-    const id = `lec_${Date.now()}`;
-    await setDoc(doc(db, `modules/${selectedModule}/lectures`, id), {
-      title, meetLink, date, time, createdAt: Date.now()
-    });
+    const id = crypto.randomUUID();
+    const newLec = { title, meetLink, date, time, createdAt: Date.now() };
+    await setDoc(doc(db, `modules/${selectedModule}/lectures`, id), newLec);
+    setLectures(prev => [...prev, { id, ...newLec }]);
     setTitle(''); setMeetLink(''); setDate(''); setTime('');
   };
 
   const handleDelete = async (id: string) => {
     if (confirm('Delete this lecture?')) {
       await deleteDoc(doc(db, `modules/${selectedModule}/lectures`, id));
+      setLectures(prev => prev.filter(l => l.id !== id));
     }
   };
 
