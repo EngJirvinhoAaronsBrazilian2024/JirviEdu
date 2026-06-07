@@ -44,8 +44,8 @@ export default function Login({ setRole }: { setRole: (role: string | null) => v
         const docSnap = snap.docs[0];
         const studentData = docSnap.data();
         
-        if (studentData.password && studentData.password !== password) {
-          setError('Invalid password.');
+        if (!studentData.password || studentData.password !== password) {
+          setError('Invalid login credentials.');
           setLoading(false);
           return;
         }

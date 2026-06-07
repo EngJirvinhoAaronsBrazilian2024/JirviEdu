@@ -408,16 +408,28 @@ function StudentManagement() {
       const email = `${newReg.toLowerCase().replace(/\s+/g, '')}@student.jirvi.edu`;
       const uid = editingId || crypto.randomUUID();
 
-      const studentData = {
+      const studentData: any = {
         regNumber: newReg,
         fullName: newName,
         email: email,
         course: newCourse,
         status: 'active',
-        createdAt: Date.now()
       };
 
-      await setDoc(doc(fbDb, 'students', uid), studentData);
+      if (!editingId) {
+        studentData.createdAt = Date.now();
+        studentData.password = newPassword;
+      } else {
+        const existing = students.find(s => s.id === editingId);
+        studentData.createdAt = existing?.createdAt || Date.now();
+        if (newPassword) {
+          studentData.password = newPassword;
+        } else {
+          studentData.password = (existing as any)?.password || '';
+        }
+      }
+
+      await setDoc(doc(fbDb, 'students', uid), studentData, { merge: true });
 
       setStudents(prev => {
         if (editingId) {
@@ -461,8 +473,10 @@ function StudentManagement() {
                 <input required value={newCourse} onChange={e=>setNewCourse(e.target.value)} type="text" className="mt-1 block w-full rounded-md border-neutral-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2" placeholder="BSc Computer Science" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-neutral-200">Default Password</label>
-                <input required value={newPassword} onChange={e=>setNewPassword(e.target.value)} type="text" className="mt-1 block w-full rounded-md border-neutral-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2" placeholder="Auto or Type..." />
+                <label className="block text-sm font-medium text-neutral-200">
+                  {editingId ? 'New Password (leave blank to keep current)' : 'Default Password'}
+                </label>
+                <input required={!editingId} value={newPassword} onChange={e=>setNewPassword(e.target.value)} type="text" className="mt-1 block w-full rounded-md border-neutral-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2" placeholder={editingId ? "Leave blank to keep unchanged" : "Type initial password..."} />
               </div>
               <div className="pt-4 flex justify-end gap-3">
                 <button type="button" onClick={() => setModalOpen(false)} className="px-4 py-2 border border-neutral-600 rounded-md shadow-sm text-sm font-medium text-neutral-200 bg-neutral-800 hover:bg-neutral-700">Cancel</button>
