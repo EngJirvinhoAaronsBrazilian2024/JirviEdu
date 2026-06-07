@@ -219,6 +219,16 @@ function AdminDashboard() {
       }
     };
     fetchStats();
+    
+    // Subscribe to DB mutations to keep dashboard live
+    import('../lib/db').then((dbModule) => {
+       if (dbModule.mutationEmitter) {
+          const unsub = dbModule.mutationEmitter.subscribe(() => {
+             fetchStats();
+          });
+          return unsub;
+       }
+    });
   }, []);
 
   const attendanceData = [
@@ -406,7 +416,7 @@ function StudentManagement() {
     setCreating(true);
     try {
       const email = `${newReg.toLowerCase().replace(/\s+/g, '')}@student.jirvi.edu`;
-      const uid = editingId || crypto.randomUUID();
+      const uid = editingId || (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15));
 
       const studentData: any = {
         regNumber: newReg,
