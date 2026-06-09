@@ -3,6 +3,7 @@ import { db } from '../../lib/db';
 import { collection, query, getDocs, doc, getDoc, mutationEmitter } from '../../lib/db';
 import { FileDown, BookOpen } from 'lucide-react';
 import { Module } from '../../types';
+import { logActivity } from '../../lib/activity-logger';
 
 export default function StudentMaterials({ studentId }: { studentId: string }) {
   const [materials, setMaterials] = useState<{mod: Module, mat: any}[]>([]);
@@ -89,7 +90,12 @@ export default function StudentMaterials({ studentId }: { studentId: string }) {
                 </div>
               </div>
               <div>
-                <a href={item.mat.fileUrl} target="_blank" rel="noreferrer" className="inline-flex items-center px-4 py-2 border border-neutral-600 shadow-sm text-sm font-medium rounded-md text-neutral-200 bg-neutral-800 hover:bg-neutral-700">
+                <a 
+                  href={item.mat.fileUrl} 
+                  target="_blank" 
+                  rel="noreferrer" 
+                  onClick={() => logActivity('Material Downloaded', `Downloaded ${item.mat.title} for ${item.mod.code}`, studentId, 'student')}
+                  className="inline-flex items-center px-4 py-2 border border-neutral-600 shadow-sm text-sm font-medium rounded-md text-neutral-200 bg-neutral-800 hover:bg-neutral-700">
                   <FileDown className="w-4 h-4 mr-2 text-neutral-400" /> Download
                 </a>
               </div>

@@ -256,6 +256,16 @@ export async function deleteDoc(docRef: any) {
   mutationEmitter.emit();
 }
 
+export async function addDoc(collectionRef: any, data: any) {
+  const { table } = parsePath(collectionRef.path);
+  const id = Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
+  const payload = camelToSnake({ id, ...data });
+  const { error } = await insforge.database.from(table).insert([payload]);
+  if (error) throw error;
+  mutationEmitter.emit();
+  return { id };
+}
+
 export function onSnapshot(ref: any, callback: Function, errorCb?: Function) {
   let isMounted = true;
   let lastData = '';

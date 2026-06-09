@@ -4,7 +4,7 @@ import { db } from '../lib/db';
 import { collection, getDocs, doc, setDoc, deleteDoc, query, onSnapshot } from '../lib/db';
 import { 
   LayoutDashboard, Users, BookOpen, Video, FileText, 
-  Settings, LogOut, Menu, X, Calendar, FileDown, Plus
+  Settings, LogOut, Menu, X, Calendar, FileDown, Plus, Activity
 } from 'lucide-react';
 import clsx from 'clsx';
 import { handleFirestoreError, OperationType } from '../lib/error-handler';
@@ -16,6 +16,7 @@ import AdminModules from './admin/AdminModules';
 import AdminLectures from './admin/AdminLectures';
 import AdminAssignments from './admin/AdminAssignments';
 import AdminMaterials from './admin/AdminMaterials';
+import AdminActivityLogs from './admin/AdminActivityLogs';
 import Timetable from './Timetable';
 
 export default function AdminPortal({ setRole }: { setRole: (role: string | null) => void }) {
@@ -36,6 +37,7 @@ export default function AdminPortal({ setRole }: { setRole: (role: string | null
     { name: 'Assignments', href: '/admin/assignments', icon: FileText },
     { name: 'Timetable', href: '/admin/timetable', icon: Calendar },
     { name: 'Materials', href: '/admin/materials', icon: FileDown },
+    { name: 'Activity Logs', href: '/admin/activity-logs', icon: Activity },
   ];
 
   return (
@@ -150,6 +152,7 @@ export default function AdminPortal({ setRole }: { setRole: (role: string | null
             <Route path="/assignments" element={<AdminAssignments />} />
             <Route path="/timetable" element={<Timetable />} />
             <Route path="/materials" element={<AdminMaterials />} />
+            <Route path="/activity-logs" element={<AdminActivityLogs />} />
           </Routes>
         </main>
       </div>

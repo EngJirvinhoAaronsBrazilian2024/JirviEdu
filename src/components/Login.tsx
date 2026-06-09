@@ -4,6 +4,7 @@ import { collection, query, where, getDocs } from '../lib/db';
 import { db } from '../lib/db';
 import clsx from 'clsx';
 import ThemeToggle from './ThemeToggle';
+import { logActivity } from '../lib/activity-logger';
 
 export default function Login({ setRole }: { setRole: (role: string | null) => void }) {
   const [regNumber, setRegNumber] = useState(localStorage.getItem('jirvi_saved_reg') || '');
@@ -29,6 +30,7 @@ export default function Login({ setRole }: { setRole: (role: string | null) => v
       if (password === 'Admin123') {
         sessionStorage.setItem('jirvi_role', 'admin');
         setRole('admin');
+        logActivity('Login', 'Admin logged into the system', 'admin', 'admin');
         return;
       } else {
         setError('Invalid admin credentials.');
@@ -63,6 +65,7 @@ export default function Login({ setRole }: { setRole: (role: string | null) => v
           localStorage.setItem('jirvi_student_id', docSnap.id);
           localStorage.setItem('jirvi_role', 'student');
         }
+        logActivity('Login', `Student ${studentData.fullName} logged in.`, regNumber, 'student');
         setRole('student');
       }
     } catch (err: any) {
