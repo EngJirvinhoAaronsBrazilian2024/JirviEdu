@@ -81,7 +81,7 @@ function parsePath(path: string) {
     conditions['assignment_id'] = parts[3];
   }
 
-  return { table: collectionName, docId, conditions };
+  return { table: collectionName.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`), docId, conditions };
 }
 
 export async function getDoc(docRef: any) {

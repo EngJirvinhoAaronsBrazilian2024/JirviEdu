@@ -15,7 +15,7 @@ export default function AdminActivityLogs() {
         data.push({ id: doc.id, ...doc.data() });
       });
       // Sort by timestamp descending
-      data.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+      data.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
       setLogs(data);
       setLoading(false);
     }, (err) => {
@@ -71,7 +71,7 @@ export default function AdminActivityLogs() {
                       </div>
                       <div className="flex items-center text-xs text-neutral-400">
                         <Clock className="w-3.5 h-3.5 mr-1" />
-                        {new Date(log.timestamp).toLocaleString()}
+                        {new Date(log.createdAt || log.timestamp || Date.now()).toLocaleString()}
                       </div>
                     </div>
                   </div>
