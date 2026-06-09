@@ -17,11 +17,20 @@ export default defineConfig(() => {
           short_name: 'Jirvi',
           description: 'A student management platform',
           theme_color: '#ffffff',
+          background_color: '#ffffff',
+          display: 'standalone',
+          start_url: '/',
           icons: [
             {
               src: 'icon.png',
-              sizes: '192x192 512x512',
+              sizes: '192x192',
               type: 'image/png'
+            },
+            {
+              src: 'icon.png',
+              sizes: '512x512',
+              type: 'image/png',
+              purpose: 'any maskable'
             }
           ]
         }
