@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { db, collection, query, onSnapshot } from '../../lib/db';
+import { db, collection, query, onSnapshot, where } from '../../lib/db';
 import { Activity, Clock, User, Filter } from 'lucide-react';
 
 export default function AdminActivityLogs() {
@@ -8,18 +8,27 @@ export default function AdminActivityLogs() {
   const [filter, setFilter] = useState('all');
 
   useEffect(() => {
-    const q = query(collection(db, 'activityLogs'));
+    // We store activity logs inside announcements to bypass missing table
+    const q = query(collection(db, 'announcements'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const data: any[] = [];
-      snapshot.forEach(doc => {
-        data.push({ id: doc.id, ...doc.data() });
+      snapshot.docs.forEach((doc: any) => {
+        const d = doc.data();
+        if (d.title === 'ACTIVITY_LOG' && d.content) {
+          try {
+            const parsed = JSON.parse(d.content);
+            data.push({ id: doc.id, ...parsed });
+          } catch (e) {
+            // ignore malformed logs
+          }
+        }
       });
       // Sort by timestamp descending
       data.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
       setLogs(data);
       setLoading(false);
     }, (err) => {
-      console.error(err);
+      console.error('Error fetching logs:', err);
       setLoading(false);
     });
 
