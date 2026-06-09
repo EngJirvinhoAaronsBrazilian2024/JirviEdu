@@ -87,7 +87,12 @@ function parsePath(path: string) {
 export async function getDoc(docRef: any) {
   const { table, docId, conditions } = parsePath(docRef.path);
   
-  let q: any = insforge.database.from(table).select('*').eq('id', docId);
+  let idField = 'id';
+  if (table === 'enrollments' || table === 'submissions') {
+    idField = 'student_id';
+  }
+
+  let q: any = insforge.database.from(table).select('*').eq(idField, docId);
   for (const [k, v] of Object.entries(conditions)) {
     q = q.eq(k, v);
   }
