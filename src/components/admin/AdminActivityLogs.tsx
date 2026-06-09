@@ -8,20 +8,11 @@ export default function AdminActivityLogs() {
   const [filter, setFilter] = useState('all');
 
   useEffect(() => {
-    // We store activity logs inside announcements to bypass missing table
-    const q = query(collection(db, 'announcements'));
+    const q = query(collection(db, 'activityLogs'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const data: any[] = [];
       snapshot.docs.forEach((doc: any) => {
-        const d = doc.data();
-        if (d.title === 'ACTIVITY_LOG' && d.content) {
-          try {
-            const parsed = JSON.parse(d.content);
-            data.push({ id: doc.id, ...parsed });
-          } catch (e) {
-            // ignore malformed logs
-          }
-        }
+        data.push({ id: doc.id, ...doc.data() });
       });
       // Sort by timestamp descending
       data.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
