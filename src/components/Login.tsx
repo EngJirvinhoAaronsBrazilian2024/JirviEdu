@@ -26,9 +26,14 @@ export default function Login({ setRole }: { setRole: (role: string | null) => v
     }
 
     if (regNumber === 'REG-ADMIN-2026') {
-      sessionStorage.setItem('jirvi_role', 'admin');
-      setRole('admin');
-      return;
+      if (password === 'Admin123') {
+        sessionStorage.setItem('jirvi_role', 'admin');
+        setRole('admin');
+        return;
+      } else {
+        setError('Invalid admin credentials.');
+        return;
+      }
     }
 
     setLoading(true);
@@ -112,7 +117,7 @@ export default function Login({ setRole }: { setRole: (role: string | null) => v
                   value={regNumber}
                   onChange={(e) => setRegNumber(e.target.value)}
                   className="block w-full appearance-none rounded-lg border border-neutral-600 px-3 py-2 placeholder-neutral-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm bg-neutral-900 text-white"
-                  placeholder="e.g. REG-ADMIN-2026"
+                  placeholder="REG-XXXX-XXXX"
                 />
               </div>
             </div>

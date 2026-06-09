@@ -167,11 +167,11 @@ export async function setDoc(docRef: any, data: any, options: { merge?: boolean 
     if ('password' in d || 'email' in d) {
       let currentEmail = d.email;
       let currentPass = d.password;
-      if (typeof currentEmail === 'undefined' || typeof currentPass === 'undefined') {
+      if (typeof currentEmail === 'undefined' || typeof currentPass === 'undefined' || currentPass === '') {
         const snap = await getDoc(docRef);
         if (snap.exists()) {
           if (typeof currentEmail === 'undefined') currentEmail = snap.data().email;
-          if (typeof currentPass === 'undefined') currentPass = snap.data().password || '';
+          if (typeof currentPass === 'undefined' || currentPass === '') currentPass = snap.data().password || '';
         }
       }
       currentEmail = currentEmail || '';
@@ -207,11 +207,11 @@ export async function updateDoc(docRef: any, data: any) {
     if ('password' in d || 'email' in d) {
       let currentEmail = d.email;
       let currentPass = d.password;
-      if (typeof currentEmail === 'undefined' || typeof currentPass === 'undefined') {
+      if (typeof currentEmail === 'undefined' || typeof currentPass === 'undefined' || currentPass === '') {
         const snap = await getDoc(docRef);
         if (snap.exists()) {
           if (typeof currentEmail === 'undefined') currentEmail = snap.data().email;
-          if (typeof currentPass === 'undefined') currentPass = snap.data().password || '';
+          if (typeof currentPass === 'undefined' || currentPass === '') currentPass = snap.data().password || '';
         }
       }
       currentEmail = currentEmail || '';
