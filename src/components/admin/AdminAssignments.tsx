@@ -77,7 +77,7 @@ export default function AdminAssignments() {
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold text-white">Assignments Management</h1>
+        <h1 className="text-2xl font-bold text-neutral-50">Assignments Management</h1>
         <p className="mt-1 text-sm text-neutral-400">Create assignments for modules and grade submissions.</p>
       </div>
 
@@ -94,7 +94,7 @@ export default function AdminAssignments() {
       {selectedModule && !selectedAssignment && (
         <>
           <div className="bg-neutral-800 p-6 rounded-xl border border-neutral-700 shadow-sm">
-            <h2 className="text-lg font-medium text-white mb-4">Add New Assignment</h2>
+            <h2 className="text-lg font-medium text-neutral-50 mb-4">Add New Assignment</h2>
             <form onSubmit={handleAdd} className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <input required placeholder="Assignment Title" value={title} onChange={e=>setTitle(e.target.value)} className="border border-neutral-600 rounded-md p-2 text-sm md:col-span-2" />
               <input required placeholder="Total Marks" type="number" min="0" value={marks} onChange={e=>setMarks(e.target.value)} className="border border-neutral-600 rounded-md p-2 text-sm" />
@@ -131,7 +131,7 @@ export default function AdminAssignments() {
                   const data = isJson ? JSON.parse(ast.description) : { text: ast.description, start: ast.createdAt || Date.now() };
                   return (
                   <tr key={ast.id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-neutral-50">
                       <div className="flex items-center"><FileText className="w-4 h-4 mr-2 text-green-500"/>{ast.title}</div>
                       {ast.fileUrl && <a href={ast.fileUrl} target="_blank" rel="noreferrer" className="text-xs text-blue-600 hover:underline mt-1 block">View Attachment</a>}
                     </td>
@@ -217,11 +217,11 @@ function AssignmentSubmissions({ moduleId, assignment, onBack }: { moduleId: str
 
       <div className="bg-neutral-800 p-6 rounded-xl border border-neutral-700 shadow-sm flex justify-between items-center">
         <div>
-          <h2 className="text-xl font-bold text-white">{assignment.title}</h2>
+          <h2 className="text-xl font-bold text-neutral-50">{assignment.title}</h2>
           <p className="text-sm text-neutral-400 mt-1">Total Marks: {assignment.marks} • Deadline: {new Date(assignment.deadline).toLocaleString()}</p>
         </div>
         <div className="text-right">
-          <p className="text-sm font-bold text-white">{submissions.length} Submissions</p>
+          <p className="text-sm font-bold text-neutral-50">{submissions.length} Submissions</p>
         </div>
       </div>
 
@@ -243,7 +243,7 @@ function AssignmentSubmissions({ moduleId, assignment, onBack }: { moduleId: str
               
               return (
                 <tr key={sub.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-neutral-50">
                     <div>{student.fullName}</div>
                     <div className="text-xs text-neutral-400">{student.regNumber}</div>
                   </td>
@@ -282,7 +282,7 @@ function AssignmentSubmissions({ moduleId, assignment, onBack }: { moduleId: str
                     ) : (
                       sub.grade !== undefined ? (
                         <div className="max-w-sm truncate">
-                          <span className="font-bold text-white">{sub.grade}/{assignment.marks}</span>
+                          <span className="font-bold text-neutral-50">{sub.grade}/{assignment.marks}</span>
                           {sub.feedback && <span className="ml-2 text-xs text-neutral-400 line-clamp-1">{sub.feedback}</span>}
                         </div>
                       ) : (
@@ -294,7 +294,7 @@ function AssignmentSubmissions({ moduleId, assignment, onBack }: { moduleId: str
                     {isGrading ? (
                       <div className="flex items-center justify-end space-x-2">
                         <button onClick={() => setGradingId(null)} className="text-neutral-400 hover:text-neutral-200">Cancel</button>
-                        <button onClick={() => saveGrade(sub.id)} className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">Save</button>
+                        <button onClick={() => saveGrade(sub.id)} className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700">Save</button>
                       </div>
                     ) : (
                       <button 
@@ -319,7 +319,7 @@ function AssignmentSubmissions({ moduleId, assignment, onBack }: { moduleId: str
         <div className="fixed inset-0 bg-neutral-900/50 flex items-center justify-center p-4 z-50">
           <div className="bg-neutral-800 rounded-xl shadow-xl max-w-2xl w-full max-h-[80vh] flex flex-col">
             <div className="p-4 border-b border-neutral-700 flex justify-between items-center">
-              <h3 className="font-bold text-white">Online Answer</h3>
+              <h3 className="font-bold text-neutral-50">Online Answer</h3>
               <button onClick={() => setViewingContent(null)} className="text-neutral-400 hover:text-neutral-200">
                 <ChevronLeft className="w-5 h-5 hidden" />
                 Close

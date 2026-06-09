@@ -45,11 +45,11 @@ export default function AdminPortal({ setRole }: { setRole: (role: string | null
         <div className="fixed inset-0 bg-neutral-900/80 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
         <div className="fixed inset-y-0 left-0 w-64 bg-neutral-900 flex flex-col shadow-2xl">
           <div className="flex items-center justify-between h-16 px-4 border-b border-white/10">
-            <span className="text-xl font-bold text-white flex items-center gap-2">
+            <span className="text-xl font-bold text-neutral-50 flex items-center gap-2">
               <BookOpen className="w-6 h-6 text-blue-400" />
               JIRVI EDU
             </span>
-            <button onClick={() => setSidebarOpen(false)} className="text-neutral-400 hover:text-white transition-colors">
+            <button onClick={() => setSidebarOpen(false)} className="text-neutral-400 hover:text-neutral-50 transition-colors">
               <X className="w-6 h-6" />
             </button>
           </div>
@@ -62,7 +62,7 @@ export default function AdminPortal({ setRole }: { setRole: (role: string | null
                   to={item.href}
                   onClick={() => setSidebarOpen(false)}
                   className={clsx(
-                    current ? 'bg-blue-600/10 text-blue-400' : 'text-neutral-300 hover:bg-neutral-800 hover:text-white',
+                    current ? 'bg-blue-600/10 text-blue-400' : 'text-neutral-300 hover:bg-neutral-800 hover:text-neutral-50',
                     'group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors'
                   )}
                 >
@@ -73,7 +73,7 @@ export default function AdminPortal({ setRole }: { setRole: (role: string | null
             })}
           </nav>
           <div className="p-4 border-t border-white/10">
-            <button onClick={handleLogout} className="flex items-center w-full px-3 py-2 text-sm font-medium text-neutral-300 rounded-md hover:bg-neutral-800 hover:text-white transition-colors">
+            <button onClick={handleLogout} className="flex items-center w-full px-3 py-2 text-sm font-medium text-neutral-300 rounded-md hover:bg-neutral-800 hover:text-neutral-50 transition-colors">
               <LogOut className="mr-3 h-5 w-5 text-neutral-400" />
               Sign Out
             </button>
@@ -84,7 +84,7 @@ export default function AdminPortal({ setRole }: { setRole: (role: string | null
       {/* Desktop sidebar */}
       <div className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 lg:bg-neutral-900 overflow-hidden lg:border-r lg:border-neutral-800">
         <div className="flex items-center h-16 px-6 bg-neutral-900/50">
-          <span className="text-xl font-bold text-white flex items-center gap-2">
+          <span className="text-xl font-bold text-neutral-50 flex items-center gap-2">
             <BookOpen className="w-6 h-6 text-blue-400" />
             JIRVI EDU
           </span>
@@ -98,7 +98,7 @@ export default function AdminPortal({ setRole }: { setRole: (role: string | null
                 key={item.name}
                 to={item.href}
                 className={clsx(
-                  current ? 'bg-blue-600/10 text-blue-400 border border-blue-500/20' : 'text-neutral-300 hover:bg-neutral-800/50 hover:text-white border border-transparent',
+                  current ? 'bg-blue-600/10 text-blue-400 border border-blue-500/20' : 'text-neutral-300 hover:bg-neutral-800/50 hover:text-neutral-50 border border-transparent',
                   'group flex items-center px-3 py-2.5 text-sm font-medium rounded-xl transition-all'
                 )}
               >
@@ -114,10 +114,10 @@ export default function AdminPortal({ setRole }: { setRole: (role: string | null
               <span className="text-sm font-bold text-blue-400">AD</span>
             </div>
             <div>
-              <p className="text-sm font-bold text-white">Administrator</p>
+              <p className="text-sm font-bold text-neutral-50">Administrator</p>
             </div>
           </div>
-          <button onClick={handleLogout} className="flex items-center w-full px-3 py-2.5 text-sm font-medium text-neutral-400 rounded-xl hover:bg-neutral-800 hover:text-white transition-colors">
+          <button onClick={handleLogout} className="flex items-center w-full px-3 py-2.5 text-sm font-medium text-neutral-400 rounded-xl hover:bg-neutral-800 hover:text-neutral-50 transition-colors">
             <LogOut className="mr-3 h-5 w-5 text-neutral-400" />
             Sign Out
           </button>
@@ -130,7 +130,7 @@ export default function AdminPortal({ setRole }: { setRole: (role: string | null
           <button onClick={() => setSidebarOpen(true)} className="text-neutral-400 hover:text-neutral-200">
             <Menu className="h-6 w-6" />
           </button>
-          <span className="font-bold text-white tracking-tight">JIRVI EDU ADMIN</span>
+          <span className="font-bold text-neutral-50 tracking-tight">JIRVI EDU ADMIN</span>
           <ThemeToggle />
         </div>
 
@@ -265,11 +265,11 @@ function AdminDashboard() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
-      <h1 className="text-3xl font-bold tracking-tight text-white">Dashboard</h1>
+      <h1 className="text-3xl font-bold tracking-tight text-neutral-50">Dashboard</h1>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="bg-neutral-800 rounded-2xl p-8 shadow-sm border border-neutral-700/60 ring-1 ring-neutral-900/5 lg:col-span-2">
-          <h2 className="text-lg font-bold text-white mb-6">System Statistics</h2>
+          <h2 className="text-lg font-bold text-neutral-50 mb-6">System Statistics</h2>
           
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div className="bg-neutral-900/50 p-6 rounded-2xl border border-neutral-700/50 shadow-sm flex flex-col justify-between h-36 relative overflow-hidden group">
@@ -278,7 +278,7 @@ function AdminDashboard() {
                 <div className="w-12 h-12 bg-neutral-800 rounded-xl shadow-sm border border-neutral-700 flex items-center justify-center">
                   <Users className="w-6 h-6 text-blue-500" />
                 </div>
-                <span className="text-3xl font-bold text-white tracking-tight">{stats.students}</span>
+                <span className="text-3xl font-bold text-neutral-50 tracking-tight">{stats.students}</span>
               </div>
               <p className="text-sm font-semibold text-neutral-400 z-10">Total Students</p>
             </div>
@@ -289,7 +289,7 @@ function AdminDashboard() {
                 <div className="w-12 h-12 bg-neutral-800 rounded-xl shadow-sm border border-neutral-700 flex items-center justify-center">
                   <BookOpen className="w-6 h-6 text-blue-500" />
                 </div>
-                <span className="text-3xl font-bold text-white tracking-tight">{stats.modules}</span>
+                <span className="text-3xl font-bold text-neutral-50 tracking-tight">{stats.modules}</span>
               </div>
               <p className="text-sm font-semibold text-neutral-400 z-10">Active Modules</p>
             </div>
@@ -300,7 +300,7 @@ function AdminDashboard() {
                 <div className="w-12 h-12 bg-neutral-800 rounded-xl shadow-sm border border-neutral-700 flex items-center justify-center">
                   <FileText className="w-6 h-6 text-emerald-500" />
                 </div>
-                <span className="text-3xl font-bold text-white tracking-tight">{stats.assignments}</span>
+                <span className="text-3xl font-bold text-neutral-50 tracking-tight">{stats.assignments}</span>
               </div>
               <p className="text-sm font-semibold text-neutral-400 z-10">Total Assignments</p>
             </div>
@@ -311,7 +311,7 @@ function AdminDashboard() {
                 <div className="w-12 h-12 bg-neutral-800 rounded-xl shadow-sm border border-neutral-700 flex items-center justify-center">
                   <Video className="w-6 h-6 text-amber-500" />
                 </div>
-                <span className="text-3xl font-bold text-white tracking-tight">{stats.lectures}</span>
+                <span className="text-3xl font-bold text-neutral-50 tracking-tight">{stats.lectures}</span>
               </div>
               <p className="text-sm font-semibold text-neutral-400 z-10">Lectures Scheduled</p>
             </div>
@@ -319,7 +319,7 @@ function AdminDashboard() {
         </div>
         
         <div className="bg-neutral-800 rounded-2xl p-8 shadow-sm border border-neutral-700/60 ring-1 ring-neutral-900/5 lg:col-span-1 flex flex-col">
-          <h2 className="text-lg font-bold text-white mb-6">Weekly Attendance</h2>
+          <h2 className="text-lg font-bold text-neutral-50 mb-6">Weekly Attendance</h2>
           <div className="flex-1 w-full min-h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={attendanceData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
@@ -342,7 +342,7 @@ function AdminDashboard() {
       {/* Submissions Section */}
       <div className="bg-neutral-800 rounded-2xl p-6 md:p-8 shadow-sm border border-neutral-700/60 ring-1 ring-neutral-900/5">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-bold text-white">Recent Assignment Submissions</h2>
+          <h2 className="text-lg font-bold text-neutral-50">Recent Assignment Submissions</h2>
           <span className="text-sm font-medium text-neutral-400">{recentSubmissions.length} submissions</span>
         </div>
         
@@ -364,7 +364,7 @@ function AdminDashboard() {
                   {recentSubmissions.map((sub, i) => (
                     <tr key={i} className="hover:bg-neutral-900/30 transition-colors">
                       <td className="py-4 whitespace-nowrap text-sm">
-                        <div className="font-medium text-white">{studentsMap[sub.id] || sub.id}</div>
+                        <div className="font-medium text-neutral-50">{studentsMap[sub.id] || sub.id}</div>
                       </td>
                       <td className="py-4 whitespace-nowrap text-sm text-neutral-300">
                         <span className="font-medium">{sub.assignmentTitle}</span>
@@ -488,7 +488,7 @@ function StudentManagement() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/60 p-4">
           <div className="bg-neutral-800 rounded-xl shadow-xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh]">
             <div className="px-6 py-4 border-b border-neutral-700 flex justify-between items-center bg-neutral-900 shrink-0">
-              <h3 className="text-lg font-medium text-white">{editingId ? 'Edit Student' : 'Add New Student'}</h3>
+              <h3 className="text-lg font-medium text-neutral-50">{editingId ? 'Edit Student' : 'Add New Student'}</h3>
               <button onClick={() => setModalOpen(false)} className="text-neutral-400 hover:text-neutral-400">
                 <X className="w-5 h-5" />
               </button>
@@ -525,7 +525,7 @@ function StudentManagement() {
 
       <div className="sm:flex sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Student Management</h1>
+          <h1 className="text-2xl font-bold text-neutral-50">Student Management</h1>
           <p className="mt-1 text-sm text-neutral-400">Manage student accounts, registration, and access limits.</p>
         </div>
         <div className="mt-4 sm:mt-0">
@@ -553,7 +553,7 @@ function StudentManagement() {
               <tr><td colSpan={5} className="px-6 py-4 text-center text-sm text-neutral-400">No students found.</td></tr>
             ) : students.map((student) => (
               <tr key={student.id}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{student.regNumber}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-neutral-50">{student.regNumber}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-400">
                   <div>{student.fullName}</div>
                   <div className="text-xs text-neutral-400">{student.email}</div>

@@ -98,7 +98,7 @@ export default function StudentResults({ student }: { student: Student | null })
     <div className="space-y-6 max-w-5xl mx-auto print:m-0 print:p-0 print:max-w-none">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Academic Results</h1>
+          <h1 className="text-2xl font-bold text-neutral-50 tracking-tight">Academic Results</h1>
           <p className="mt-1 text-sm text-neutral-400 print:hidden">View your graded assignments and overall performance.</p>
         </div>
         <button 
@@ -117,7 +117,7 @@ export default function StudentResults({ student }: { student: Student | null })
             <div className="w-12 h-12 bg-neutral-900 rounded-xl shadow-sm border border-neutral-700 flex items-center justify-center">
               <Award className="w-6 h-6 text-blue-500" />
             </div>
-            <span className="text-4xl font-bold text-white tracking-tight">{overallPercentage}%</span>
+            <span className="text-4xl font-bold text-neutral-50 tracking-tight">{overallPercentage}%</span>
           </div>
           <p className="text-sm font-semibold text-neutral-300 z-10">Overall Grade Average</p>
         </div>
@@ -128,7 +128,7 @@ export default function StudentResults({ student }: { student: Student | null })
             <div className="w-12 h-12 bg-neutral-900 rounded-xl shadow-sm border border-neutral-700 flex items-center justify-center">
               <CheckCircle className="w-6 h-6 text-emerald-500" />
             </div>
-            <span className="text-3xl font-bold text-white tracking-tight">{results.length}</span>
+            <span className="text-3xl font-bold text-neutral-50 tracking-tight">{results.length}</span>
           </div>
           <p className="text-sm font-semibold text-neutral-300 z-10">Graded Assignments</p>
         </div>
@@ -138,9 +138,9 @@ export default function StudentResults({ student }: { student: Student | null })
       <div className="hidden print:block mb-8 pb-4 border-b print:border-black">
         <div className="flex items-center gap-2 mb-4">
            <BookOpen className="w-8 h-8 print:text-black text-blue-500" />
-           <h1 className="text-2xl font-bold print:text-black text-white">JIRVI EDU</h1>
+           <h1 className="text-2xl font-bold print:text-black text-neutral-50">JIRVI EDU</h1>
         </div>
-        <h2 className="text-xl font-bold print:text-black text-white mb-2">Student Official Result Slip</h2>
+        <h2 className="text-xl font-bold print:text-black text-neutral-50 mb-2">Student Official Result Slip</h2>
         <div className="flex justify-between text-sm print:text-black text-neutral-200">
           <div>
             <p><strong>Student Name:</strong> {student?.fullName || 'N/A'}</p>
@@ -174,7 +174,7 @@ export default function StudentResults({ student }: { student: Student | null })
                     <div className="flex items-center">
                       <FileText className="w-5 h-5 text-blue-500 print:text-black mr-3 hidden sm:block" />
                       <div>
-                        <div className="text-sm font-bold text-white print:text-black">{item.asn.title}</div>
+                        <div className="text-sm font-bold text-neutral-50 print:text-black">{item.asn.title}</div>
                         <div className="text-xs font-medium text-neutral-400 print:text-black">{item.mod.code} - {item.mod.name}</div>
                       </div>
                     </div>
@@ -184,7 +184,7 @@ export default function StudentResults({ student }: { student: Student | null })
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-baseline">
-                      <span className="text-lg font-bold text-white print:text-black">{item.sub.grade}</span>
+                      <span className="text-lg font-bold text-neutral-50 print:text-black">{item.sub.grade}</span>
                       <span className="text-sm text-neutral-400 print:text-black ml-1">/ {item.asn.marks}</span>
                     </div>
                   </td>
@@ -203,7 +203,7 @@ export default function StudentResults({ student }: { student: Student | null })
                 <tr>
                   <td colSpan={4} className="px-6 py-12 text-center">
                     <Award className="w-12 h-12 text-neutral-500 print:text-black mx-auto mb-3" />
-                    <h3 className="text-sm font-medium text-white print:text-black">No Grades Yet</h3>
+                    <h3 className="text-sm font-medium text-neutral-50 print:text-black">No Grades Yet</h3>
                     <p className="text-sm text-neutral-400 print:text-black mt-1">Your graded assignments will appear here once marked by an administrator.</p>
                   </td>
                 </tr>
@@ -220,12 +220,12 @@ export default function StudentResults({ student }: { student: Student | null })
                 <div className="flex items-start">
                   <FileText className="w-5 h-5 text-blue-500 mt-0.5 mr-3 flex-shrink-0" />
                   <div>
-                    <div className="text-sm font-bold text-white">{item.asn.title}</div>
+                    <div className="text-sm font-bold text-neutral-50">{item.asn.title}</div>
                     <div className="text-xs font-medium text-neutral-400 mt-0.5">{item.mod.code} - {item.mod.name}</div>
                   </div>
                 </div>
                 <div className="flex items-baseline whitespace-nowrap ml-4">
-                  <span className="text-lg font-bold text-white">{item.sub.grade}</span>
+                  <span className="text-lg font-bold text-neutral-50">{item.sub.grade}</span>
                   <span className="text-sm text-neutral-400 ml-1">/ {item.asn.marks}</span>
                 </div>
               </div>
@@ -252,7 +252,7 @@ export default function StudentResults({ student }: { student: Student | null })
           {results.length === 0 && (
             <div className="px-6 py-12 text-center">
               <Award className="w-12 h-12 text-neutral-500 mx-auto mb-3" />
-              <h3 className="text-sm font-medium text-white">No Grades Yet</h3>
+              <h3 className="text-sm font-medium text-neutral-50">No Grades Yet</h3>
               <p className="text-sm text-neutral-400 mt-1">Your graded assignments will appear here once marked by an administrator.</p>
             </div>
           )}

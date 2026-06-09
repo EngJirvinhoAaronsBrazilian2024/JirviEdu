@@ -88,11 +88,11 @@ export default function StudentPortal({ setRole }: { setRole: (role: string | nu
         <div className="fixed inset-0 bg-neutral-900/80 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
         <div className="fixed inset-y-0 left-0 w-64 bg-neutral-900 flex flex-col shadow-2xl">
           <div className="flex items-center justify-between h-16 px-4 border-b border-white/10">
-            <span className="text-xl font-bold text-white flex items-center gap-2">
+            <span className="text-xl font-bold text-neutral-50 flex items-center gap-2">
               <BookOpen className="w-6 h-6 text-blue-400" />
               JIRVI EDU
             </span>
-            <button onClick={() => setSidebarOpen(false)} className="text-neutral-400 hover:text-white transition-colors">
+            <button onClick={() => setSidebarOpen(false)} className="text-neutral-400 hover:text-neutral-50 transition-colors">
               <X className="w-6 h-6" />
             </button>
           </div>
@@ -105,7 +105,7 @@ export default function StudentPortal({ setRole }: { setRole: (role: string | nu
                   to={item.href}
                   onClick={() => setSidebarOpen(false)}
                   className={clsx(
-                    current ? 'bg-blue-600/10 text-blue-400' : 'text-neutral-300 hover:bg-neutral-800 hover:text-white',
+                    current ? 'bg-blue-600/10 text-blue-400' : 'text-neutral-300 hover:bg-neutral-800 hover:text-neutral-50',
                     'group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors'
                   )}
                 >
@@ -116,7 +116,7 @@ export default function StudentPortal({ setRole }: { setRole: (role: string | nu
             })}
           </nav>
           <div className="p-4 border-t border-white/10">
-            <button onClick={handleLogout} className="flex items-center w-full px-3 py-2 text-sm font-medium text-neutral-300 rounded-md hover:bg-neutral-800 hover:text-white transition-colors">
+            <button onClick={handleLogout} className="flex items-center w-full px-3 py-2 text-sm font-medium text-neutral-300 rounded-md hover:bg-neutral-800 hover:text-neutral-50 transition-colors">
               <LogOut className="mr-3 h-5 w-5 text-neutral-400" />
               Sign Out
             </button>
@@ -127,7 +127,7 @@ export default function StudentPortal({ setRole }: { setRole: (role: string | nu
       {/* Desktop sidebar */}
       <div className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 lg:bg-neutral-900 overflow-hidden lg:border-r lg:border-neutral-800 print:hidden">
         <div className="flex items-center h-16 px-6 bg-neutral-900/50">
-          <span className="text-xl font-bold text-white flex items-center gap-2">
+          <span className="text-xl font-bold text-neutral-50 flex items-center gap-2">
             <BookOpen className="w-6 h-6 text-blue-400" />
             JIRVI EDU
           </span>
@@ -141,7 +141,7 @@ export default function StudentPortal({ setRole }: { setRole: (role: string | nu
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-white truncate">{student?.fullName || 'Student'}</p>
+            <p className="text-sm font-bold text-neutral-50 truncate">{student?.fullName || 'Student'}</p>
             <p className="text-xs text-neutral-400 truncate mt-0.5">{student?.regNumber || 'Not Registered'}</p>
           </div>
         </div>
@@ -153,7 +153,7 @@ export default function StudentPortal({ setRole }: { setRole: (role: string | nu
                 key={item.name}
                 to={item.href}
                 className={clsx(
-                  current ? 'bg-blue-600/10 text-blue-400 border border-blue-500/20' : 'text-neutral-300 hover:bg-neutral-800/50 hover:text-white border border-transparent',
+                  current ? 'bg-blue-600/10 text-blue-400 border border-blue-500/20' : 'text-neutral-300 hover:bg-neutral-800/50 hover:text-neutral-50 border border-transparent',
                   'group flex items-center px-3 py-2.5 text-sm font-medium rounded-xl transition-all'
                 )}
               >
@@ -164,7 +164,7 @@ export default function StudentPortal({ setRole }: { setRole: (role: string | nu
           })}
         </nav>
         <div className="p-4 border-t border-white/10">
-          <button onClick={handleLogout} className="flex items-center w-full px-3 py-2.5 text-sm font-medium text-neutral-400 rounded-xl hover:bg-neutral-800 hover:text-white transition-colors">
+          <button onClick={handleLogout} className="flex items-center w-full px-3 py-2.5 text-sm font-medium text-neutral-400 rounded-xl hover:bg-neutral-800 hover:text-neutral-50 transition-colors">
             <LogOut className="mr-3 h-5 w-5 text-neutral-400" />
             Sign Out
           </button>
@@ -177,7 +177,7 @@ export default function StudentPortal({ setRole }: { setRole: (role: string | nu
           <button onClick={() => setSidebarOpen(true)} className="text-neutral-400 hover:text-neutral-200">
             <Menu className="h-6 w-6" />
           </button>
-          <span className="font-bold text-white tracking-tight">JIRVI EDU</span>
+          <span className="font-bold text-neutral-50 tracking-tight">JIRVI EDU</span>
           <ThemeToggle />
         </div>
 
@@ -330,13 +330,13 @@ function StudentDashboard({ student }: { student: Student | null }) {
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-white">Welcome back, {student?.fullName?.split(' ')[0] || 'Student'}!</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-neutral-50">Welcome back, {student?.fullName?.split(' ')[0] || 'Student'}!</h1>
         <p className="mt-2 text-neutral-400">Here's a summary of your academic activities for today.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="bg-neutral-800 p-6 md:p-8 rounded-3xl border border-neutral-700/60 shadow-sm ring-1 ring-neutral-900/5 col-span-1 lg:col-span-2 flex flex-col">
-          <h2 className="text-lg font-bold text-white mb-6 flex items-center">
+          <h2 className="text-lg font-bold text-neutral-50 mb-6 flex items-center">
             <div className="w-10 h-10 bg-neutral-900 rounded-xl flex items-center justify-center mr-3">
               <Video className="w-5 h-5 text-blue-500"/>
             </div>
@@ -356,7 +356,7 @@ function StudentDashboard({ student }: { student: Student | null }) {
                       <Video className="w-5 h-5 text-blue-600" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-white">{item.lec.title}</h3>
+                      <h3 className="font-bold text-neutral-50">{item.lec.title}</h3>
                       <p className="text-sm font-medium text-neutral-400">{item.mod.code} • <span className="text-blue-600">{item.lec.date} at {item.lec.time}</span></p>
                     </div>
                   </div>
@@ -373,7 +373,7 @@ function StudentDashboard({ student }: { student: Student | null }) {
         </div>
 
         <div className="bg-neutral-800 p-6 md:p-8 rounded-3xl border border-neutral-700 shadow-sm ring-1 ring-neutral-900/5 flex flex-col">
-          <h2 className="text-lg font-bold text-white mb-6 flex items-center">
+          <h2 className="text-lg font-bold text-neutral-50 mb-6 flex items-center">
             <div className="w-10 h-10 bg-neutral-900 rounded-xl shadow-sm border border-neutral-700 flex items-center justify-center mr-3">
               <PieChart className="w-5 h-5 text-emerald-500"/>
             </div>
@@ -406,7 +406,7 @@ function StudentDashboard({ student }: { student: Student | null }) {
                 </ResponsiveContainer>
               </div>
               <div className="absolute inset-0 flex items-center justify-center flex-col pointer-events-none mt-2">
-                 <span className="text-3xl font-bold text-white">85%</span>
+                 <span className="text-3xl font-bold text-neutral-50">85%</span>
                  <span className="text-xs text-neutral-500 font-medium uppercase tracking-wider">Overall</span>
               </div>
               <div className="mt-4 w-full flex justify-between px-2">
@@ -423,39 +423,39 @@ function StudentDashboard({ student }: { student: Student | null }) {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="bg-neutral-800 p-6 md:p-8 rounded-3xl border border-neutral-700 shadow-sm ring-1 ring-neutral-900/5 flex flex-col lg:col-span-1">
-          <h2 className="text-lg font-bold text-white mb-6 flex items-center">
+          <h2 className="text-lg font-bold text-neutral-50 mb-6 flex items-center">
             <div className="w-10 h-10 bg-neutral-900 rounded-xl shadow-sm border border-neutral-700 flex items-center justify-center mr-3">
               <Bell className="w-5 h-5 text-amber-500"/>
             </div>
             Announcements
           </h2>
           <div className="bg-neutral-900/50 rounded-2xl border border-neutral-700/50 p-5 shadow-sm flex-1">
-            <p className="text-sm font-bold text-white mb-1">Welcome to JIRVI EDU</p>
+            <p className="text-sm font-bold text-neutral-50 mb-1">Welcome to JIRVI EDU</p>
             <p className="text-sm text-neutral-400 leading-relaxed mb-4">Please make sure to check your enrolled modules for required materials.</p>
             
             <div className="h-px bg-neutral-700 w-full my-4"></div>
             
-            <p className="text-sm font-bold text-white mb-1">Upcoming Exam Schedule</p>
+            <p className="text-sm font-bold text-neutral-50 mb-1">Upcoming Exam Schedule</p>
             <p className="text-sm text-neutral-400 leading-relaxed">The final schedule will be posted next week on the dashboard.</p>
           </div>
         </div>
 
         <div className="bg-neutral-800 p-6 md:p-8 rounded-3xl border border-neutral-700 shadow-sm ring-1 ring-neutral-900/5 lg:col-span-2 flex flex-col">
            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-lg font-bold text-white flex items-center">
+              <h2 className="text-lg font-bold text-neutral-50 flex items-center">
                 <div className="w-10 h-10 bg-neutral-900 rounded-xl flex items-center justify-center mr-3 border border-neutral-700 shadow-sm">
                   <Calendar className="w-5 h-5 text-blue-500"/>
                 </div>
                 Academic Calendar
               </h2>
               <div className="flex items-center gap-4 bg-neutral-900/50 px-4 py-2 rounded-xl border border-neutral-700/50">
-                 <button onClick={handlePrevMonth} className="text-neutral-400 hover:text-white p-1 rounded-md hover:bg-neutral-700 transition-colors">
+                 <button onClick={handlePrevMonth} className="text-neutral-400 hover:text-neutral-50 p-1 rounded-md hover:bg-neutral-700 transition-colors">
                     <ChevronLeft className="w-5 h-5" />
                  </button>
-                 <span className="text-sm font-bold text-white min-w-[100px] text-center">
+                 <span className="text-sm font-bold text-neutral-50 min-w-[100px] text-center">
                     {format(currentDate, 'MMMM yyyy')}
                  </span>
-                 <button onClick={handleNextMonth} className="text-neutral-400 hover:text-white p-1 rounded-md hover:bg-neutral-700 transition-colors">
+                 <button onClick={handleNextMonth} className="text-neutral-400 hover:text-neutral-50 p-1 rounded-md hover:bg-neutral-700 transition-colors">
                     <ChevronRight className="w-5 h-5" />
                  </button>
               </div>
@@ -479,7 +479,7 @@ function StudentDashboard({ student }: { student: Student | null }) {
       </div>
 
       <div className="bg-neutral-800 p-6 md:p-8 rounded-3xl border border-neutral-700 shadow-sm ring-1 ring-neutral-900/5">
-        <h2 className="text-lg font-bold text-white mb-6 flex items-center">
+        <h2 className="text-lg font-bold text-neutral-50 mb-6 flex items-center">
           <div className="w-10 h-10 bg-neutral-900 rounded-xl flex items-center justify-center mr-3 border border-neutral-700 shadow-sm">
             <TrendingUp className="w-5 h-5 text-blue-500" />
           </div>

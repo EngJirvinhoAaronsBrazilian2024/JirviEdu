@@ -86,7 +86,7 @@ export default function Timetable({ studentId }: { studentId?: string }) {
     <div className="max-w-4xl mx-auto space-y-6 flex flex-col h-full print:bg-white print:text-black">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-neutral-800 p-4 md:p-6 rounded-2xl border border-neutral-700/60 shadow-sm print:hidden">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
+          <h1 className="text-xl md:text-2xl font-bold text-neutral-50 flex items-center gap-2">
             <Calendar className="w-6 h-6 text-blue-500" />
             Class Timetable
           </h1>
@@ -103,13 +103,13 @@ export default function Timetable({ studentId }: { studentId?: string }) {
           {/* Calendar View */}
           <div className="bg-neutral-800 rounded-2xl border border-neutral-700/60 shadow-sm overflow-hidden">
             <div className="flex items-center justify-between p-4 border-b border-neutral-700/60 bg-neutral-900/50">
-              <button onClick={handlePrevMonth} className="p-2 text-neutral-400 hover:text-white rounded-lg hover:bg-neutral-800 transition-colors">
+              <button onClick={handlePrevMonth} className="p-2 text-neutral-400 hover:text-neutral-50 rounded-lg hover:bg-neutral-800 transition-colors">
                 <ChevronLeft className="w-5 h-5" />
               </button>
-              <div className="font-medium text-white text-base">
+              <div className="font-medium text-neutral-50 text-base">
                 {format(currentDate, 'MMMM yyyy')}
               </div>
-              <button onClick={handleNextMonth} className="p-2 text-neutral-400 hover:text-white rounded-lg hover:bg-neutral-800 transition-colors">
+              <button onClick={handleNextMonth} className="p-2 text-neutral-400 hover:text-neutral-50 rounded-lg hover:bg-neutral-800 transition-colors">
                 <ChevronRight className="w-5 h-5" />
               </button>
             </div>
@@ -155,7 +155,7 @@ export default function Timetable({ studentId }: { studentId?: string }) {
           {/* Daily Schedule List */}
           <div className="bg-neutral-800 rounded-2xl border border-neutral-700/60 shadow-sm flex flex-col h-[400px]">
              <div className="p-4 border-b border-neutral-700/60 bg-neutral-900/50 flex justify-between items-center">
-                <h3 className="font-bold text-white">
+                <h3 className="font-bold text-neutral-50">
                   Schedule for {format(selectedDate, 'MMM do')}
                 </h3>
                 {isSameDay(selectedDate, new Date()) && (
@@ -179,7 +179,7 @@ export default function Timetable({ studentId }: { studentId?: string }) {
                           <span className="text-xs font-medium text-neutral-400 flex items-center gap-1"><BookOpen className="w-3 h-3"/>{item.mod.code}</span>
                         </div>
                         <div>
-                          <p className="text-sm font-bold text-white leading-tight">{item.lec.title}</p>
+                          <p className="text-sm font-bold text-neutral-50 leading-tight">{item.lec.title}</p>
                         </div>
                         {studentId && !isPast && (
                           <a href={item.lec.meetLink} target="_blank" rel="noreferrer" className="mt-2 w-full flex items-center justify-center py-1.5 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">

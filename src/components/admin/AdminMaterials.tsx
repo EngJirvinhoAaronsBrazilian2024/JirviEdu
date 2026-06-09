@@ -58,7 +58,7 @@ export default function AdminMaterials() {
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold text-white">Learning Materials</h1>
+        <h1 className="text-2xl font-bold text-neutral-50">Learning Materials</h1>
         <p className="mt-1 text-sm text-neutral-400">Upload notes, slides, and files.</p>
       </div>
 
@@ -73,11 +73,11 @@ export default function AdminMaterials() {
       {selectedModule && (
         <>
           <div className="bg-neutral-800 p-6 rounded-xl border border-neutral-700 shadow-sm">
-            <h2 className="text-lg font-medium text-white mb-4">Add Material</h2>
+            <h2 className="text-lg font-medium text-neutral-50 mb-4">Add Material</h2>
             <form onSubmit={handleAdd} className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <input required placeholder="Title / Description" value={title} onChange={e=>setTitle(e.target.value)} className="border border-neutral-600 rounded-md p-2 text-sm" />
               <input required type="file" onChange={e => setFile(e.target.files?.[0] || null)} className="border border-neutral-600 rounded-md p-2 text-sm" />
-              <button type="submit" disabled={uploading || !file} className="md:col-span-2 flex justify-center items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium disabled:opacity-50">
+              <button type="submit" disabled={uploading || !file} className="md:col-span-2 flex justify-center items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm font-medium disabled:opacity-50">
                 {uploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Plus className="w-4 h-4 mr-2" />} 
                 {uploading ? 'Uploading...' : 'Upload Material'}
               </button>
@@ -96,7 +96,7 @@ export default function AdminMaterials() {
               <tbody className="divide-y divide-neutral-200">
                 {materials.map(mat => (
                   <tr key={mat.id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-neutral-50">
                       <div className="flex items-center"><FileDown className="w-4 h-4 mr-2 text-blue-500"/>{mat.title}</div>
                     </td>
                     <td className="px-6 py-4 text-sm text-blue-600 hover:text-blue-900"><a href={mat.fileUrl} target="_blank" rel="noreferrer">Download / View</a></td>

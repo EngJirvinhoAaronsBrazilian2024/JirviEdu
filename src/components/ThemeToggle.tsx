@@ -19,7 +19,7 @@ export default function ThemeToggle() {
   return (
     <button
       onClick={() => setIsLight(!isLight)}
-      className="p-2 rounded-full bg-neutral-800 border border-neutral-700 text-neutral-400 hover:text-white transition-colors"
+      className="p-2 rounded-full bg-neutral-800 border border-neutral-700 text-neutral-400 hover:text-neutral-50 transition-colors"
       title="Toggle Theme"
     >
       {isLight ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}

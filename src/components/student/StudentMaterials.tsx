@@ -67,7 +67,7 @@ export default function StudentMaterials({ studentId }: { studentId: string }) {
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold text-white">Learning Materials</h1>
+        <h1 className="text-2xl font-bold text-neutral-50">Learning Materials</h1>
         <p className="mt-1 text-sm text-neutral-400">Download course materials and notes.</p>
       </div>
 
@@ -80,7 +80,7 @@ export default function StudentMaterials({ studentId }: { studentId: string }) {
                   <FileDown className="w-5 h-5 text-blue-600" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-white">{item.mat.title}</h3>
+                  <h3 className="text-sm font-bold text-neutral-50">{item.mat.title}</h3>
                   <div className="flex items-center text-xs text-neutral-400 mt-1">
                     <span className="font-medium text-neutral-200 mr-2">{item.mod.code}</span>
                     <span className="text-neutral-400">•</span>

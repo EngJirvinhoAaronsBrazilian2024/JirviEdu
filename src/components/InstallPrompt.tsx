@@ -47,12 +47,12 @@ export default function InstallPrompt() {
       <div className="flex items-center space-x-3">
         <img src="/icon.png" alt="App Icon" className="w-12 h-12 rounded-xl" />
         <div>
-          <h3 className="text-white font-medium">Install Jirvi</h3>
+          <h3 className="text-neutral-50 font-medium">Install Jirvi</h3>
           <p className="text-neutral-400 text-xs">Add to your home screen for quick access.</p>
         </div>
       </div>
       <div className="flex items-center space-x-2">
-        <button onClick={handleDismiss} className="text-neutral-400 hover:text-white p-2">✕</button>
+        <button onClick={handleDismiss} className="text-neutral-400 hover:text-neutral-50 p-2">✕</button>
         <button onClick={handleInstall} className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full shadow-md">
           <Download className="w-4 h-4" />
         </button>

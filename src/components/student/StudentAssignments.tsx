@@ -121,7 +121,7 @@ const RichTextEditor = ({ value, onChange, onFocus }: { value: string, onChange:
                   <label className="text-xs text-neutral-300 font-medium">Cols</label>
                   <input type="number" min="1" max="20" value={tableCols} onChange={(e) => setTableCols(parseInt(e.target.value) || 1)} className="w-16 p-1 border border-neutral-600 rounded text-sm focus:outline-none focus:border-blue-500" />
                 </div>
-                <button type="button" onClick={insertTable} className="w-full mt-2 py-1.5 bg-neutral-900 text-white rounded-md text-sm font-medium hover:bg-neutral-800 transition-colors">Insert</button>
+                <button type="button" onClick={insertTable} className="w-full mt-2 py-1.5 bg-neutral-900 text-neutral-50 rounded-md text-sm font-medium hover:bg-neutral-800 transition-colors">Insert</button>
               </div>
             </div>
           )}
@@ -290,7 +290,7 @@ export default function StudentAssignments({ studentId }: { studentId: string })
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold text-white">Assignments</h1>
+        <h1 className="text-2xl font-bold text-neutral-50">Assignments</h1>
         <p className="mt-1 text-sm text-neutral-400">View and submit coursework tasks.</p>
       </div>
 
@@ -310,11 +310,11 @@ export default function StudentAssignments({ studentId }: { studentId: string })
             return (
               <div key={idx} className="bg-neutral-800 rounded-xl border border-neutral-700 shadow-sm p-6 flex flex-col justify-between">
                 <div>
-                  <h3 className="text-xl font-bold text-white mb-4">{item.asn.title}</h3>
+                  <h3 className="text-xl font-bold text-neutral-50 mb-4">{item.asn.title}</h3>
                   <div className="space-y-2 mb-6">
-                    <p className="text-sm text-neutral-300"><span className="font-semibold text-white">Module:</span> {item.mod.code}</p>
-                    <p className="text-sm text-neutral-300"><span className="font-semibold text-white">Start Time:</span> {new Date(data.start).toLocaleString()}</p>
-                    <p className="text-sm text-neutral-300"><span className="font-semibold text-white">End Time (Deadline):</span> {new Date(item.asn.deadline).toLocaleString()}</p>
+                    <p className="text-sm text-neutral-300"><span className="font-semibold text-neutral-50">Module:</span> {item.mod.code}</p>
+                    <p className="text-sm text-neutral-300"><span className="font-semibold text-neutral-50">Start Time:</span> {new Date(data.start).toLocaleString()}</p>
+                    <p className="text-sm text-neutral-300"><span className="font-semibold text-neutral-50">End Time (Deadline):</span> {new Date(item.asn.deadline).toLocaleString()}</p>
                   </div>
                 </div>
                 {!hasStarted ? (
@@ -350,9 +350,9 @@ export default function StudentAssignments({ studentId }: { studentId: string })
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                     {item.mod.code}
                   </span>
-                  <span className="text-sm font-bold text-white">{item.asn.marks} Marks</span>
+                  <span className="text-sm font-bold text-neutral-50">{item.asn.marks} Marks</span>
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2 flex items-center">
+                <h3 className="text-lg font-bold text-neutral-50 mb-2 flex items-center">
                   <FileText className="w-5 h-5 mr-2 text-green-600" />
                   {item.asn.title}
                 </h3>
@@ -391,7 +391,7 @@ export default function StudentAssignments({ studentId }: { studentId: string })
                         <div className="relative">
                           <button 
                             onClick={() => setSubmitMenuOpen(submitMenuOpen === item.asn.id ? null : item.asn.id)}
-                            className="px-4 py-2 bg-neutral-900 text-white rounded-md text-sm font-medium hover:bg-neutral-800 transition-colors flex items-center shadow-sm"
+                            className="px-4 py-2 bg-neutral-900 text-neutral-50 rounded-md text-sm font-medium hover:bg-neutral-800 transition-colors flex items-center shadow-sm"
                           >
                             {uploading === item.asn.id ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Send className="w-4 h-4 mr-2" />}
                             Submit AnswerSheet
@@ -441,7 +441,7 @@ export default function StudentAssignments({ studentId }: { studentId: string })
                         <div className="flex items-center space-x-3">
                           <FileText className="w-5 h-5 text-blue-400" />
                           <div>
-                            <p className="text-sm font-medium text-white">{selectedFile.file.name}</p>
+                            <p className="text-sm font-medium text-neutral-50">{selectedFile.file.name}</p>
                             <p className="text-xs text-neutral-400">{(selectedFile.file.size / 1024 / 1024).toFixed(2)} MB</p>
                           </div>
                         </div>
@@ -449,7 +449,7 @@ export default function StudentAssignments({ studentId }: { studentId: string })
                           <button 
                             onClick={() => setSelectedFile(null)} 
                             disabled={uploading === item.asn.id}
-                            className="px-3 py-1.5 bg-neutral-800 text-white rounded hover:bg-neutral-700 text-sm disabled:opacity-50 transition-colors"
+                            className="px-3 py-1.5 bg-neutral-800 text-neutral-50 rounded hover:bg-neutral-700 text-sm disabled:opacity-50 transition-colors"
                           >
                             Cancel
                           </button>
@@ -505,7 +505,7 @@ export default function StudentAssignments({ studentId }: { studentId: string })
         <div className="fixed inset-0 bg-neutral-900/50 flex items-center justify-center p-4 z-50">
           <div className="bg-neutral-800 rounded-xl shadow-xl max-w-2xl w-full max-h-[80vh] flex flex-col">
             <div className="p-4 border-b border-neutral-700 flex justify-between items-center">
-              <h3 className="font-bold text-white">Your Submitted Answer</h3>
+              <h3 className="font-bold text-neutral-50">Your Submitted Answer</h3>
               <button onClick={() => setViewingSubmission(null)} className="text-neutral-400 hover:text-neutral-200">
                 Close
               </button>

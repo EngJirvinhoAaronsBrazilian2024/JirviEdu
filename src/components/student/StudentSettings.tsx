@@ -79,7 +79,7 @@ export default function StudentSettings({ student, studentId }: { student: Stude
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-white">Account Settings</h1>
+        <h1 className="text-2xl font-bold text-neutral-50">Account Settings</h1>
         <p className="text-neutral-400">Update your profile, change your email and password.</p>
       </div>
 
@@ -95,16 +95,16 @@ export default function StudentSettings({ student, studentId }: { student: Stude
                 )}
               </div>
               <label className="absolute inset-0 bg-neutral-900/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
-                <Camera className="w-8 h-8 text-white" />
+                <Camera className="w-8 h-8 text-neutral-50" />
                 <input type="file" className="hidden" accept="image/*" onChange={handlePhotoChange} />
               </label>
             </div>
-            <h3 className="font-bold text-white text-lg">{student.fullName}</h3>
+            <h3 className="font-bold text-neutral-50 text-lg">{student.fullName}</h3>
             <p className="text-sm text-neutral-400 font-medium">{student.regNumber}</p>
             <div className="mt-4 w-full flex flex-col space-y-2 text-sm text-left">
               <div className="flex justify-between border-b border-neutral-50 pb-2">
                 <span className="text-neutral-400">Course</span>
-                <span className="font-medium text-white">{student.course}</span>
+                <span className="font-medium text-neutral-50">{student.course}</span>
               </div>
               <div className="flex justify-between border-b border-neutral-50 pb-2">
                 <span className="text-neutral-400">Status</span>
@@ -112,7 +112,7 @@ export default function StudentSettings({ student, studentId }: { student: Stude
               </div>
               <div className="flex justify-between pb-2">
                 <span className="text-neutral-400">Joined</span>
-                <span className="font-medium text-white">{new Date(student.createdAt).toLocaleDateString()}</span>
+                <span className="font-medium text-neutral-50">{new Date(student.createdAt).toLocaleDateString()}</span>
               </div>
             </div>
           </div>
@@ -133,20 +133,20 @@ export default function StudentSettings({ student, studentId }: { student: Stude
               )}
 
               <div>
-                <h3 className="text-lg font-bold text-white mb-4 flex items-center"><Mail className="w-5 h-5 mr-2 text-neutral-400" /> Contract Information</h3>
+                <h3 className="text-lg font-bold text-neutral-50 mb-4 flex items-center"><Mail className="w-5 h-5 mr-2 text-neutral-400" /> Contact Information</h3>
                 <div>
                   <label className="block text-sm font-medium text-neutral-200 mb-1">Email Address</label>
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full p-2 bg-black text-white border border-neutral-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    className="w-full p-2 bg-black text-neutral-50 border border-neutral-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   />
                 </div>
               </div>
 
               <div className="pt-4 border-t border-neutral-100">
-                <h3 className="text-lg font-bold text-white mb-4 flex items-center"><Lock className="w-5 h-5 mr-2 text-neutral-400" /> Security</h3>
+                <h3 className="text-lg font-bold text-neutral-50 mb-4 flex items-center"><Lock className="w-5 h-5 mr-2 text-neutral-400" /> Security</h3>
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-neutral-200 mb-1">New Password</label>
@@ -154,7 +154,7 @@ export default function StudentSettings({ student, studentId }: { student: Stude
                       type="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full p-2 bg-black text-white border border-neutral-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                      className="w-full p-2 bg-black text-neutral-50 border border-neutral-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
                     />
                   </div>
                   <div>
@@ -163,7 +163,7 @@ export default function StudentSettings({ student, studentId }: { student: Stude
                       type="password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="w-full p-2 bg-black text-white border border-neutral-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                      className="w-full p-2 bg-black text-neutral-50 border border-neutral-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
                     />
                   </div>
                 </div>
@@ -174,7 +174,7 @@ export default function StudentSettings({ student, studentId }: { student: Stude
               <button
                 type="submit"
                 disabled={loading}
-                className="bg-blue-600 text-white px-6 py-2 rounded-md font-medium hover:bg-blue-700 transition flex items-center disabled:opacity-50"
+                className="bg-green-600 text-white px-6 py-2 rounded-md font-medium hover:bg-green-700 transition flex items-center disabled:opacity-50"
               >
                 {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
                 Save Changes

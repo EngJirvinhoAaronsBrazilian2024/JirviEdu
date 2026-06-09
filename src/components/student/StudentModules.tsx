@@ -83,7 +83,7 @@ export default function StudentModules({ studentId }: { studentId: string }) {
     <div className="space-y-6 max-w-5xl mx-auto">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Select Modules</h1>
+          <h1 className="text-2xl font-bold text-neutral-50">Select Modules</h1>
           <p className="mt-1 text-sm text-neutral-400">Select the modules you are doing and save changes to see their updates.</p>
         </div>
         <button
@@ -92,8 +92,8 @@ export default function StudentModules({ studentId }: { studentId: string }) {
           className={clsx(
             "flex items-center px-4 py-2.5 rounded-lg text-sm font-medium transition-all shadow-sm",
             !hasChanges ? "bg-neutral-800 text-neutral-500 cursor-not-allowed border border-neutral-700/50" : 
-            saving ? "bg-blue-600/50 text-white cursor-wait" :
-            "bg-blue-600 hover:bg-blue-700 text-white"
+            saving ? "bg-green-600/50 text-white cursor-wait" :
+            "bg-green-600 hover:bg-green-700 text-white"
           )}
         >
           {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
@@ -133,10 +133,10 @@ export default function StudentModules({ studentId }: { studentId: string }) {
                          "w-7 h-7 flex items-center justify-center rounded-md border",
                          isSelected ? "bg-blue-600 border-blue-600 text-white shadow-sm" : "border-neutral-500 bg-neutral-900 text-transparent"
                       )}>
-                         {isSelected && <Check className="w-4 h-4 text-white" />}
+                         {isSelected && <Check className="w-4 h-4 text-neutral-50" />}
                       </div>
                    </div>
-                   <h3 className={clsx("text-lg font-bold mb-1", isSelected ? "text-blue-400" : "text-white")}>{mod.name}</h3>
+                   <h3 className={clsx("text-lg font-bold mb-1", isSelected ? "text-blue-400" : "text-neutral-50")}>{mod.name}</h3>
                    <p className="text-sm font-bold text-neutral-500 mb-3 uppercase tracking-wider">{mod.code}</p>
                    <p className="text-sm text-neutral-300 line-clamp-3 leading-relaxed flex-1">{mod.description}</p>
                 </div>

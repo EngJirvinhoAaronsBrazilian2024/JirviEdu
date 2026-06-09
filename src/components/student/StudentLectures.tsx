@@ -70,7 +70,7 @@ export default function StudentLectures({ studentId }: { studentId: string }) {
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold text-white">Upcoming Lectures</h1>
+        <h1 className="text-2xl font-bold text-neutral-50">Upcoming Lectures</h1>
         <p className="mt-1 text-sm text-neutral-400">Access your scheduled video classes.</p>
       </div>
 
@@ -85,7 +85,7 @@ export default function StudentLectures({ studentId }: { studentId: string }) {
                 {item.mod.code}
               </span>
             </div>
-            <h3 className="text-lg font-bold text-white mb-2">{item.lec.title}</h3>
+            <h3 className="text-lg font-bold text-neutral-50 mb-2">{item.lec.title}</h3>
             <div className="mt-auto space-y-3">
               <div className="flex items-center text-sm text-neutral-400">
                 <CalendarIcon className="w-4 h-4 mr-2" />

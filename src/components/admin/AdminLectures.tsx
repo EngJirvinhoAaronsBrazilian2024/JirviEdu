@@ -45,7 +45,7 @@ export default function AdminLectures() {
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold text-white">Lectures Management</h1>
+        <h1 className="text-2xl font-bold text-neutral-50">Lectures Management</h1>
         <p className="mt-1 text-sm text-neutral-400">Schedule video lectures for modules.</p>
       </div>
 
@@ -60,13 +60,13 @@ export default function AdminLectures() {
       {selectedModule && (
         <>
           <div className="bg-neutral-800 p-6 rounded-xl border border-neutral-700 shadow-sm">
-            <h2 className="text-lg font-medium text-white mb-4">Add New Lecture</h2>
+            <h2 className="text-lg font-medium text-neutral-50 mb-4">Add New Lecture</h2>
             <form onSubmit={handleAdd} className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <input required placeholder="Lecture Title" value={title} onChange={e=>setTitle(e.target.value)} className="border border-neutral-600 rounded-md p-2 text-sm focus:ring-blue-500 focus:border-blue-500" />
               <input required placeholder="Meet Link (URL)" value={meetLink} onChange={e=>setMeetLink(e.target.value)} className="border border-neutral-600 rounded-md p-2 text-sm focus:ring-blue-500 focus:border-blue-500" />
               <input required type="date" value={date} onChange={e=>setDate(e.target.value)} className="border border-neutral-600 rounded-md p-2 text-sm focus:ring-blue-500 focus:border-blue-500" />
               <input required type="time" value={time} onChange={e=>setTime(e.target.value)} className="border border-neutral-600 rounded-md p-2 text-sm focus:ring-blue-500 focus:border-blue-500" />
-              <button type="submit" className="md:col-span-2 flex justify-center items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium">
+              <button type="submit" className="md:col-span-2 flex justify-center items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm font-medium">
                 <Plus className="w-4 h-4 mr-2" /> Schedule Lecture
               </button>
             </form>
@@ -85,7 +85,7 @@ export default function AdminLectures() {
               <tbody className="divide-y divide-neutral-200">
                 {lectures.map(lec => (
                   <tr key={lec.id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-neutral-50">
                       <div className="flex items-center"><Video className="w-4 h-4 mr-2 text-blue-500"/>{lec.title}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-400">{lec.date} at {lec.time}</td>

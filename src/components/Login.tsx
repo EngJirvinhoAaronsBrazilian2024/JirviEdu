@@ -84,10 +84,10 @@ export default function Login({ setRole }: { setRole: (role: string | null) => v
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
         <div className="flex justify-center">
           <div className="h-16 w-16 bg-blue-500 rounded-2xl flex items-center justify-center shadow-lg transform rotate-3">
-            <BookOpen className="h-8 w-8 text-white -rotate-3" />
+            <BookOpen className="h-8 w-8 text-neutral-50 -rotate-3" />
           </div>
         </div>
-        <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-white">
+        <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-neutral-50">
           JIRVI EDU
         </h2>
         <p className="mt-2 text-center text-sm text-neutral-300">
@@ -116,7 +116,7 @@ export default function Login({ setRole }: { setRole: (role: string | null) => v
                   required
                   value={regNumber}
                   onChange={(e) => setRegNumber(e.target.value)}
-                  className="block w-full appearance-none rounded-lg border border-neutral-600 px-3 py-2 placeholder-neutral-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm bg-neutral-900 text-white"
+                  className="block w-full appearance-none rounded-lg border border-neutral-600 px-3 py-2 placeholder-neutral-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm bg-neutral-900 text-neutral-50"
                   placeholder="REG-XXXX-XXXX"
                 />
               </div>
@@ -133,12 +133,12 @@ export default function Login({ setRole }: { setRole: (role: string | null) => v
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full appearance-none rounded-lg border border-neutral-600 px-3 py-2 pr-10 placeholder-neutral-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm bg-neutral-900 text-white"
+                  className="block w-full appearance-none rounded-lg border border-neutral-600 px-3 py-2 pr-10 placeholder-neutral-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm bg-neutral-900 text-neutral-50"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 hover:text-white"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 hover:text-neutral-50"
                 >
                   {showPassword ? (
                     <EyeOff className="h-5 w-5" aria-hidden="true" />
