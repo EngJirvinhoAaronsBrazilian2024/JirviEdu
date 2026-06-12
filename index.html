@@ -1,6 +1,10 @@
 <!doctype html>
 <html lang="en">
-  <head>
+  <head><script>
+  window.addEventListener('error', function(e) {
+    fetch('/__log_error?m=' + encodeURIComponent(e.message + ' at ' + e.filename + ':' + e.lineno));
+  });
+</script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Jirvi Edu App</title>

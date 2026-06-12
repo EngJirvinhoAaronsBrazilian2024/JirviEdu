@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
 import { db } from '../../lib/db';
 import { collection, query, getDocs, doc, getDoc, mutationEmitter } from '../../lib/db';
 import { Award, FileText, CheckCircle, Printer, BookOpen } from 'lucide-react';
@@ -75,9 +73,13 @@ export default function StudentResults({ student }: { student: Student | null })
     };
   }, [student?.id]);
 
-  const handlePrint = () => {
+  const handlePrint = async () => {
     if (!student) return;
-    const doc = new jsPDF();
+    try {
+      const { jsPDF } = await import('jspdf');
+      const { default: autoTable } = await import('jspdf-autotable');
+      const doc = new jsPDF();
+
     
     // Title
     doc.setFontSize(22);
@@ -115,6 +117,7 @@ export default function StudentResults({ student }: { student: Student | null })
     });
 
     doc.save(`${student.regNumber || 'Student'}_Results.pdf`);
+    } catch (err) { console.error('PDF generation failed', err); alert('Failed to generate PDF') }
   };
 
   if (loading) {
