@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../lib/db';
 import { collection, query, onSnapshot, doc, setDoc, deleteDoc, getDoc, getDocs } from '../../lib/db';
-import { BookOpen, Check, Square, Save, Loader2 } from 'lucide-react';
+import { BookOpen, Check, Square, Save, Loader2, Lock } from 'lucide-react';
 import clsx from 'clsx';
 import { Module } from '../../types';
 
@@ -37,6 +37,7 @@ export default function StudentModules({ studentId }: { studentId: string }) {
   }, [studentId]);
 
   const toggleSelection = (moduleId: string) => {
+    if (initialEnrolled.has(moduleId)) return;
     setSelectedModuleIds(prev => {
       const next = new Set(prev);
       if (next.has(moduleId)) {
@@ -110,11 +111,13 @@ export default function StudentModules({ studentId }: { studentId: string }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {modules.map(mod => {
             const isSelected = selectedModuleIds.has(mod.id);
+            const isLocked = initialEnrolled.has(mod.id);
             return (
               <div 
                 key={mod.id} 
                 className={clsx(
-                  "rounded-xl border transition-all cursor-pointer overflow-hidden relative group",
+                  "rounded-xl border transition-all overflow-hidden relative group",
+                  isLocked ? "cursor-default opacity-80" : "cursor-pointer",
                   isSelected 
                     ? "bg-blue-600/10 border-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.1)] ring-1 ring-blue-500/20" 
                     : "bg-neutral-800 border-neutral-700/60 shadow-sm hover:border-neutral-600 hover:bg-neutral-700"
@@ -131,9 +134,10 @@ export default function StudentModules({ studentId }: { studentId: string }) {
                       </div>
                       <div className={clsx(
                          "w-7 h-7 flex items-center justify-center rounded-md border",
-                         isSelected ? "bg-blue-600 border-blue-600 text-white shadow-sm" : "border-neutral-500 bg-neutral-900 text-transparent"
+                         isLocked ? "bg-blue-900/50 border-blue-800 text-blue-300" : 
+                           isSelected ? "bg-blue-600 border-blue-600 text-white shadow-sm" : "border-neutral-500 bg-neutral-900 text-transparent"
                       )}>
-                         {isSelected && <Check className="w-4 h-4 text-neutral-50" />}
+                         {isLocked ? <Lock className="w-4 h-4" /> : isSelected && <Check className="w-4 h-4 text-neutral-50" />}
                       </div>
                    </div>
                    <h3 className={clsx("text-lg font-bold mb-1", isSelected ? "text-blue-400" : "text-neutral-50")}>{mod.name}</h3>

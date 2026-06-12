@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { db, collection, query, onSnapshot, doc, setDoc, deleteDoc, updateDoc, storage, ref, uploadBytes, getDownloadURL } from '../../lib/db';
+import { db, collection, query, onSnapshot, doc, setDoc, deleteDoc, updateDoc, getDocs, storage, ref, uploadBytes, getDownloadURL } from '../../lib/db';
 import { Plus, Trash2, FileText, Loader2, Users, CheckCircle, ChevronLeft } from 'lucide-react';
 import { Module } from '../../types';
 

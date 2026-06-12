@@ -190,6 +190,14 @@ export async function setDoc(docRef: any, data: any, options: { merge?: boolean 
   
   if (table === 'enrollments' || table === 'submissions') {
     payload.student_id = docId;
+    let queryObj: any = insforge.database.from(table).select('id').eq('student_id', docId);
+    for (const [k, v] of Object.entries(conditions)) {
+      queryObj = queryObj.eq(k, v);
+    }
+    const { data: existingData } = await queryObj.single();
+    if (existingData && existingData.id) {
+       payload.id = existingData.id;
+    }
   } else {
     payload.id = docId;
   }

@@ -249,7 +249,7 @@ export default function StudentAssignments({ studentId }: { studentId: string })
       alert("Assignment submitted successfully!");
     } catch(err: any) {
       console.error(err);
-      alert(err.message || "Failed to submit assignment.");
+      alert(err.message || JSON.stringify(err) || "Failed to submit assignment.");
     } finally {
       setUploading(null);
     }
@@ -281,7 +281,7 @@ export default function StudentAssignments({ studentId }: { studentId: string })
       alert("Online assignment submitted successfully!");
     } catch(err: any) {
       console.error(err);
-      alert(err.message || "Failed to submit assignment.");
+      alert(err.message || JSON.stringify(err) || "Failed to submit assignment.");
     } finally {
       setUploading(null);
     }
