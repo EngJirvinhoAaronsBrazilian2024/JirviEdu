@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { db } from '../../lib/db';
 import { collection, query, getDocs, doc, getDoc, mutationEmitter } from '../../lib/db';
 import { Award, FileText, CheckCircle, Printer, BookOpen } from 'lucide-react';
@@ -74,11 +76,45 @@ export default function StudentResults({ student }: { student: Student | null })
   }, [student?.id]);
 
   const handlePrint = () => {
-    if (window.self !== window.top) {
-      alert("Please open the application in a new tab (using the button in the top right) to download or print your result slip. The preview environment blocks print dialogs.");
-    } else {
-      window.print();
-    }
+    if (!student) return;
+    const doc = new jsPDF();
+    
+    // Title
+    doc.setFontSize(22);
+    doc.text('JIRVI EDU', 14, 20);
+    
+    doc.setFontSize(16);
+    doc.text('Student Official Result Slip', 14, 30);
+    
+    // Details
+    doc.setFontSize(11);
+    doc.text(`Student Name: ${student.fullName || 'N/A'}`, 14, 40);
+    doc.text(`Registration No: ${student.regNumber || 'N/A'}`, 14, 46);
+    doc.text(`Date Issued: ${new Date().toLocaleDateString()}`, 14, 52);
+    
+    doc.text(`Course: ${student.course || 'N/A'}`, 120, 40);
+    const totalE = results.reduce((acc, curr) => acc + (Number(curr.sub.grade) || 0), 0);
+    const totalP = results.reduce((acc, curr) => acc + (Number(curr.asn.marks) || 0), 0);
+    const oP = totalP > 0 ? ((totalE / totalP) * 100).toFixed(1) : '0.0';
+    doc.text(`Overall Average: ${oP}%`, 120, 46);
+    doc.text(`Total Assignments Graded: ${results.length}`, 120, 52);
+
+    const tableBody = results.map(item => [
+      `${item.asn.title}\n${item.mod.code} - ${item.mod.name}`,
+      new Date(item.sub.submittedAt).toLocaleDateString(),
+      `${item.sub.grade} / ${item.asn.marks}`,
+      item.sub.feedback || 'No feedback provided'
+    ]);
+
+    autoTable(doc, {
+      startY: 60,
+      head: [['Module & Assignment', 'Submitted On', 'Grade', 'Feedback']],
+      body: tableBody,
+      styles: { fontSize: 10, cellPadding: 3 },
+      headStyles: { fillColor: [40, 40, 40] }
+    });
+
+    doc.save(`${student.regNumber || 'Student'}_Results.pdf`);
   };
 
   if (loading) {
