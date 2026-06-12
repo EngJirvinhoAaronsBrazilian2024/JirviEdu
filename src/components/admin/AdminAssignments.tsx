@@ -65,6 +65,10 @@ export default function AdminAssignments() {
   const handleDelete = async (id: string) => {
     if (confirm('Delete this assignment?')) {
       try {
+        const subsSnap = await getDocs(collection(db, `modules/${selectedModule}/assignments/${id}/submissions`));
+        for (const subDoc of subsSnap.docs) {
+          await deleteDoc(doc(db, `modules/${selectedModule}/assignments/${id}/submissions`, subDoc.id));
+        }
         await deleteDoc(doc(db, `modules/${selectedModule}/assignments`, id));
         setAssignments(prev => prev.filter(ast => ast.id !== id));
         if (selectedAssignment?.id === id) setSelectedAssignment(null);

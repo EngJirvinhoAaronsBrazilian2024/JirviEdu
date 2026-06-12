@@ -94,6 +94,7 @@ export async function getDoc(docRef: any) {
 
   let q: any = insforge.database.from(table).select('*').eq(idField, docId);
   for (const [k, v] of Object.entries(conditions)) {
+    if (table === 'submissions' && k === 'module_id') continue;
     q = q.eq(k, v);
   }
   
@@ -118,6 +119,7 @@ export async function getDocs(queryRef: any) {
   
   let q: any = insforge.database.from(table).select('*');
   for (const [k, v] of Object.entries(conditions)) {
+    if (table === 'submissions' && k === 'module_id') continue;
     q = q.eq(k, v);
   }
   
@@ -187,6 +189,7 @@ export async function setDoc(docRef: any, data: any, options: { merge?: boolean 
   }
 
   let payload = camelToSnake({ ...d, ...conditions });
+  if (table === 'submissions') delete payload.module_id;
   
   if (table === 'enrollments' || table === 'submissions') {
     payload.student_id = docId;
@@ -242,6 +245,7 @@ export async function updateDoc(docRef: any, data: any) {
   }
   
   for (const [k, v] of Object.entries(conditions)) {
+    if (table === 'submissions' && k === 'module_id') continue;
     q = q.eq(k, v);
   }
   
@@ -261,6 +265,7 @@ export async function deleteDoc(docRef: any) {
   }
   
   for (const [k, v] of Object.entries(conditions)) {
+    if (table === 'submissions' && k === 'module_id') continue;
     q = q.eq(k, v);
   }
   

@@ -195,7 +195,7 @@ export default function StudentAssignments({ studentId }: { studentId: string })
         
         if (!isMounted) return;
         
-        const sorted = allAsn.sort((a,b) => a.asn.deadline - b.asn.deadline);
+        const sorted = allAsn.sort((a,b) => new Date(a.asn.deadline).getTime() - new Date(b.asn.deadline).getTime());
         const newHash = JSON.stringify(sorted);
         if (newHash !== lastHash) {
           setAssignments(sorted);
