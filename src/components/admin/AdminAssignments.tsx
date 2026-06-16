@@ -242,7 +242,7 @@ function AssignmentSubmissions({ moduleId, assignment, onBack }: { moduleId: str
           </thead>
           <tbody className="divide-y divide-neutral-200">
             {submissions.map(sub => {
-              const student = students[sub.studentId] || { fullName: 'Unknown Student', regNumber: sub.studentId };
+              const student = students[sub.id] || { fullName: 'Unknown Student', regNumber: sub.id };
               const isGrading = gradingId === sub.id;
               
               return (
@@ -298,7 +298,7 @@ function AssignmentSubmissions({ moduleId, assignment, onBack }: { moduleId: str
                     {isGrading ? (
                       <div className="flex items-center justify-end space-x-2">
                         <button onClick={() => setGradingId(null)} className="text-neutral-400 hover:text-neutral-200">Cancel</button>
-                        <button onClick={() => saveGrade(sub.studentId)} className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700">Save</button>
+                        <button onClick={() => saveGrade(sub.id)} className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700">Save</button>
                       </div>
                     ) : (
                       <button 

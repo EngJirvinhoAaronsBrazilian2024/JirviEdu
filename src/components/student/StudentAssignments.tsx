@@ -149,6 +149,7 @@ export default function StudentAssignments({ studentId }: { studentId: string })
   const [viewingSubmission, setViewingSubmission] = useState<string | null>(null);
   const [submitMenuOpen, setSubmitMenuOpen] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<{file: File, moduleId: string, assignmentId: string} | null>(null);
+  const [previewFileUrl, setPreviewFileUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (!studentId) return;
@@ -247,6 +248,8 @@ export default function StudentAssignments({ studentId }: { studentId: string })
       setAnswerText('');
       
       alert("Assignment submitted successfully!");
+      setSelectedFile(null);
+      setPreviewFileUrl(null);
     } catch(err: any) {
       console.error(err);
       alert(err.message || JSON.stringify(err) || "Failed to submit assignment.");
@@ -361,7 +364,7 @@ export default function StudentAssignments({ studentId }: { studentId: string })
                   <a href={item.asn.fileUrl} target="_blank" rel="noreferrer" className="text-sm text-blue-600 hover:text-blue-900 font-medium block mb-4">Download Assignment</a>
                 )}
                 
-                {item.sub && item.sub.grade !== undefined && (
+                {item.sub && item.sub.grade !== undefined && item.sub.grade !== null && (
                   <div className="mt-4 p-3 bg-neutral-900 border border-blue-100 rounded-lg mb-4">
                     <p className="text-sm font-bold text-blue-900">Grade: {item.sub.grade} / {item.asn.marks}</p>
                     {item.sub.feedback && <p className="text-xs text-blue-700 mt-1">Feedback: {item.sub.feedback}</p>}
@@ -408,7 +411,10 @@ export default function StudentAssignments({ studentId }: { studentId: string })
                                   accept=".pdf,.doc,.docx,.zip"
                                   onChange={(e) => {
                                     const file = e.target.files?.[0];
-                                    if (file) setSelectedFile({ file, moduleId: item.mod.id, assignmentId: item.asn.id });
+                                    if (file) {
+                                      setSelectedFile({ file, moduleId: item.mod.id, assignmentId: item.asn.id });
+                                      setPreviewFileUrl(URL.createObjectURL(file));
+                                    }
                                     e.target.value = '';
                                     setSubmitMenuOpen(null);
                                   }} 
@@ -436,38 +442,6 @@ export default function StudentAssignments({ studentId }: { studentId: string })
                       </div>
                     </div>
                     
-                    {selectedFile?.assignmentId === item.asn.id && (
-                      <div className="mb-4 p-4 border border-blue-500/30 bg-blue-500/10 rounded-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                        <div className="flex items-center space-x-3">
-                          <FileText className="w-5 h-5 text-blue-400" />
-                          <div>
-                            <p className="text-sm font-medium text-neutral-50">{selectedFile.file.name}</p>
-                            <p className="text-xs text-neutral-400">{(selectedFile.file.size / 1024 / 1024).toFixed(2)} MB</p>
-                          </div>
-                        </div>
-                        <div className="flex space-x-2">
-                          <button 
-                            onClick={() => setSelectedFile(null)} 
-                            disabled={uploading === item.asn.id}
-                            className="px-3 py-1.5 bg-neutral-800 text-neutral-50 rounded hover:bg-neutral-700 text-sm disabled:opacity-50 transition-colors"
-                          >
-                            Cancel
-                          </button>
-                          <button 
-                            onClick={() => {
-                              handleUpload(selectedFile.moduleId, selectedFile.assignmentId, selectedFile.file);
-                              setSelectedFile(null);
-                            }} 
-                            disabled={uploading === item.asn.id}
-                            className="px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm flex items-center disabled:opacity-50 transition-colors"
-                          >
-                            {uploading === item.asn.id ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Send className="w-4 h-4 mr-2" />}
-                            Confirm Upload
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                    
                     <div className="bg-neutral-800 rounded-lg flex-1">
                       <RichTextEditor 
                         value={answerText}
@@ -483,11 +457,6 @@ export default function StudentAssignments({ studentId }: { studentId: string })
                  <div className="px-6 py-4 bg-neutral-900 border-t border-neutral-100 flex items-center justify-between">
                    <div className="flex items-center text-green-600 text-sm font-medium">
                      <CheckCircle className="w-4 h-4 mr-1" /> Submitted
-                     {item.sub.type === 'text' ? (
-                       <button onClick={() => setViewingSubmission(item.sub.content)} className="ml-2 text-blue-600 hover:underline">View</button>
-                     ) : (
-                       <a href={item.sub.fileUrl} target="_blank" rel="noreferrer" className="ml-2 text-blue-600 hover:underline">View</a>
-                     )}
                    </div>
                  </div>
               )}
@@ -514,6 +483,58 @@ export default function StudentAssignments({ studentId }: { studentId: string })
               className="p-6 overflow-y-auto w-full prose text-sm text-neutral-200 font-medium prose-invert"
               dangerouslySetInnerHTML={{ __html: viewingSubmission }}
             />
+          </div>
+        </div>
+      )}
+
+      {selectedFile && previewFileUrl && (
+        <div className="fixed inset-0 bg-neutral-900/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-neutral-800 rounded-xl shadow-xl max-w-4xl w-full h-[85vh] flex flex-col overflow-hidden border border-neutral-700">
+            <div className="p-4 border-b border-neutral-700 flex justify-between items-center bg-neutral-900 shrink-0">
+              <h3 className="font-bold text-neutral-50 flex items-center text-lg">
+                <FileText className="w-5 h-5 mr-3 text-blue-400" />
+                Upload Preview
+              </h3>
+              <button 
+                onClick={() => { setSelectedFile(null); setPreviewFileUrl(null); }} 
+                className="text-neutral-400 hover:text-neutral-200"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="flex-1 overflow-auto bg-neutral-950 p-6 flex flex-col items-center justify-center relative">
+              {selectedFile.file.type.startsWith('image/') ? (
+                <img src={previewFileUrl} alt="Preview" className="max-w-full max-h-full object-contain rounded shadow" />
+              ) : selectedFile.file.type === 'application/pdf' ? (
+                <iframe src={previewFileUrl} className="w-full h-full border-0 bg-white rounded shadow" title="PDF Preview" />
+              ) : (
+                <div className="text-center p-8 bg-neutral-900 rounded-xl border border-neutral-800 shadow-sm max-w-md w-full">
+                  <FileText className="w-20 h-20 text-neutral-600 mx-auto mb-6" />
+                  <p className="text-neutral-300 font-medium text-lg mb-2">{selectedFile.file.name}</p>
+                  <p className="text-neutral-500 mb-6 font-mono">{(selectedFile.file.size / 1024 / 1024).toFixed(2)} MB</p>
+                  <p className="text-sm text-neutral-400 px-4 py-2 bg-neutral-800 rounded-md">Preview not available for this file type.</p>
+                </div>
+              )}
+            </div>
+            
+            <div className="p-4 border-t border-neutral-700 bg-neutral-900 flex justify-end space-x-3 shrink-0">
+              <button 
+                onClick={() => { setSelectedFile(null); setPreviewFileUrl(null); }} 
+                disabled={uploading === selectedFile.assignmentId}
+                className="px-6 py-2.5 bg-neutral-800 text-neutral-50 rounded shadow-sm hover:bg-neutral-700 disabled:opacity-50 transition-colors font-medium"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={() => handleUpload(selectedFile.moduleId, selectedFile.assignmentId, selectedFile.file)} 
+                disabled={uploading === selectedFile.assignmentId}
+                className="px-6 py-2.5 bg-blue-600 text-white rounded shadow-sm hover:bg-blue-700 font-bold flex items-center disabled:opacity-50 transition-colors"
+              >
+                {uploading === selectedFile.assignmentId ? <Loader2 className="w-5 h-5 mr-2 animate-spin"/> : <Send className="w-5 h-5 mr-2" />}
+                Submit Assignment
+              </button>
+            </div>
           </div>
         </div>
       )}

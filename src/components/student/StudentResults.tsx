@@ -36,7 +36,7 @@ export default function StudentResults({ student }: { student: Student | null })
             
             if (subDocSnap.exists()) {
               const subData = subDocSnap.data();
-              if (subData.grade !== undefined) {
+              if (subData.grade !== undefined && subData.grade !== null) {
                  gradedSubmissions.push({ 
                   mod: m, 
                   asn: asnData,
@@ -81,25 +81,41 @@ export default function StudentResults({ student }: { student: Student | null })
       const doc = new jsPDF();
 
     
+    // Try to load user logo
+    try {
+      const response = await fetch('/icon.png');
+      const blob = await response.blob();
+      const base64data = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(blob);
+      });
+      doc.addImage(base64data, 'PNG', 14, 15, 20, 20);
+    } catch (e) {
+      console.warn("Could not load icon", e);
+    }
+
     // Title
-    doc.setFontSize(22);
-    doc.text('JIRVI EDU', 14, 20);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.text('JIRVINHO SOFTWARE WOLD STUDY INITIATIVE', 40, 25);
     
-    doc.setFontSize(16);
-    doc.text('Student Official Result Slip', 14, 30);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(14);
+    doc.text('Student Official Result Slip', 40, 33);
     
     // Details
     doc.setFontSize(11);
-    doc.text(`Student Name: ${student.fullName || 'N/A'}`, 14, 40);
-    doc.text(`Registration No: ${student.regNumber || 'N/A'}`, 14, 46);
-    doc.text(`Date Issued: ${new Date().toLocaleDateString()}`, 14, 52);
+    doc.text(`Student Name: ${student.fullName || 'N/A'}`, 14, 50);
+    doc.text(`Registration No: ${student.regNumber || 'N/A'}`, 14, 56);
+    doc.text(`Date Issued: ${new Date().toLocaleDateString()}`, 14, 62);
     
-    doc.text(`Course: ${student.course || 'N/A'}`, 120, 40);
+    doc.text(`Course: ${student.course || 'N/A'}`, 120, 50);
     const totalE = results.reduce((acc, curr) => acc + (Number(curr.sub.grade) || 0), 0);
     const totalP = results.reduce((acc, curr) => acc + (Number(curr.asn.marks) || 0), 0);
     const oP = totalP > 0 ? ((totalE / totalP) * 100).toFixed(1) : '0.0';
-    doc.text(`Overall Average: ${oP}%`, 120, 46);
-    doc.text(`Total Assignments Graded: ${results.length}`, 120, 52);
+    doc.text(`Overall Average: ${oP}%`, 120, 56);
+    doc.text(`Total Assignments Graded: ${results.length}`, 120, 62);
 
     const tableBody = results.map(item => [
       `${item.asn.title}\n${item.mod.code} - ${item.mod.name}`,
@@ -109,7 +125,7 @@ export default function StudentResults({ student }: { student: Student | null })
     ]);
 
     autoTable(doc, {
-      startY: 60,
+      startY: 70,
       head: [['Module & Assignment', 'Submitted On', 'Grade', 'Feedback']],
       body: tableBody,
       styles: { fontSize: 10, cellPadding: 3 },
