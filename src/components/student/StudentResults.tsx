@@ -98,7 +98,7 @@ export default function StudentResults({ student }: { student: Student | null })
     // Title
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
-    doc.text('JIRVINHO SOFTWARE WOLD STUDY INITIATIVE', 40, 25);
+    doc.text('JIRVINHO SOFTWARE WORLD STUDY INITIATIVE', 40, 25);
     
     doc.setFont("helvetica", "normal");
     doc.setFontSize(14);
@@ -190,21 +190,21 @@ export default function StudentResults({ student }: { student: Student | null })
       </div>
 
       {/* Print summary visible only in print mode */}
-      <div className="hidden print:block mb-8 pb-4 border-b print:border-black">
-        <div className="flex items-center gap-2 mb-4">
-           <BookOpen className="w-8 h-8 print:text-black text-blue-500" />
-           <h1 className="text-2xl font-bold print:text-black text-neutral-50">JIRVI EDU</h1>
+      <div className="hidden print:block mb-8 pb-4 border-b print:border-black flex flex-col items-center text-center">
+        <div className="flex flex-col items-center justify-center gap-3 mb-4">
+           <img src="/icon.png" alt="App Icon Badge" className="w-20 h-20 object-contain print:inline-block" />
+           <h1 className="text-2xl font-bold print:text-black text-neutral-50 uppercase tracking-widest text-center">JIRVINHO SOFTWARE WORLD STUDY INITIATIVE</h1>
         </div>
-        <h2 className="text-xl font-bold print:text-black text-neutral-50 mb-2">Student Official Result Slip</h2>
-        <div className="flex justify-between text-sm print:text-black text-neutral-200">
+        <h2 className="text-xl font-bold print:text-black text-neutral-50 mb-4 whitespace-nowrap">Student Official Result Slip</h2>
+        <div className="flex justify-between w-full text-sm print:text-black text-neutral-200 mt-4 text-left px-2">
           <div>
-            <p><strong>Student Name:</strong> {student?.fullName || 'N/A'}</p>
-            <p><strong>Registration No:</strong> {student?.regNumber || 'N/A'}</p>
+            <p className="mb-1"><strong>Student Name:</strong> {student?.fullName || 'N/A'}</p>
+            <p className="mb-1"><strong>Registration No:</strong> {student?.regNumber || 'N/A'}</p>
             <p><strong>Date Issued:</strong> {new Date().toLocaleDateString()}</p>
           </div>
           <div className="text-right">
-            <p><strong>Course:</strong> {student?.course || 'N/A'}</p>
-            <p><strong>Overall Average:</strong> {overallPercentage}%</p>
+            <p className="mb-1"><strong>Course:</strong> {student?.course || 'N/A'}</p>
+            <p className="mb-1"><strong>Overall Average:</strong> {overallPercentage}%</p>
             <p><strong>Total Assignments Graded:</strong> {results.length}</p>
           </div>
         </div>

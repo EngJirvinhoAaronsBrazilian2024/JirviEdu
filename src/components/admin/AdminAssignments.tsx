@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db, collection, query, onSnapshot, doc, setDoc, deleteDoc, updateDoc, getDocs, storage, ref, uploadBytes, getDownloadURL } from '../../lib/db';
-import { Plus, Trash2, FileText, Loader2, Users, CheckCircle, ChevronLeft } from 'lucide-react';
+import { Plus, Trash2, FileText, Loader2, Users, CheckCircle, ChevronLeft, X } from 'lucide-react';
 import { Module } from '../../types';
 
 export default function AdminAssignments() {
@@ -176,7 +176,8 @@ function AssignmentSubmissions({ moduleId, assignment, onBack }: { moduleId: str
   const [gradingId, setGradingId] = useState<string | null>(null);
   const [gradeInput, setGradeInput] = useState<string>('');
   const [feedbackInput, setFeedbackInput] = useState<string>('');
-  const [viewingContent, setViewingContent] = useState<string | null>(null);
+  const [viewingContent, setViewingContent] = useState<{name: string, content: string} | null>(null);
+  const [viewingFileUrl, setViewingFileUrl] = useState<{name: string, url: string} | null>(null);
 
   useEffect(() => {
     // Fetch students list to map IDs to Names
@@ -242,7 +243,7 @@ function AssignmentSubmissions({ moduleId, assignment, onBack }: { moduleId: str
           </thead>
           <tbody className="divide-y divide-neutral-200">
             {submissions.map(sub => {
-              const student = students[sub.id] || { fullName: 'Unknown Student', regNumber: sub.id };
+              const student = students[sub.studentId || sub.id] || { fullName: 'Unknown Student', regNumber: sub.studentId || sub.id };
               const isGrading = gradingId === sub.id;
               
               return (
@@ -256,9 +257,9 @@ function AssignmentSubmissions({ moduleId, assignment, onBack }: { moduleId: str
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
                     {sub.type === 'text' ? (
-                      <button onClick={() => setViewingContent(sub.content)} className="text-blue-600 hover:underline">Read Answer</button>
+                      <button onClick={() => setViewingContent({name: student.fullName, content: sub.content})} className="text-blue-600 hover:underline">Read Answer</button>
                     ) : (
-                      <a href={sub.fileUrl} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">View Work</a>
+                      <button onClick={() => setViewingFileUrl({name: student.fullName, url: sub.fileUrl})} className="text-blue-600 hover:underline">View Work</button>
                     )}
                   </td>
                   <td className="px-6 py-4 text-sm text-neutral-400">
@@ -298,7 +299,7 @@ function AssignmentSubmissions({ moduleId, assignment, onBack }: { moduleId: str
                     {isGrading ? (
                       <div className="flex items-center justify-end space-x-2">
                         <button onClick={() => setGradingId(null)} className="text-neutral-400 hover:text-neutral-200">Cancel</button>
-                        <button onClick={() => saveGrade(sub.id)} className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700">Save</button>
+                        <button onClick={() => saveGrade(sub.studentId || sub.id)} className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700">Save</button>
                       </div>
                     ) : (
                       <button 
@@ -323,7 +324,7 @@ function AssignmentSubmissions({ moduleId, assignment, onBack }: { moduleId: str
         <div className="fixed inset-0 bg-neutral-900/50 flex items-center justify-center p-4 z-50">
           <div className="bg-neutral-800 rounded-xl shadow-xl max-w-2xl w-full max-h-[80vh] flex flex-col">
             <div className="p-4 border-b border-neutral-700 flex justify-between items-center">
-              <h3 className="font-bold text-neutral-50">Online Answer</h3>
+              <h3 className="font-bold text-neutral-50">Online Answer: {viewingContent.name}</h3>
               <button onClick={() => setViewingContent(null)} className="text-neutral-400 hover:text-neutral-200">
                 <ChevronLeft className="w-5 h-5 hidden" />
                 Close
@@ -331,8 +332,36 @@ function AssignmentSubmissions({ moduleId, assignment, onBack }: { moduleId: str
             </div>
             <div 
               className="p-6 overflow-y-auto w-full prose text-sm text-neutral-200 font-medium prose-invert"
-              dangerouslySetInnerHTML={{ __html: viewingContent }}
+              dangerouslySetInnerHTML={{ __html: viewingContent.content }}
             />
+          </div>
+        </div>
+      )}
+
+      {viewingFileUrl && (
+        <div className="fixed inset-0 bg-neutral-900/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-neutral-800 rounded-xl shadow-xl max-w-5xl w-full h-[90vh] flex flex-col border border-neutral-700">
+            <div className="p-4 border-b border-neutral-700 flex justify-between items-center bg-neutral-900">
+              <h3 className="font-bold text-neutral-50 flex items-center">
+                <FileText className="w-5 h-5 mr-3 text-blue-400" />
+                Document: {viewingFileUrl.name}
+              </h3>
+              <div className="flex items-center space-x-3">
+                <a href={viewingFileUrl.url} target="_blank" rel="noreferrer" className="text-sm px-3 py-1.5 bg-neutral-700 text-neutral-200 hover:bg-neutral-600 rounded">
+                  Download File
+                </a>
+                <button onClick={() => setViewingFileUrl(null)} className="text-neutral-400 hover:text-neutral-200">
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+            <div className="flex-1 w-full bg-neutral-950 flex items-center justify-center overflow-hidden">
+              <iframe 
+                src={`https://docs.google.com/viewer?url=${encodeURIComponent(viewingFileUrl.url)}&embedded=true`} 
+                className="w-full h-full border-0 bg-white" 
+                title="Document Preview" 
+              />
+            </div>
           </div>
         </div>
       )}

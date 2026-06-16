@@ -367,7 +367,7 @@ function AdminDashboard() {
                   {recentSubmissions.map((sub, i) => (
                     <tr key={i} className="hover:bg-neutral-900/30 transition-colors">
                       <td className="py-4 whitespace-nowrap text-sm">
-                        <div className="font-medium text-neutral-50">{studentsMap[sub.id] || sub.id}</div>
+                        <div className="font-medium text-neutral-50">{studentsMap[sub.studentId] || studentsMap[sub.id] || sub.studentId || sub.id}</div>
                       </td>
                       <td className="py-4 whitespace-nowrap text-sm text-neutral-300">
                         <span className="font-medium">{sub.assignmentTitle}</span>

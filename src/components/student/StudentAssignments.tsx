@@ -361,13 +361,13 @@ export default function StudentAssignments({ studentId }: { studentId: string })
                 </h3>
                 <p className="text-sm text-neutral-300 line-clamp-3 mb-4">{data.text}</p>
                 {item.asn.fileUrl && (
-                  <a href={item.asn.fileUrl} target="_blank" rel="noreferrer" className="text-sm text-blue-600 hover:text-blue-900 font-medium block mb-4">Download Assignment</a>
+                  <a href={item.asn.fileUrl} target="_blank" rel="noreferrer" className="text-sm text-blue-400 hover:text-blue-300 font-medium block mb-4">Download Assignment</a>
                 )}
                 
                 {item.sub && item.sub.grade !== undefined && item.sub.grade !== null && (
-                  <div className="mt-4 p-3 bg-neutral-900 border border-blue-100 rounded-lg mb-4">
-                    <p className="text-sm font-bold text-blue-900">Grade: {item.sub.grade} / {item.asn.marks}</p>
-                    {item.sub.feedback && <p className="text-xs text-blue-700 mt-1">Feedback: {item.sub.feedback}</p>}
+                  <div className="mt-4 p-3 bg-neutral-800 border border-green-500/30 rounded-lg mb-4">
+                    <p className="text-sm font-bold text-green-400">Grade: {item.sub.grade} / {item.asn.marks}</p>
+                    {item.sub.feedback && <p className="text-xs text-green-300 mt-1">Feedback: {item.sub.feedback}</p>}
                   </div>
                 )}
                 
