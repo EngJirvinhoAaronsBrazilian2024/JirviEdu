@@ -116,6 +116,17 @@ export async function getDoc(docRef: any) {
 
 export async function getDocs(queryRef: any) {
   const { table, conditions } = parsePath(queryRef.path);
+
+  if (table === 'activity_logs') {
+    const data = JSON.parse(localStorage.getItem('activity_logs') || '[]');
+    return {
+      empty: data.length === 0,
+      docs: data.map((d: any) => ({
+        id: d.id,
+        data: () => d
+      }))
+    };
+  }
   
   let q: any = insforge.database.from(table).select('*');
   for (const [k, v] of Object.entries(conditions)) {
@@ -278,6 +289,16 @@ export async function addDoc(collectionRef: any, data: any) {
   const { table } = parsePath(collectionRef.path);
   const id = Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
   const payload = camelToSnake({ id, ...data });
+
+  if (table === 'activity_logs') {
+    const logs = JSON.parse(localStorage.getItem('activity_logs') || '[]');
+    logs.push(data); // store raw object in localstorage
+    data.id = id;
+    localStorage.setItem('activity_logs', JSON.stringify(logs));
+    mutationEmitter.emit();
+    return { id };
+  }
+
   const { error } = await insforge.database.from(table).insert([payload]);
   if (error) throw error;
   mutationEmitter.emit();

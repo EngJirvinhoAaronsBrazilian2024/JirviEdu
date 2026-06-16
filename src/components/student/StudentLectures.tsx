@@ -35,10 +35,25 @@ export default function StudentLectures({ studentId }: { studentId: string }) {
         setModules(enrolledMods);
 
         const allLecs: {mod: Module, lec: any}[] = [];
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        
         for (const m of enrolledMods) {
           const lecsSnap = await getDocs(collection(db, `modules/${m.id}/lectures`));
           lecsSnap.docs.forEach(d => {
-            allLecs.push({ mod: m, lec: { id: d.id, ...d.data() } });
+            const data = d.data();
+            if (data.date) {
+               const parts = data.date.split('-');
+               if (parts.length === 3) {
+                 const lecDay = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                 if (lecDay.getTime() < today.getTime()) {
+                   // Optional: auto-delete from DB?
+                   // No, just don't display it so it feels deleted automatically.
+                   return;
+                 }
+               }
+            }
+            allLecs.push({ mod: m, lec: { id: d.id, ...data } });
           });
         }
         

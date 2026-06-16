@@ -22,7 +22,35 @@ export default function AdminLectures() {
   useEffect(() => {
     if (!selectedModule) return;
     const q = query(collection(db, `modules/${selectedModule}/lectures`));
-    return onSnapshot(q, snap => setLectures(snap.docs.map(d => ({ id: d.id, ...d.data() }))));
+    return onSnapshot(q, snap => {
+      const today = new Date();
+      today.setHours(0,0,0,0);
+      
+      const validLectures: any[] = [];
+      
+      snap.docs.forEach(d => {
+        const data = d.data();
+        let isPast = false;
+        if (data.date) {
+           const parts = data.date.split('-');
+           if (parts.length === 3) {
+             const lecDay = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+             if (lecDay.getTime() < today.getTime()) {
+               isPast = true;
+             }
+           }
+        }
+        
+        if (isPast) {
+          // Auto-delete the expired lecture from the app
+          deleteDoc(doc(db, `modules/${selectedModule}/lectures`, d.id)).catch(console.error);
+        } else {
+          validLectures.push({ id: d.id, ...data });
+        }
+      });
+      
+      setLectures(validLectures);
+    });
   }, [selectedModule]);
 
   const handleAdd = async (e: React.FormEvent) => {
