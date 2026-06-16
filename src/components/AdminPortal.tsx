@@ -275,10 +275,10 @@ function AdminDashboard() {
           <h2 className="text-lg font-bold text-neutral-50 mb-6">System Statistics</h2>
           
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            <div className="bg-neutral-900/50 p-6 rounded-2xl border border-neutral-700/50 shadow-sm flex flex-col justify-between h-36 relative overflow-hidden group">
+            <div className="dashboard-stat-students bg-neutral-900/50 p-6 rounded-2xl border border-neutral-700/50 shadow-sm flex flex-col justify-between h-36 relative overflow-hidden group">
               <div className="absolute -right-4 -bottom-4 bg-blue-500/10 w-24 h-24 rounded-full blur-2xl group-hover:bg-blue-500/20 transition-all duration-500"></div>
               <div className="flex items-center justify-between z-10">
-                <div className="w-12 h-12 bg-neutral-800 rounded-xl shadow-sm border border-neutral-700 flex items-center justify-center">
+                <div className="icon-bg w-12 h-12 bg-neutral-800 rounded-xl shadow-sm border border-neutral-700 flex items-center justify-center">
                   <Users className="w-6 h-6 text-blue-500" />
                 </div>
                 <span className="text-3xl font-bold text-neutral-50 tracking-tight">{stats.students}</span>
@@ -286,10 +286,10 @@ function AdminDashboard() {
               <p className="text-sm font-semibold text-neutral-400 z-10">Total Students</p>
             </div>
 
-            <div className="bg-neutral-900/50 p-6 rounded-2xl border border-neutral-700/50 shadow-sm flex flex-col justify-between h-36 relative overflow-hidden group">
+            <div className="dashboard-stat-modules bg-neutral-900/50 p-6 rounded-2xl border border-neutral-700/50 shadow-sm flex flex-col justify-between h-36 relative overflow-hidden group">
               <div className="absolute -right-4 -bottom-4 bg-blue-500/10 w-24 h-24 rounded-full blur-2xl group-hover:bg-blue-500/20 transition-all duration-500"></div>
               <div className="flex items-center justify-between z-10">
-                <div className="w-12 h-12 bg-neutral-800 rounded-xl shadow-sm border border-neutral-700 flex items-center justify-center">
+                <div className="icon-bg w-12 h-12 bg-neutral-800 rounded-xl shadow-sm border border-neutral-700 flex items-center justify-center">
                   <BookOpen className="w-6 h-6 text-blue-500" />
                 </div>
                 <span className="text-3xl font-bold text-neutral-50 tracking-tight">{stats.modules}</span>
@@ -297,10 +297,10 @@ function AdminDashboard() {
               <p className="text-sm font-semibold text-neutral-400 z-10">Active Modules</p>
             </div>
 
-            <div className="bg-neutral-900/50 p-6 rounded-2xl border border-neutral-700/50 shadow-sm flex flex-col justify-between h-36 relative overflow-hidden group">
+            <div className="dashboard-stat-assignments bg-neutral-900/50 p-6 rounded-2xl border border-neutral-700/50 shadow-sm flex flex-col justify-between h-36 relative overflow-hidden group">
               <div className="absolute -right-4 -bottom-4 bg-emerald-500/10 w-24 h-24 rounded-full blur-2xl group-hover:bg-emerald-500/20 transition-all duration-500"></div>
               <div className="flex items-center justify-between z-10">
-                <div className="w-12 h-12 bg-neutral-800 rounded-xl shadow-sm border border-neutral-700 flex items-center justify-center">
+                <div className="icon-bg w-12 h-12 bg-neutral-800 rounded-xl shadow-sm border border-neutral-700 flex items-center justify-center">
                   <FileText className="w-6 h-6 text-emerald-500" />
                 </div>
                 <span className="text-3xl font-bold text-neutral-50 tracking-tight">{stats.assignments}</span>
@@ -308,10 +308,10 @@ function AdminDashboard() {
               <p className="text-sm font-semibold text-neutral-400 z-10">Total Assignments</p>
             </div>
 
-            <div className="bg-neutral-900/50 p-6 rounded-2xl border border-neutral-700/50 shadow-sm flex flex-col justify-between h-36 relative overflow-hidden group">
+            <div className="dashboard-stat-lectures bg-neutral-900/50 p-6 rounded-2xl border border-neutral-700/50 shadow-sm flex flex-col justify-between h-36 relative overflow-hidden group">
               <div className="absolute -right-4 -bottom-4 bg-amber-500/10 w-24 h-24 rounded-full blur-2xl group-hover:bg-amber-500/20 transition-all duration-500"></div>
               <div className="flex items-center justify-between z-10">
-                <div className="w-12 h-12 bg-neutral-800 rounded-xl shadow-sm border border-neutral-700 flex items-center justify-center">
+                <div className="icon-bg w-12 h-12 bg-neutral-800 rounded-xl shadow-sm border border-neutral-700 flex items-center justify-center">
                   <Video className="w-6 h-6 text-amber-500" />
                 </div>
                 <span className="text-3xl font-bold text-neutral-50 tracking-tight">{stats.lectures}</span>

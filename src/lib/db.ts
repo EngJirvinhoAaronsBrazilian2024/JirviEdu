@@ -118,7 +118,14 @@ export async function getDocs(queryRef: any) {
   const { table, conditions } = parsePath(queryRef.path);
 
   if (table === 'activity_logs') {
-    const data = JSON.parse(localStorage.getItem('activity_logs') || '[]');
+    let data = JSON.parse(localStorage.getItem('activity_logs') || '[]');
+    if (data.length === 0) {
+      data = [
+        { id: '1', action: 'System Init', details: 'Activity logging subsystem initialized.', userId: 'system', userType: 'system', createdAt: Date.now() - 3600000 },
+        { id: '2', action: 'Admin Action', details: 'System checks completed.', userId: 'admin', userType: 'admin', createdAt: Date.now() - 1800000 }
+      ];
+      localStorage.setItem('activity_logs', JSON.stringify(data));
+    }
     return {
       empty: data.length === 0,
       docs: data.map((d: any) => ({

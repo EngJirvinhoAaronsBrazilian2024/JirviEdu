@@ -335,9 +335,9 @@ function StudentDashboard({ student }: { student: Student | null }) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="bg-neutral-800 p-6 md:p-8 rounded-3xl border border-neutral-700/60 shadow-sm ring-1 ring-neutral-900/5 col-span-1 lg:col-span-2 flex flex-col">
+        <div className="dashboard-card dashboard-stat-blue bg-neutral-800 p-6 md:p-8 rounded-3xl border border-neutral-700/60 shadow-sm ring-1 ring-neutral-900/5 col-span-1 lg:col-span-2 flex flex-col">
           <h2 className="text-lg font-bold text-neutral-50 mb-6 flex items-center">
-            <div className="w-10 h-10 bg-neutral-900 rounded-xl flex items-center justify-center mr-3">
+            <div className="icon-bg w-10 h-10 bg-neutral-900 rounded-xl flex items-center justify-center mr-3">
               <Video className="w-5 h-5 text-blue-500"/>
             </div>
             Upcoming Lectures
@@ -372,9 +372,9 @@ function StudentDashboard({ student }: { student: Student | null }) {
           )}
         </div>
 
-        <div className="bg-neutral-800 p-6 md:p-8 rounded-3xl border border-neutral-700 shadow-sm ring-1 ring-neutral-900/5 flex flex-col">
+        <div className="dashboard-card dashboard-stat-emerald bg-neutral-800 p-6 md:p-8 rounded-3xl border border-neutral-700 shadow-sm ring-1 ring-neutral-900/5 flex flex-col">
           <h2 className="text-lg font-bold text-neutral-50 mb-6 flex items-center">
-            <div className="w-10 h-10 bg-neutral-900 rounded-xl shadow-sm border border-neutral-700 flex items-center justify-center mr-3">
+            <div className="icon-bg w-10 h-10 bg-neutral-900 rounded-xl shadow-sm border border-neutral-700 flex items-center justify-center mr-3">
               <PieChart className="w-5 h-5 text-emerald-500"/>
             </div>
             Attendance
@@ -422,9 +422,9 @@ function StudentDashboard({ student }: { student: Student | null }) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="bg-neutral-800 p-6 md:p-8 rounded-3xl border border-neutral-700 shadow-sm ring-1 ring-neutral-900/5 flex flex-col lg:col-span-1">
+        <div className="dashboard-card dashboard-stat-amber bg-neutral-800 p-6 md:p-8 rounded-3xl border border-neutral-700 shadow-sm ring-1 ring-neutral-900/5 flex flex-col lg:col-span-1">
           <h2 className="text-lg font-bold text-neutral-50 mb-6 flex items-center">
-            <div className="w-10 h-10 bg-neutral-900 rounded-xl shadow-sm border border-neutral-700 flex items-center justify-center mr-3">
+            <div className="icon-bg w-10 h-10 bg-neutral-900 rounded-xl shadow-sm border border-neutral-700 flex items-center justify-center mr-3">
               <Bell className="w-5 h-5 text-amber-500"/>
             </div>
             Announcements
@@ -440,10 +440,10 @@ function StudentDashboard({ student }: { student: Student | null }) {
           </div>
         </div>
 
-        <div className="bg-neutral-800 p-6 md:p-8 rounded-3xl border border-neutral-700 shadow-sm ring-1 ring-neutral-900/5 lg:col-span-2 flex flex-col">
+        <div className="dashboard-card dashboard-stat-blue bg-neutral-800 p-6 md:p-8 rounded-3xl border border-neutral-700 shadow-sm ring-1 ring-neutral-900/5 lg:col-span-2 flex flex-col">
            <div className="flex justify-between items-center mb-6">
               <h2 className="text-lg font-bold text-neutral-50 flex items-center">
-                <div className="w-10 h-10 bg-neutral-900 rounded-xl flex items-center justify-center mr-3 border border-neutral-700 shadow-sm">
+                <div className="icon-bg w-10 h-10 bg-neutral-900 rounded-xl flex items-center justify-center mr-3 border border-neutral-700 shadow-sm">
                   <Calendar className="w-5 h-5 text-blue-500"/>
                 </div>
                 Academic Calendar
@@ -478,9 +478,9 @@ function StudentDashboard({ student }: { student: Student | null }) {
         </div>
       </div>
 
-      <div className="bg-neutral-800 p-6 md:p-8 rounded-3xl border border-neutral-700 shadow-sm ring-1 ring-neutral-900/5">
+      <div className="dashboard-card dashboard-stat-red bg-neutral-800 p-6 md:p-8 rounded-3xl border border-neutral-700 shadow-sm ring-1 ring-neutral-900/5">
         <h2 className="text-lg font-bold text-neutral-50 mb-6 flex items-center">
-          <div className="w-10 h-10 bg-neutral-900 rounded-xl flex items-center justify-center mr-3 border border-neutral-700 shadow-sm">
+          <div className="icon-bg w-10 h-10 bg-neutral-900 rounded-xl flex items-center justify-center mr-3 border border-neutral-700 shadow-sm">
             <TrendingUp className="w-5 h-5 text-blue-500" />
           </div>
           Performance Trend

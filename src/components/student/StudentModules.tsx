@@ -116,7 +116,7 @@ export default function StudentModules({ studentId }: { studentId: string }) {
               <div 
                 key={mod.id} 
                 className={clsx(
-                  "rounded-xl border transition-all overflow-hidden relative group",
+                  "module-card rounded-xl border transition-all overflow-hidden relative group",
                   isLocked ? "cursor-default opacity-80" : "cursor-pointer",
                   isSelected 
                     ? "bg-blue-600/10 border-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.1)] ring-1 ring-blue-500/20" 
