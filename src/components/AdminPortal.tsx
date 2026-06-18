@@ -322,20 +322,22 @@ function AdminDashboard() {
         </div>
         
         <div className="bg-neutral-800 rounded-2xl p-8 shadow-sm border border-neutral-700/60 ring-1 ring-neutral-900/5 lg:col-span-1 flex flex-col">
-          <h2 className="text-lg font-bold text-neutral-50 mb-6">Weekly Attendance</h2>
-          <div className="flex-1 w-full min-h-[300px]">
+          <h2 className="text-lg font-bold text-neutral-50 mb-6 flex items-center">
+            Weekly Attendance
+          </h2>
+          <div className="flex-1 w-full min-h-[300px] mt-2">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={attendanceData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#404040" vertical={false} />
-                <XAxis dataKey="name" stroke="#a3a3a3" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis stroke="#a3a3a3" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}%`} />
+               <BarChart data={attendanceData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                <XAxis dataKey="name" stroke="#737373" fontSize={12} fontWeight={600} tickLine={false} axisLine={false} dy={10} />
+                <YAxis stroke="#737373" fontSize={12} fontWeight={600} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}%`} dx={-10} />
                 <RechartsTooltip 
-                  cursor={{ fill: '#262626' }}
-                  contentStyle={{ backgroundColor: '#171717', borderColor: '#404040', borderRadius: '0.5rem', color: '#fff' }}
-                  itemStyle={{ color: '#fff' }}
+                  cursor={{ fill: 'rgba(255,255,255,0.03)' }}
+                  contentStyle={{ backgroundColor: 'rgba(15,23,42,0.9)', backdropFilter: 'blur(8px)', borderColor: 'rgba(59,130,246,0.3)', borderRadius: '1rem', color: '#fff', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.5)' }}
+                  itemStyle={{ color: '#fff', fontWeight: 'bold' }}
                   formatter={(value: number) => [`${value}%`, 'Attendance']}
                 />
-                <Bar dataKey="attendance" fill="#3b82f6" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                <Bar dataKey="attendance" fill="#3b82f6" radius={[6, 6, 0, 0]} maxBarSize={32} />
               </BarChart>
             </ResponsiveContainer>
           </div>

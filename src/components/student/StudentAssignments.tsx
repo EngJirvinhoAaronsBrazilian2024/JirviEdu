@@ -311,7 +311,7 @@ export default function StudentAssignments({ studentId }: { studentId: string })
 
           if (!isWriting && !isSubmitted) {
             return (
-              <div key={idx} className="bg-neutral-800 rounded-xl border border-neutral-700 shadow-sm p-6 flex flex-col justify-between">
+              <div key={idx} className="card-emerald bg-neutral-800 rounded-xl border border-neutral-700 shadow-sm p-6 flex flex-col justify-between">
                 <div>
                   <h3 className="text-xl font-bold text-neutral-50 mb-4">{item.asn.title}</h3>
                   <div className="space-y-2 mb-6">
@@ -347,7 +347,7 @@ export default function StudentAssignments({ studentId }: { studentId: string })
           }
 
           return (
-            <div key={idx} className={clsx("bg-neutral-800 rounded-xl border border-neutral-700 shadow-sm overflow-hidden flex flex-col", isWriting && "md:col-span-2")}>
+            <div key={idx} className={clsx("card-emerald bg-neutral-800 rounded-xl border border-neutral-700 shadow-sm overflow-hidden flex flex-col", isWriting && "md:col-span-2")}>
               <div className="p-6 flex-1">
                 <div className="flex justify-between items-start mb-4">
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">

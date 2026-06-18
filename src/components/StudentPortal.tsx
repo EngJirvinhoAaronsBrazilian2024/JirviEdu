@@ -335,7 +335,7 @@ function StudentDashboard({ student }: { student: Student | null }) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="dashboard-card dashboard-stat-blue bg-neutral-800 p-6 md:p-8 rounded-3xl border border-neutral-700/60 shadow-sm ring-1 ring-neutral-900/5 col-span-1 lg:col-span-2 flex flex-col">
+        <div className="card-blue bg-neutral-800 p-6 md:p-8 rounded-3xl border border-neutral-700/60 shadow-sm ring-1 ring-neutral-900/5 col-span-1 lg:col-span-2 flex flex-col">
           <h2 className="text-lg font-bold text-neutral-50 mb-6 flex items-center">
             <div className="icon-bg w-10 h-10 bg-neutral-900 rounded-xl flex items-center justify-center mr-3">
               <Video className="w-5 h-5 text-blue-500"/>
@@ -372,7 +372,7 @@ function StudentDashboard({ student }: { student: Student | null }) {
           )}
         </div>
 
-        <div className="dashboard-card dashboard-stat-emerald bg-neutral-800 p-6 md:p-8 rounded-3xl border border-neutral-700 shadow-sm ring-1 ring-neutral-900/5 flex flex-col">
+        <div className="card-emerald bg-neutral-800 p-6 md:p-8 rounded-3xl border border-neutral-700 shadow-sm ring-1 ring-neutral-900/5 flex flex-col">
           <h2 className="text-lg font-bold text-neutral-50 mb-6 flex items-center">
             <div className="icon-bg w-10 h-10 bg-neutral-900 rounded-xl shadow-sm border border-neutral-700 flex items-center justify-center mr-3">
               <PieChart className="w-5 h-5 text-emerald-500"/>
@@ -380,18 +380,19 @@ function StudentDashboard({ student }: { student: Student | null }) {
             Attendance
           </h2>
           <div className="flex-1 flex flex-col items-center justify-center bg-neutral-900/50 rounded-2xl border border-neutral-700/50 p-6 relative">
-             <div className="w-full h-40">
+             <div className="w-full h-48 mt-2">
                 <ResponsiveContainer width="100%" height="100%">
                   <RePieChart>
                     <Pie
                       data={attendanceData}
                       cx="50%"
                       cy="50%"
-                      innerRadius={50}
-                      outerRadius={70}
-                      paddingAngle={5}
+                      innerRadius={65}
+                      outerRadius={85}
+                      paddingAngle={4}
                       dataKey="value"
                       stroke="none"
+                      cornerRadius={4}
                     >
                       {attendanceData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
@@ -400,20 +401,20 @@ function StudentDashboard({ student }: { student: Student | null }) {
                     <Tooltip 
                       formatter={(value: number) => [`${value}%`, '']}
                       contentStyle={{ backgroundColor: '#171717', borderColor: '#404040', borderRadius: '0.5rem', color: '#fff' }}
-                      itemStyle={{ color: '#fff' }}
+                      itemStyle={{ color: '#fff', fontWeight: 'bold' }}
                     />
                   </RePieChart>
                 </ResponsiveContainer>
               </div>
-              <div className="absolute inset-0 flex items-center justify-center flex-col pointer-events-none mt-2">
-                 <span className="text-3xl font-bold text-neutral-50">85%</span>
-                 <span className="text-xs text-neutral-500 font-medium uppercase tracking-wider">Overall</span>
+              <div className="absolute inset-0 flex items-center justify-center flex-col pointer-events-none -mt-4">
+                 <span className="text-4xl font-bold text-neutral-50 tracking-tight">85%</span>
+                 <span className="text-xs text-neutral-400 font-medium uppercase tracking-wider mt-1">Overall</span>
               </div>
-              <div className="mt-4 w-full flex justify-between px-2">
+              <div className="mt-6 w-full flex justify-center gap-6 px-2">
                  {attendanceData.map((entry, index) => (
-                    <div key={index} className="flex items-center text-sm">
-                       <span className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: entry.color }}></span>
-                       <span className="text-neutral-300 font-medium">{entry.name} <span className="ml-1 text-neutral-500">({entry.value}%)</span></span>
+                    <div key={index} className="flex items-center text-sm bg-neutral-800 px-4 py-2 rounded-xl border border-neutral-700/80 shadow-sm">
+                       <span className="w-3.5 h-3.5 rounded-full mr-2.5 outline outline-2 outline-offset-1" style={{ backgroundColor: entry.color, outlineColor: `${entry.color}40` }}></span>
+                       <span className="text-neutral-100 font-semibold">{entry.name} <span className="ml-1 text-neutral-400 font-medium">({entry.value}%)</span></span>
                     </div>
                  ))}
               </div>
@@ -422,7 +423,7 @@ function StudentDashboard({ student }: { student: Student | null }) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="dashboard-card dashboard-stat-amber bg-neutral-800 p-6 md:p-8 rounded-3xl border border-neutral-700 shadow-sm ring-1 ring-neutral-900/5 flex flex-col lg:col-span-1">
+        <div className="card-amber bg-neutral-800 p-6 md:p-8 rounded-3xl border border-neutral-700 shadow-sm ring-1 ring-neutral-900/5 flex flex-col lg:col-span-1">
           <h2 className="text-lg font-bold text-neutral-50 mb-6 flex items-center">
             <div className="icon-bg w-10 h-10 bg-neutral-900 rounded-xl shadow-sm border border-neutral-700 flex items-center justify-center mr-3">
               <Bell className="w-5 h-5 text-amber-500"/>
@@ -440,7 +441,7 @@ function StudentDashboard({ student }: { student: Student | null }) {
           </div>
         </div>
 
-        <div className="dashboard-card dashboard-stat-blue bg-neutral-800 p-6 md:p-8 rounded-3xl border border-neutral-700 shadow-sm ring-1 ring-neutral-900/5 lg:col-span-2 flex flex-col">
+        <div className="card-blue bg-neutral-800 p-6 md:p-8 rounded-3xl border border-neutral-700 shadow-sm ring-1 ring-neutral-900/5 lg:col-span-2 flex flex-col">
            <div className="flex justify-between items-center mb-6">
               <h2 className="text-lg font-bold text-neutral-50 flex items-center">
                 <div className="icon-bg w-10 h-10 bg-neutral-900 rounded-xl flex items-center justify-center mr-3 border border-neutral-700 shadow-sm">
@@ -478,7 +479,7 @@ function StudentDashboard({ student }: { student: Student | null }) {
         </div>
       </div>
 
-      <div className="dashboard-card dashboard-stat-red bg-neutral-800 p-6 md:p-8 rounded-3xl border border-neutral-700 shadow-sm ring-1 ring-neutral-900/5">
+      <div className="card-red bg-neutral-800 p-6 md:p-8 rounded-3xl border border-neutral-700 shadow-sm ring-1 ring-neutral-900/5">
         <h2 className="text-lg font-bold text-neutral-50 mb-6 flex items-center">
           <div className="icon-bg w-10 h-10 bg-neutral-900 rounded-xl flex items-center justify-center mr-3 border border-neutral-700 shadow-sm">
             <TrendingUp className="w-5 h-5 text-blue-500" />

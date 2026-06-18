@@ -91,9 +91,9 @@ export default function StudentLectures({ studentId }: { studentId: string }) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {lectures.map((item, idx) => (
-          <div key={idx} className="bg-neutral-800 rounded-xl border border-neutral-700 shadow-sm p-6 flex flex-col">
+          <div key={idx} className="card-blue bg-neutral-800 rounded-xl border border-neutral-700 shadow-sm p-6 flex flex-col">
             <div className="flex justify-between items-start mb-4">
-              <div className="w-10 h-10 bg-neutral-800 rounded-lg flex items-center justify-center">
+              <div className="icon-bg w-10 h-10 bg-neutral-800 rounded-lg flex items-center justify-center">
                 <Video className="w-5 h-5 text-blue-600" />
               </div>
               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-neutral-800 text-neutral-800">

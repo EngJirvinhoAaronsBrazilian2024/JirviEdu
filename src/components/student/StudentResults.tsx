@@ -166,10 +166,10 @@ export default function StudentResults({ student }: { student: Student | null })
       </div>
 
       <div className="print:hidden grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-neutral-800 p-6 rounded-2xl border border-neutral-700 shadow-sm flex flex-col justify-between h-36 relative overflow-hidden">
+        <div className="card-blue bg-neutral-800 p-6 rounded-2xl border border-neutral-700 shadow-sm flex flex-col justify-between h-36 relative overflow-hidden">
           <div className="absolute -right-4 -bottom-4 bg-blue-500/10 w-24 h-24 rounded-full blur-2xl"></div>
           <div className="flex items-center justify-between z-10">
-            <div className="w-12 h-12 bg-neutral-900 rounded-xl shadow-sm border border-neutral-700 flex items-center justify-center">
+            <div className="icon-bg w-12 h-12 bg-neutral-900 rounded-xl shadow-sm border border-neutral-700 flex items-center justify-center">
               <Award className="w-6 h-6 text-blue-500" />
             </div>
             <span className="text-4xl font-bold text-neutral-50 tracking-tight">{overallPercentage}%</span>
@@ -177,10 +177,10 @@ export default function StudentResults({ student }: { student: Student | null })
           <p className="text-sm font-semibold text-neutral-300 z-10">Overall Grade Average</p>
         </div>
 
-        <div className="bg-neutral-800 p-6 rounded-2xl border border-neutral-700 shadow-sm flex flex-col justify-between h-36 relative overflow-hidden">
+        <div className="card-emerald bg-neutral-800 p-6 rounded-2xl border border-neutral-700 shadow-sm flex flex-col justify-between h-36 relative overflow-hidden">
           <div className="absolute -right-4 -bottom-4 bg-emerald-500/10 w-24 h-24 rounded-full blur-2xl"></div>
           <div className="flex items-center justify-between z-10">
-            <div className="w-12 h-12 bg-neutral-900 rounded-xl shadow-sm border border-neutral-700 flex items-center justify-center">
+            <div className="icon-bg w-12 h-12 bg-neutral-900 rounded-xl shadow-sm border border-neutral-700 flex items-center justify-center">
               <CheckCircle className="w-6 h-6 text-emerald-500" />
             </div>
             <span className="text-3xl font-bold text-neutral-50 tracking-tight">{results.length}</span>

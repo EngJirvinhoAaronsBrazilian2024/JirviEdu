@@ -77,29 +77,36 @@ export default function Login({ setRole }: { setRole: (role: string | null) => v
   };
 
   return (
-    <div className="min-h-screen bg-neutral-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-[url('https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80')] bg-cover bg-center transition-colors duration-300">
-      <div className="absolute inset-0 bg-neutral-900/80 backdrop-blur-sm transition-colors duration-300" />
+    <div className="min-h-screen relative flex flex-col justify-center py-12 sm:px-6 lg:px-8 overflow-hidden bg-neutral-950 transition-colors duration-300">
+      <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2064&auto=format&fit=crop')] bg-cover bg-center opacity-30 mix-blend-luminosity"></div>
+      <div className="absolute inset-0 bg-gradient-to-b from-neutral-950/50 via-neutral-950/80 to-neutral-950" />
+      
+      {/* Decorative Orbs */}
+      <div className="absolute top-0 -left-64 w-[600px] h-[600px] bg-blue-600/20 rounded-full mix-blend-screen filter blur-[100px] opacity-70 animate-pulse"></div>
+      <div className="absolute bottom-0 -right-64 w-[600px] h-[600px] bg-emerald-600/20 rounded-full mix-blend-screen filter blur-[100px] opacity-70 animate-pulse" style={{ animationDelay: '2s' }}></div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-indigo-500/10 rounded-full mix-blend-screen filter blur-[120px] opacity-50"></div>
       
       <div className="absolute top-4 right-4 z-50">
         <ThemeToggle />
       </div>
 
-      <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
-        <div className="flex justify-center">
-          <div className="h-16 w-16 bg-blue-500 rounded-2xl flex items-center justify-center shadow-lg transform rotate-3">
-            <BookOpen className="h-8 w-8 text-neutral-50 -rotate-3" />
+      <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10 transition-all duration-500">
+        <div className="flex justify-center relative">
+          <div className="absolute inset-0 bg-blue-500/20 blur-2xl rounded-full scale-150"></div>
+          <div className="h-16 w-16 bg-blue-600/80 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-[0_0_30px_rgba(37,99,235,0.4)] transform rotate-3 border border-blue-400/30 relative z-10">
+            <BookOpen className="h-8 w-8 text-white -rotate-3" />
           </div>
         </div>
-        <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-neutral-50">
+        <h2 className="mt-6 text-center text-4xl font-extrabold tracking-tighter text-white drop-shadow-md">
           JIRVI EDU
         </h2>
-        <p className="mt-2 text-center text-sm text-neutral-300">
+        <p className="mt-3 text-center text-sm font-medium text-indigo-200/80 tracking-wide uppercase">
           E-Learning Management System
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
-        <div className="bg-neutral-800 py-8 px-4 shadow-2xl sm:rounded-2xl sm:px-10 border border-neutral-700">
+        <div className="bg-neutral-900/60 backdrop-blur-xl py-8 px-4 shadow-2xl sm:rounded-2xl sm:px-10 border border-neutral-700/50">
           <form className="space-y-6" onSubmit={handleSubmit}>
             {error && (
               <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-3 text-sm text-red-400 flex items-center">
@@ -119,7 +126,7 @@ export default function Login({ setRole }: { setRole: (role: string | null) => v
                   required
                   value={regNumber}
                   onChange={(e) => setRegNumber(e.target.value)}
-                  className="block w-full appearance-none rounded-lg border border-neutral-600 px-3 py-2 placeholder-neutral-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm bg-neutral-900 text-neutral-50"
+                  className="block w-full appearance-none rounded-lg border border-neutral-600/50 px-3 py-2 placeholder-neutral-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm bg-neutral-900/50 backdrop-blur-sm text-neutral-50 transition-colors"
                   placeholder="REG-XXXX-XXXX"
                 />
               </div>
@@ -136,7 +143,7 @@ export default function Login({ setRole }: { setRole: (role: string | null) => v
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full appearance-none rounded-lg border border-neutral-600 px-3 py-2 pr-10 placeholder-neutral-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm bg-neutral-900 text-neutral-50"
+                  className="block w-full appearance-none rounded-lg border border-neutral-600/50 px-3 py-2 pr-10 placeholder-neutral-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm bg-neutral-900/50 backdrop-blur-sm text-neutral-50 transition-colors"
                 />
                 <button
                   type="button"
@@ -170,7 +177,7 @@ export default function Login({ setRole }: { setRole: (role: string | null) => v
               <button
                 type="submit"
                 disabled={loading}
-                className="flex w-full justify-center rounded-lg border border-transparent bg-blue-600 py-3 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-neutral-900 transition-all disabled:opacity-50"
+                className="flex w-full justify-center rounded-lg border border-transparent bg-indigo-600/80 backdrop-blur-md py-3 px-4 text-sm font-bold text-white shadow-[0_0_20px_rgba(79,70,229,0.3)] hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-neutral-900 transition-all duration-300 hover:shadow-[0_0_30px_rgba(79,70,229,0.5)] disabled:opacity-50 mt-4 outline outline-1 outline-indigo-500/50"
               >
                 {loading ? (
                   <span className="flex items-center">
