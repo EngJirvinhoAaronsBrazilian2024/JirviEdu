@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
+import { hash, compare } from 'bcrypt-ts';
 import { db } from '../lib/db';
 import { collection, getDocs, doc, setDoc, deleteDoc, query, onSnapshot } from '../lib/db';
 import { 
@@ -9,6 +10,7 @@ import {
 import clsx from 'clsx';
 import { handleFirestoreError, OperationType } from '../lib/error-handler';
 import { Student, Module } from '../types';
+import { isStrongPassword } from '../lib/security';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip } from 'recharts';
 import ThemeToggle from './ThemeToggle';
 
@@ -25,6 +27,10 @@ export default function AdminPortal({ setRole }: { setRole: (role: string | null
   const location = useLocation();
 
   const handleLogout = () => {
+    sessionStorage.clear();
+    localStorage.removeItem('jirvi_role');
+    localStorage.removeItem('jirvi_student_reg');
+    localStorage.removeItem('jirvi_student_id');
     setRole(null);
     navigate('/');
   };
@@ -409,6 +415,7 @@ function StudentManagement() {
   const [newCourse, setNewCourse] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [creating, setCreating] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
     const q = query(collection(fbDb, 'students'));
@@ -443,6 +450,14 @@ function StudentManagement() {
   const handleSaveStudent = async (e: React.FormEvent) => {
     e.preventDefault();
     setCreating(true);
+    setErrorMsg('');
+
+    if ((!editingId || newPassword) && !isStrongPassword(newPassword)) {
+      setErrorMsg('Password must be at least 8 characters long, contain an uppercase letter, a lowercase letter, a number, and a special character.');
+      setCreating(false);
+      return;
+    }
+
     try {
       const email = `${newReg.toLowerCase().replace(/\s+/g, '')}@student.jirvi.edu`;
       const uid = editingId || (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15));
@@ -457,14 +472,14 @@ function StudentManagement() {
 
       if (!editingId) {
         studentData.createdAt = Date.now();
-        studentData.password = newPassword;
+        studentData.password = await hash(newPassword, 10);
       } else {
         const existing = students.find(s => s.id === editingId);
         studentData.createdAt = existing?.createdAt || Date.now();
         if (newPassword) {
-          studentData.password = newPassword;
+          studentData.password = await hash(newPassword, 10);
         } else {
-          studentData.password = (existing as any)?.password || '';
+          delete studentData.password;
         }
       }
 
@@ -499,6 +514,11 @@ function StudentManagement() {
               </button>
             </div>
             <form onSubmit={handleSaveStudent} className="p-6 space-y-4 overflow-y-auto">
+              {errorMsg && (
+                <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-3 text-sm text-red-400">
+                  {errorMsg}
+                </div>
+              )}
               <div>
                 <label className="block text-sm font-medium text-neutral-200">Registration Number</label>
                 <input required value={newReg} onChange={e=>setNewReg(e.target.value)} type="text" className="mt-1 block w-full rounded-md border-neutral-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2" placeholder="REG-XXXX-XXXX" />

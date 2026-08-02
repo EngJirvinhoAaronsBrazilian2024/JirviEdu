@@ -58,11 +58,11 @@ export default function StudentPortal({ setRole }: { setRole: (role: string | nu
   }, []);
 
   const handleLogout = () => {
-    setRole(null);
+    sessionStorage.clear();
+    localStorage.removeItem('jirvi_role');
     localStorage.removeItem('jirvi_student_reg');
     localStorage.removeItem('jirvi_student_id');
-    sessionStorage.removeItem('jirvi_student_reg');
-    sessionStorage.removeItem('jirvi_student_id');
+    setRole(null);
     navigate('/');
   };
 

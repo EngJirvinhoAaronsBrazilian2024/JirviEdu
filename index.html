@@ -1,11 +1,15 @@
 <!doctype html>
 <html lang="en">
   <head><script>
+  if (window.location.protocol === 'http:' && window.location.hostname !== 'localhost') {
+    window.location.href = window.location.href.replace('http:', 'https:');
+  }
   window.addEventListener('error', function(e) {
     fetch('/__log_error?m=' + encodeURIComponent(e.message + ' at ' + e.filename + ':' + e.lineno));
   });
 </script>
     <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Jirvi Edu App</title>
   </head>

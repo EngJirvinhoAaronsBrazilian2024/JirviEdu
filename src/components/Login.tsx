@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { BookOpen, AlertCircle, ArrowRight, Loader2, Eye, EyeOff } from 'lucide-react';
-import { collection, query, where, getDocs } from '../lib/db';
+import { hash, compare } from 'bcrypt-ts';
+import { collection, query, where, getDocs, authenticateStudent } from '../lib/db';
 import { db } from '../lib/db';
 import clsx from 'clsx';
 import ThemeToggle from './ThemeToggle';
@@ -8,7 +9,7 @@ import { logActivity } from '../lib/activity-logger';
 
 export default function Login({ setRole }: { setRole: (role: string | null) => void }) {
   const [regNumber, setRegNumber] = useState(localStorage.getItem('jirvi_saved_reg') || '');
-  const [password, setPassword] = useState(localStorage.getItem('jirvi_saved_pass') || '');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(localStorage.getItem('jirvi_saved_reg') !== null);
   const [loading, setLoading] = useState(false);
@@ -18,52 +19,82 @@ export default function Login({ setRole }: { setRole: (role: string | null) => v
     e.preventDefault();
     setError('');
 
+    const MAX_ATTEMPTS = 5;
+    const LOCKOUT_DURATION = 15 * 60 * 1000; // 15 minutes
+    const lockoutKey = `lockout_${regNumber}`;
+    const attemptsKey = `attempts_${regNumber}`;
+    const lockoutTime = localStorage.getItem(lockoutKey);
+
+    if (lockoutTime && Date.now() < parseInt(lockoutTime)) {
+      const minutesLeft = Math.ceil((parseInt(lockoutTime) - Date.now()) / 60000);
+      setError(`Account temporarily locked due to too many failed attempts. Try again in ${minutesLeft} minute(s).`);
+      return;
+    }
+
     if (rememberMe) {
       localStorage.setItem('jirvi_saved_reg', regNumber);
-      localStorage.setItem('jirvi_saved_pass', password);
     } else {
       localStorage.removeItem('jirvi_saved_reg');
-      localStorage.removeItem('jirvi_saved_pass');
     }
 
     if (regNumber === 'REG-ADMIN-2026') {
-      if (password === 'Admin123') {
+      const isValidAdmin = await compare(password, '$2b$10$dH1kydb21BVMDG/khog4velymZr.CYZ5eI8g8Byr79iMfdL5.dFAS');
+      if (isValidAdmin) {
+        sessionStorage.clear();
         sessionStorage.setItem('jirvi_role', 'admin');
+        localStorage.removeItem(attemptsKey);
+        localStorage.removeItem(lockoutKey);
         setRole('admin');
         logActivity('Login', 'Admin logged into the system', 'admin', 'admin');
         return;
       } else {
-        setError('Invalid admin credentials.');
+        const attempts = parseInt(localStorage.getItem(attemptsKey) || '0') + 1;
+        if (attempts >= MAX_ATTEMPTS) {
+          localStorage.setItem(lockoutKey, (Date.now() + LOCKOUT_DURATION).toString());
+          localStorage.removeItem(attemptsKey);
+          setError('Account temporarily locked due to too many failed attempts. Try again in 15 minutes.');
+        } else {
+          localStorage.setItem(attemptsKey, attempts.toString());
+          setError(`Invalid admin credentials. (${MAX_ATTEMPTS - attempts} attempts remaining)`);
+        }
         return;
       }
     }
 
     setLoading(true);
     try {
-      const q = query(collection(db, 'students'), where('regNumber', '==', regNumber));
-      const snap = await getDocs(q);
+      const docSnap = await authenticateStudent(regNumber, password);
       
-      if (snap.empty) {
-        setError('Student not found. Please check your registration number.');
+      if (!docSnap) {
+        const attempts = parseInt(localStorage.getItem(attemptsKey) || '0') + 1;
+        if (attempts >= MAX_ATTEMPTS) {
+          localStorage.setItem(lockoutKey, (Date.now() + LOCKOUT_DURATION).toString());
+          localStorage.removeItem(attemptsKey);
+          setError('Account temporarily locked due to too many failed attempts. Try again in 15 minutes.');
+        } else {
+          localStorage.setItem(attemptsKey, attempts.toString());
+          setError(`Invalid login credentials or student not found. (${MAX_ATTEMPTS - attempts} attempts remaining)`);
+        }
         setLoading(false);
         return;
       } else {
-        const docSnap = snap.docs[0];
         const studentData = docSnap.data();
-        
-        if (!studentData.password || studentData.password !== password) {
-          setError('Invalid login credentials.');
-          setLoading(false);
-          return;
-        }
 
+        sessionStorage.clear();
         sessionStorage.setItem('jirvi_student_reg', regNumber);
         sessionStorage.setItem('jirvi_student_id', docSnap.id);
         sessionStorage.setItem('jirvi_role', 'student');
+        localStorage.removeItem(attemptsKey);
+        localStorage.removeItem(lockoutKey);
+        
         if (rememberMe) {
           localStorage.setItem('jirvi_student_reg', regNumber);
           localStorage.setItem('jirvi_student_id', docSnap.id);
           localStorage.setItem('jirvi_role', 'student');
+        } else {
+          localStorage.removeItem('jirvi_student_reg');
+          localStorage.removeItem('jirvi_student_id');
+          localStorage.removeItem('jirvi_role');
         }
         logActivity('Login', `Student ${studentData.fullName} logged in.`, regNumber, 'student');
         setRole('student');

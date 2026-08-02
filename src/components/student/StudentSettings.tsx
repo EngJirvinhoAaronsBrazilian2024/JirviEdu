@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { hash, compare } from 'bcrypt-ts';
 import { db, storage } from '../../lib/db';
-import { doc, updateDoc } from '../../lib/db';
+import { doc, updateDoc, authenticateStudent } from '../../lib/db';
 import { ref, uploadBytes, getDownloadURL } from '../../lib/db';
 import { Loader2, Camera, Mail, Lock, CheckCircle, AlertCircle, Save } from 'lucide-react';
 import { Student } from '../../types';
+import { isStrongPassword } from '../../lib/security';
 
 export default function StudentSettings({ student, studentId }: { student: Student | null, studentId: string }) {
   const [loading, setLoading] = useState(false);
@@ -11,6 +13,7 @@ export default function StudentSettings({ student, studentId }: { student: Stude
   const [error, setError] = useState('');
 
   const [email, setEmail] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [photo, setPhoto] = useState<File | null>(null);
@@ -25,7 +28,7 @@ export default function StudentSettings({ student, studentId }: { student: Stude
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!studentId) {
+    if (!studentId || !student) {
       setError('Cannot edit student profile. Invalid student ID.');
       return;
     }
@@ -34,19 +37,42 @@ export default function StudentSettings({ student, studentId }: { student: Stude
       setError('Passwords do not match.');
       return;
     }
+    
+    if (password && !isStrongPassword(password)) {
+      setError('New password must be at least 8 characters long, contain an uppercase letter, a lowercase letter, a number, and a special character.');
+      return;
+    }
 
     setLoading(true);
     setError('');
     setSuccess('');
 
     try {
+      const emailChanged = email && email !== student.email;
+      const passwordChanged = !!password;
+      
+      if (emailChanged || passwordChanged) {
+        if (!currentPassword) {
+          setError('Current password is required to save changes to email or password.');
+          setLoading(false);
+          return;
+        }
+        
+        const auth = await authenticateStudent(student.regNumber, currentPassword);
+        if (!auth) {
+          setError('Current password is incorrect.');
+          setLoading(false);
+          return;
+        }
+      }
+
       const updates: any = {};
       
-      if (email && email !== student?.email) {
+      if (emailChanged) {
         updates.email = email;
       }
-      if (password) {
-        updates.password = password;
+      if (passwordChanged) {
+        updates.password = await hash(password, 10);
       }
       if (photo) {
         const photoRef = ref(storage, `students/${studentId}/photo`);
@@ -148,6 +174,18 @@ export default function StudentSettings({ student, studentId }: { student: Stude
               <div className="pt-4 border-t border-neutral-100">
                 <h3 className="text-lg font-bold text-neutral-50 mb-4 flex items-center"><Lock className="w-5 h-5 mr-2 text-neutral-400" /> Security</h3>
                 <div className="space-y-4">
+                  {(email !== student.email && email !== '') || password ? (
+                    <div>
+                      <label className="block text-sm font-medium text-neutral-200 mb-1">Current Password (Required for changes)</label>
+                      <input
+                        type="password"
+                        required
+                        value={currentPassword}
+                        onChange={(e) => setCurrentPassword(e.target.value)}
+                        className="w-full p-2 bg-black text-neutral-50 border border-neutral-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                      />
+                    </div>
+                  ) : null}
                   <div>
                     <label className="block text-sm font-medium text-neutral-200 mb-1">New Password</label>
                     <input

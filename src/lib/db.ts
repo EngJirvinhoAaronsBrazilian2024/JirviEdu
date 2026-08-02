@@ -1,3 +1,5 @@
+import { firestore } from './firebase';
+import { doc as fbDoc, setDoc as fbSetDoc, getDoc as fbGetDoc } from 'firebase/firestore';
 import { insforge } from './supabase'; // we'll rename insforge.ts to supabase.ts for standard naming
 
 // MOCK FIREBASE API over InsForge
@@ -105,11 +107,7 @@ export async function getDoc(docRef: any) {
   }
   
   let resultData = snakeToCamel(data);
-  if (table === 'students' && resultData.email && resultData.email.includes('|PASS|')) {
-    const parts = resultData.email.split('|PASS|');
-    resultData.email = parts[0];
-    resultData.password = parts[1];
-  }
+
   
   return { exists: () => true, data: () => resultData, id: docId };
 }
@@ -159,11 +157,7 @@ export async function getDocs(queryRef: any) {
     empty: data.length === 0,
     docs: data.map((d: any) => {
       let resultData = snakeToCamel(d);
-      if (table === 'students' && resultData.email && resultData.email.includes('|PASS|')) {
-        const parts = resultData.email.split('|PASS|');
-        resultData.email = parts[0];
-        resultData.password = parts[1];
-      }
+    
       return {
         id: d.id || d.student_id, // fallback for enrollments/submissions
         data: () => resultData
@@ -189,19 +183,10 @@ export async function setDoc(docRef: any, data: any, options: { merge?: boolean 
   
   let d = { ...data };
   if (table === 'students') {
-    if ('password' in d || 'email' in d) {
-      let currentEmail = d.email;
-      let currentPass = d.password;
-      if (typeof currentEmail === 'undefined' || typeof currentPass === 'undefined' || currentPass === '') {
-        const snap = await getDoc(docRef);
-        if (snap.exists()) {
-          if (typeof currentEmail === 'undefined') currentEmail = snap.data().email;
-          if (typeof currentPass === 'undefined' || currentPass === '') currentPass = snap.data().password || '';
-        }
+    if ('password' in d) {
+      if (d.password) {
+        await fbSetDoc(fbDoc(firestore, 'student_passwords', docId), { passwordHash: d.password });
       }
-      currentEmail = currentEmail || '';
-      currentPass = currentPass || '';
-      d.email = currentPass ? `${currentEmail}|PASS|${currentPass}` : currentEmail;
       delete d.password;
     }
   }
@@ -238,19 +223,10 @@ export async function updateDoc(docRef: any, data: any) {
   
   let d = { ...data };
   if (table === 'students') {
-    if ('password' in d || 'email' in d) {
-      let currentEmail = d.email;
-      let currentPass = d.password;
-      if (typeof currentEmail === 'undefined' || typeof currentPass === 'undefined' || currentPass === '') {
-        const snap = await getDoc(docRef);
-        if (snap.exists()) {
-          if (typeof currentEmail === 'undefined') currentEmail = snap.data().email;
-          if (typeof currentPass === 'undefined' || currentPass === '') currentPass = snap.data().password || '';
-        }
+    if ('password' in d) {
+      if (d.password) {
+        await fbSetDoc(fbDoc(firestore, 'student_passwords', docId), { passwordHash: d.password });
       }
-      currentEmail = currentEmail || '';
-      currentPass = currentPass || '';
-      d.email = currentPass ? `${currentEmail}|PASS|${currentPass}` : currentEmail;
       delete d.password;
     }
   }
@@ -369,4 +345,29 @@ export async function uploadBytes(storageRef: any, file: File) {
 export async function getDownloadURL(storageRef: any) {
   const publicUrl = insforge.storage.from('files').getPublicUrl(storageRef.path);
   return publicUrl;
+}
+import { hash, compare } from 'bcrypt-ts';
+
+export async function authenticateStudent(regNumber: string, passwordStr: string) {
+  let q: any = insforge.database.from('students').select('*').eq('reg_number', regNumber);
+  const { data } = await q.single();
+  if (!data) return null;
+  
+  let resultData = snakeToCamel(data);
+  
+  const snap = await fbGetDoc(fbDoc(firestore, 'student_passwords', data.id));
+  if (!snap.exists()) return null;
+  const hash = snap.data()?.passwordHash;
+  if (!hash) return null;
+  
+  let isValid = false;
+  if (hash.startsWith('$2')) {
+    isValid = await compare(passwordStr, hash);
+  } else {
+    isValid = hash === passwordStr;
+  }
+  
+  if (!isValid) return null;
+  
+  return { id: data.id, data: () => resultData };
 }

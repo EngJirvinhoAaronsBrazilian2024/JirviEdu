@@ -20,6 +20,35 @@ export default function App() {
     }
   }, [role]);
 
+  useEffect(() => {
+    let timeoutId: any;
+    
+    const resetTimer = () => {
+      clearTimeout(timeoutId);
+      if (role) {
+        // 15 minutes of inactivity
+        timeoutId = setTimeout(() => {
+          setRole(null);
+          sessionStorage.clear();
+          localStorage.removeItem('jirvi_role');
+          localStorage.removeItem('jirvi_student_reg');
+          localStorage.removeItem('jirvi_student_id');
+        }, 900000);
+      }
+    };
+
+    if (role) {
+      resetTimer();
+      const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
+      events.forEach(e => document.addEventListener(e, resetTimer));
+
+      return () => {
+        clearTimeout(timeoutId);
+        events.forEach(e => document.removeEventListener(e, resetTimer));
+      };
+    }
+  }, [role]);
+
   return (
     <Router>
       <InstallPrompt />
