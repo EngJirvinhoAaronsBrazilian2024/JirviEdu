@@ -200,38 +200,53 @@ function AdminDashboard() {
         const modulesSnap = await getDocs(collection(fbDb, 'modules'));
         mCount = modulesSnap.docs.length;
         
-        for (const modDoc of modulesSnap.docs) {
+        const modulePromises = modulesSnap.docs.map(async (modDoc) => {
           const modData = modDoc.data() as any;
+          let aCount = 0;
+          let lCount = 0;
+          let subs: any[] = [];
+          
           try {
-            const assignmentsSnap = await getDocs(collection(fbDb, `modules/${modDoc.id}/assignments`));
-            assignmentsCount += assignmentsSnap.docs.length;
+            const [assignmentsSnap, lecturesSnap] = await Promise.all([
+              getDocs(collection(fbDb, `modules/${modDoc.id}/assignments`)).catch(() => ({ docs: [] })),
+              getDocs(collection(fbDb, `modules/${modDoc.id}/lectures`)).catch(() => ({ docs: [] }))
+            ]);
+            
+            aCount = assignmentsSnap.docs.length;
+            lCount = lecturesSnap.docs.length;
 
-            for (const aDoc of assignmentsSnap.docs) {
+            const subPromises = assignmentsSnap.docs.map(async (aDoc) => {
               const aData = aDoc.data() as any;
               try {
                 const subsSnap = await getDocs(collection(fbDb, `modules/${modDoc.id}/assignments/${aDoc.id}/submissions`));
-                subsSnap.docs.forEach(subDoc => {
-                   allSubs.push({
-                     id: subDoc.id,
-                     assignmentTitle: aData.title,
-                     moduleCode: modData.code,
-                     ...subDoc.data()
-                   });
-                });
+                return subsSnap.docs.map(subDoc => ({
+                  id: subDoc.id,
+                  assignmentTitle: aData.title,
+                  moduleCode: modData.code,
+                  ...subDoc.data()
+                }));
               } catch (subErr) {
                 console.error("Failed fetching submissions", subErr);
+                return [];
               }
-            }
-          } catch (aErr) {
-            console.error("Failed fetching assignments", aErr);
+            });
+            
+            const subsResults = await Promise.all(subPromises);
+            subs = subsResults.flat();
+            
+          } catch (err) {
+            console.error("Failed fetching assignments/lectures", err);
           }
+          
+          return { aCount, lCount, subs };
+        });
 
-          try {
-            const lecturesSnap = await getDocs(collection(fbDb, `modules/${modDoc.id}/lectures`));
-            lecturesCount += lecturesSnap.docs.length;
-          } catch (lErr) {
-            console.error("Failed fetching lectures", lErr);
-          }
+        const results = await Promise.all(modulePromises);
+        
+        for (const res of results) {
+          assignmentsCount += res.aCount;
+          lecturesCount += res.lCount;
+          allSubs.push(...res.subs);
         }
       } catch (err) {
         console.error("Failed to fetch modules in dashboard", err);
@@ -367,28 +382,28 @@ function AdminDashboard() {
                   <tr>
                     <th scope="col" className="py-3 text-left text-xs font-semibold text-neutral-400 uppercase tracking-wider">Student</th>
                     <th scope="col" className="py-3 text-left text-xs font-semibold text-neutral-400 uppercase tracking-wider">Assignment</th>
-                    <th scope="col" className="py-3 text-left text-xs font-semibold text-neutral-400 uppercase tracking-wider">Status</th>
-                    <th scope="col" className="py-3 text-right text-xs font-semibold text-neutral-400 uppercase tracking-wider">Time</th>
+                    <th scope="col" className="py-3 text-left text-xs font-semibold text-neutral-400 uppercase tracking-wider hidden sm:table-cell">Status</th>
+                    <th scope="col" className="py-3 text-right text-xs font-semibold text-neutral-400 uppercase tracking-wider hidden sm:table-cell">Time</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-neutral-700/50">
                   {recentSubmissions.map((sub, i) => (
                     <tr key={i} className="hover:bg-neutral-900/30 transition-colors">
-                      <td className="py-4 whitespace-nowrap text-sm">
+                      <td className="py-4 whitespace-nowrap text-sm hidden sm:table-cell">
                         <div className="font-medium text-neutral-50">{studentsMap[sub.studentId] || studentsMap[sub.id] || sub.studentId || sub.id}</div>
                       </td>
                       <td className="py-4 whitespace-nowrap text-sm text-neutral-300">
                         <span className="font-medium">{sub.assignmentTitle}</span>
                         <span className="text-xs text-neutral-500 ml-2">({sub.moduleCode})</span>
                       </td>
-                      <td className="py-4 whitespace-nowrap text-sm">
+                      <td className="py-4 whitespace-nowrap text-sm hidden sm:table-cell">
                          {sub.grade !== undefined ? (
                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Graded</span>
                          ) : (
                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">Needs Grading</span>
                          )}
                       </td>
-                      <td className="py-4 whitespace-nowrap text-sm text-right text-neutral-400">
+                      <td className="py-4 whitespace-nowrap text-sm text-right text-neutral-400 hidden sm:table-cell">
                         {new Date(sub.submittedAt).toLocaleDateString()} {new Date(sub.submittedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                       </td>
                     </tr>
@@ -561,17 +576,17 @@ function StudentManagement() {
       </div>
 
       <div className="bg-neutral-800 shadow-sm border border-neutral-700 rounded-lg overflow-hidden overflow-x-auto">
-        <table className="min-w-full divide-y divide-neutral-200">
+        <table className="min-w-full divide-y divide-neutral-700">
           <thead className="bg-neutral-900">
             <tr>
               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">Reg Number</th>
               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">Name</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">Course</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">Status</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider hidden sm:table-cell">Course</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider hidden sm:table-cell">Status</th>
               <th scope="col" className="relative px-6 py-3"><span className="sr-only">Edit</span></th>
             </tr>
           </thead>
-          <tbody className="bg-neutral-800 divide-y divide-neutral-200">
+          <tbody className="bg-neutral-800 divide-y divide-neutral-700">
             {loading ? (
               <tr><td colSpan={5} className="px-6 py-4 text-center text-sm text-neutral-400">Loading students...</td></tr>
             ) : students.length === 0 ? (
@@ -583,14 +598,14 @@ function StudentManagement() {
                   <div>{student.fullName}</div>
                   <div className="text-xs text-neutral-400">{student.email}</div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-400">{student.course}</td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-400 hidden sm:table-cell">{student.course}</td>
+                <td className="px-6 py-4 whitespace-nowrap hidden sm:table-cell">
                   <span className={clsx("px-2 inline-flex text-xs leading-5 font-semibold rounded-full", student.status === 'active' ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800")}>
                     {student.status}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
-                  <button onClick={() => openEditModal(student)} className="text-blue-600 hover:text-blue-900">Edit</button>
+                  <button onClick={() => openEditModal(student)} className="text-blue-400 hover:text-blue-300">Edit</button>
                   <button onClick={async () => {
                     if (confirm('Delete this student?')) {
                       try {
@@ -600,7 +615,7 @@ function StudentManagement() {
                         alert('Failed to delete student');
                       }
                     }
-                  }} className="text-red-600 hover:text-red-900">Delete</button>
+                  }} className="text-red-400 hover:text-red-300">Delete</button>
                 </td>
               </tr>
             ))}

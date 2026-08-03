@@ -120,7 +120,7 @@ export default function AdminAssignments() {
           </div>
 
           <div className="bg-neutral-800 rounded-xl border border-neutral-700 shadow-sm overflow-hidden overflow-x-auto">
-            <table className="min-w-full divide-y divide-neutral-200">
+            <table className="min-w-full divide-y divide-neutral-700">
               <thead className="bg-neutral-900">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase">Assignment</th>
@@ -129,7 +129,7 @@ export default function AdminAssignments() {
                   <th className="px-6 py-3"></th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-neutral-200">
+              <tbody className="divide-y divide-neutral-700">
                 {assignments.map(ast => {
                   const isJson = typeof ast.description === 'string' && ast.description.startsWith('{');
                   const data = isJson ? JSON.parse(ast.description) : { text: ast.description, start: ast.createdAt || Date.now() };
@@ -137,7 +137,7 @@ export default function AdminAssignments() {
                   <tr key={ast.id}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-neutral-50">
                       <div className="flex items-center"><FileText className="w-4 h-4 mr-2 text-green-500"/>{ast.title}</div>
-                      {ast.fileUrl && <a href={ast.fileUrl} target="_blank" rel="noreferrer" className="text-xs text-blue-600 hover:underline mt-1 block">View Attachment</a>}
+                      {ast.fileUrl && <a href={ast.fileUrl} target="_blank" rel="noreferrer" className="text-xs text-blue-400 hover:underline mt-1 block">View Attachment</a>}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-400">
                       <div><span className="text-neutral-500 text-xs">Start:</span> {new Date(data.start).toLocaleString()}</div>
@@ -145,8 +145,8 @@ export default function AdminAssignments() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-400">{ast.marks}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-4">
-                      <button onClick={() => setSelectedAssignment(ast)} className="text-blue-600 hover:text-blue-900 font-medium">Submissions</button>
-                      <button onClick={() => handleDelete(ast.id)} className="text-red-600 hover:text-red-900"><Trash2 className="w-4 h-4 inline"/></button>
+                      <button onClick={() => setSelectedAssignment(ast)} className="text-blue-400 hover:text-blue-300 font-medium">Submissions</button>
+                      <button onClick={() => handleDelete(ast.id)} className="text-red-400 hover:text-red-300"><Trash2 className="w-4 h-4 inline"/></button>
                     </td>
                   </tr>
                 )})}
@@ -216,7 +216,7 @@ function AssignmentSubmissions({ moduleId, assignment, onBack }: { moduleId: str
 
   return (
     <div className="space-y-6">
-      <button onClick={onBack} className="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center">
+      <button onClick={onBack} className="text-sm font-medium text-blue-400 hover:text-blue-800 flex items-center">
         <ChevronLeft className="w-4 h-4 mr-1" /> Back to Assignments
       </button>
 
@@ -231,7 +231,7 @@ function AssignmentSubmissions({ moduleId, assignment, onBack }: { moduleId: str
       </div>
 
       <div className="bg-neutral-800 rounded-xl border border-neutral-700 shadow-sm overflow-hidden overflow-x-auto">
-        <table className="min-w-full divide-y divide-neutral-200">
+        <table className="min-w-full divide-y divide-neutral-700">
           <thead className="bg-neutral-900">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase">Student</th>
@@ -241,7 +241,7 @@ function AssignmentSubmissions({ moduleId, assignment, onBack }: { moduleId: str
               <th className="px-6 py-3"></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-neutral-200">
+          <tbody className="divide-y divide-neutral-700">
             {submissions.map(sub => {
               const student = students[sub.studentId || sub.id] || { fullName: 'Unknown Student', regNumber: sub.studentId || sub.id };
               const isGrading = gradingId === sub.id;
@@ -257,9 +257,9 @@ function AssignmentSubmissions({ moduleId, assignment, onBack }: { moduleId: str
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
                     {sub.type === 'text' ? (
-                      <button onClick={() => setViewingContent({name: student.fullName, content: sub.content})} className="text-blue-600 hover:underline">Read Answer</button>
+                      <button onClick={() => setViewingContent({name: student.fullName, content: sub.content})} className="text-blue-400 hover:underline">Read Answer</button>
                     ) : (
-                      <button onClick={() => setViewingFileUrl({name: student.fullName, url: sub.fileUrl})} className="text-blue-600 hover:underline">View Work</button>
+                      <button onClick={() => setViewingFileUrl({name: student.fullName, url: sub.fileUrl})} className="text-blue-400 hover:underline">View Work</button>
                     )}
                   </td>
                   <td className="px-6 py-4 text-sm text-neutral-400">
@@ -304,7 +304,7 @@ function AssignmentSubmissions({ moduleId, assignment, onBack }: { moduleId: str
                     ) : (
                       <button 
                         onClick={() => startGrading(sub)} 
-                        className="text-blue-600 hover:text-blue-900"
+                        className="text-blue-400 hover:text-blue-300"
                       >
                         {sub.grade !== undefined ? 'Edit Grade' : 'Grade'}
                       </button>

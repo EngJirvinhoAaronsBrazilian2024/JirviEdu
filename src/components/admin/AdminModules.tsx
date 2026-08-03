@@ -56,21 +56,21 @@ export default function AdminModules() {
       </div>
 
       <div className="bg-neutral-800 rounded-xl border border-neutral-700 shadow-sm overflow-hidden overflow-x-auto">
-        <table className="min-w-full divide-y divide-neutral-200">
+        <table className="min-w-full divide-y divide-neutral-700">
           <thead className="bg-neutral-900">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase">Code</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase">Name</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase">Description</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase hidden md:table-cell">Description</th>
               <th className="px-6 py-3"></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-neutral-200">
+          <tbody className="divide-y divide-neutral-700">
             {modules.map(mod => (
               <tr key={mod.id}>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-neutral-50">{mod.code}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-400">{mod.name}</td>
-                <td className="px-6 py-4 text-sm text-neutral-400">{mod.description}</td>
+                <td className="px-6 py-4 text-sm text-neutral-400 hidden md:table-cell">{mod.description}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <button onClick={() => handleDelete(mod.id)} className="text-red-600 hover:text-red-900"><Trash2 className="w-5 h-5"/></button>
                 </td>

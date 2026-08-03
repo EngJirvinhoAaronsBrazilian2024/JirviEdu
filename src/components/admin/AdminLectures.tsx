@@ -101,7 +101,7 @@ export default function AdminLectures() {
           </div>
 
           <div className="bg-neutral-800 rounded-xl border border-neutral-700 shadow-sm overflow-hidden overflow-x-auto">
-            <table className="min-w-full divide-y divide-neutral-200">
+            <table className="min-w-full divide-y divide-neutral-700">
               <thead className="bg-neutral-900">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase">Title</th>
@@ -110,16 +110,16 @@ export default function AdminLectures() {
                   <th className="px-6 py-3"></th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-neutral-200">
+              <tbody className="divide-y divide-neutral-700">
                 {lectures.map(lec => (
                   <tr key={lec.id}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-neutral-50">
                       <div className="flex items-center"><Video className="w-4 h-4 mr-2 text-blue-500"/>{lec.title}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-400">{lec.date} at {lec.time}</td>
-                    <td className="px-6 py-4 text-sm text-blue-600 hover:text-blue-900"><a href={lec.meetLink} target="_blank" rel="noreferrer">Join</a></td>
+                    <td className="px-6 py-4 text-sm text-blue-400 hover:text-blue-300"><a href={lec.meetLink} target="_blank" rel="noreferrer">Join</a></td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <button onClick={() => handleDelete(lec.id)} className="text-red-600 hover:text-red-900"><Trash2 className="w-5 h-5"/></button>
+                      <button onClick={() => handleDelete(lec.id)} className="text-red-400 hover:text-red-300"><Trash2 className="w-5 h-5"/></button>
                     </td>
                   </tr>
                 ))}
