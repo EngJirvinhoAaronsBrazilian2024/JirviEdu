@@ -4,13 +4,14 @@ import { db } from '../lib/db';
 import { doc, getDoc, collection, query, getDocs } from '../lib/db';
 import { 
   LayoutDashboard, BookOpen, Video, FileText, 
-  Calendar, FileDown, LogOut, Menu, X, Bell, Settings, PieChart, ChevronLeft, ChevronRight, TrendingUp
+  Calendar, FileDown, LogOut, Menu, X, Bell, Settings, PieChart, ChevronLeft, ChevronRight, TrendingUp, Search
 } from 'lucide-react';
 import clsx from 'clsx';
 import { Student, Module } from '../types';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, startOfWeek, endOfWeek, isSameMonth, isSameDay, addDays, isToday } from 'date-fns';
 import { ResponsiveContainer, PieChart as RePieChart, Pie, Cell, Tooltip, LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
 import ThemeToggle from './ThemeToggle';
+import { motion, AnimatePresence } from 'motion/react';
 
 import StudentModules from './student/StudentModules';
 import StudentLectures from './student/StudentLectures';
@@ -19,7 +20,7 @@ import StudentMaterials from './student/StudentMaterials';
 import StudentResults from './student/StudentResults';
 import StudentSettings from './student/StudentSettings';
 import Timetable from './Timetable';
-import { Award } from 'lucide-react';
+import { Award, GraduationCap } from 'lucide-react';
 
 export default function StudentPortal({ setRole }: { setRole: (role: string | null) => void }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -37,7 +38,7 @@ export default function StudentPortal({ setRole }: { setRole: (role: string | nu
           const docRef = doc(db, 'students', studentId);
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
-            setStudent({ id: docSnap.id, ...docSnap.data() } as Student);
+            setStudent({ id: docSnap.id, ...(docSnap.data() as any) } as Student);
           } else {
             handleLogout();
             return;
@@ -78,74 +79,82 @@ export default function StudentPortal({ setRole }: { setRole: (role: string | nu
   ];
 
   if (loading) {
-    return <div className="min-h-screen bg-neutral-900 flex items-center justify-center">Loading...</div>;
+    return <div className="min-h-screen bg-[var(--bg-app)] flex items-center justify-center text-[var(--text-main)]">Loading...</div>;
   }
 
   return (
-    <div className="min-h-screen bg-neutral-900 flex print:block print:bg-neutral-800">
+    <div className="min-h-screen bg-[var(--bg-app)] flex print:block">
       {/* Mobile sidebar */}
-      <div className={clsx("fixed inset-0 z-50 lg:hidden print:hidden", sidebarOpen ? "block" : "hidden")}>
-        <div className="fixed inset-0 bg-neutral-900/80 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
-        <div className="fixed inset-y-0 left-0 w-64 bg-neutral-900 flex flex-col shadow-2xl">
-          <div className="flex items-center justify-between h-16 px-4 border-b border-white/10">
-            <span className="text-xl font-bold text-neutral-50 flex items-center gap-2">
-              <BookOpen className="w-6 h-6 text-blue-400" />
-              JIRVI EDU
-            </span>
-            <button onClick={() => setSidebarOpen(false)} className="text-neutral-400 hover:text-neutral-50 transition-colors">
-              <X className="w-6 h-6" />
-            </button>
+      <AnimatePresence>
+        {sidebarOpen && (
+          <div className="fixed inset-0 z-50 lg:hidden print:hidden">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-neutral-900/60 backdrop-blur-sm" 
+              onClick={() => setSidebarOpen(false)} 
+            />
+            <motion.div 
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
+              className="fixed inset-y-0 left-0 w-72 bg-[var(--bg-card)] flex flex-col shadow-2xl border-r border-[var(--border-subtle)]"
+            >
+              <div className="flex items-center justify-between h-20 px-6 border-b border-[var(--border-subtle)]">
+                <span className="text-xl font-bold text-[var(--text-main)] flex items-center gap-3 tracking-tight">
+                  <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-md">
+                    <GraduationCap className="w-5 h-5 text-white" />
+                  </div>
+                  JIRVI EDU
+                </span>
+                <button onClick={() => setSidebarOpen(false)} className="text-muted hover:text-[var(--text-main)] transition-colors p-2 rounded-full hover:bg-[var(--border-subtle)]">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+                {navigation.map((item) => {
+                  const current = location.pathname === item.href;
+                  return (
+                    <Link
+                      key={item.name}
+                      to={item.href}
+                      onClick={() => setSidebarOpen(false)}
+                      className={clsx(
+                        current ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-semibold' : 'text-muted hover:bg-[var(--bg-app)] hover:text-[var(--text-main)] font-medium',
+                        'group flex items-center px-4 py-3 text-sm rounded-xl transition-all duration-200'
+                      )}
+                    >
+                      <item.icon className={clsx('mr-4 flex-shrink-0 h-5 w-5', current ? 'text-blue-600 dark:text-blue-400' : 'text-muted group-hover:text-[var(--text-main)]')} />
+                      {item.name}
+                    </Link>
+                  );
+                })}
+              </nav>
+              <div className="p-6 border-t border-[var(--border-subtle)]">
+                <button onClick={handleLogout} className="flex items-center justify-center w-full px-4 py-3 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors shadow-sm">
+                  <LogOut className="mr-3 h-4 w-4" />
+                  Sign Out
+                </button>
+              </div>
+            </motion.div>
           </div>
-          <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
-            {navigation.map((item) => {
-              const current = location.pathname === item.href;
-              return (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  onClick={() => setSidebarOpen(false)}
-                  className={clsx(
-                    current ? 'bg-blue-600/10 text-blue-400' : 'text-neutral-300 hover:bg-neutral-800 hover:text-neutral-50',
-                    'group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors'
-                  )}
-                >
-                  <item.icon className={clsx('mr-3 flex-shrink-0 h-5 w-5', current ? 'text-blue-400' : 'text-neutral-400 group-hover:text-neutral-300')} />
-                  {item.name}
-                </Link>
-              );
-            })}
-          </nav>
-          <div className="p-4 border-t border-white/10">
-            <button onClick={handleLogout} className="flex items-center w-full px-3 py-2 text-sm font-medium text-neutral-300 rounded-md hover:bg-neutral-800 hover:text-neutral-50 transition-colors">
-              <LogOut className="mr-3 h-5 w-5 text-neutral-400" />
-              Sign Out
-            </button>
-          </div>
-        </div>
-      </div>
+        )}
+      </AnimatePresence>
 
       {/* Desktop sidebar */}
-      <div className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 lg:bg-neutral-900 overflow-hidden lg:border-r lg:border-neutral-800 print:hidden">
-        <div className="flex items-center h-16 px-6 bg-neutral-900/50">
-          <span className="text-xl font-bold text-neutral-50 flex items-center gap-2">
-            <BookOpen className="w-6 h-6 text-blue-400" />
+      <div className="hidden lg:flex lg:flex-col lg:w-72 lg:fixed lg:inset-y-0 lg:bg-[var(--bg-card)] overflow-hidden lg:border-r lg:border-[var(--border-subtle)] shadow-sm print:hidden z-20">
+        <div className="flex items-center h-20 px-8">
+          <span className="text-2xl font-bold text-[var(--text-main)] flex items-center gap-3 tracking-tight">
+            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-md">
+              <GraduationCap className="w-6 h-6 text-white" />
+            </div>
             JIRVI EDU
           </span>
         </div>
-        <div className="px-6 py-6 border-b border-white/10 flex items-center gap-4">
-          {student?.photoUrl ? (
-            <img src={student.photoUrl} alt={student.fullName} className="w-12 h-12 rounded-xl object-cover shadow-inner" />
-          ) : (
-            <div className="w-12 h-12 bg-blue-600/20 border border-blue-500/30 rounded-xl flex items-center justify-center text-xl font-bold text-blue-400 shadow-inner">
-              {student?.fullName?.charAt(0) || 'S'}
-            </div>
-          )}
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-neutral-50 truncate">{student?.fullName || 'Student'}</p>
-            <p className="text-xs text-neutral-400 truncate mt-0.5">{student?.regNumber || 'Not Registered'}</p>
-          </div>
-        </div>
-        <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+        
+        <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
           {navigation.map((item) => {
             const current = location.pathname === item.href;
             return (
@@ -153,52 +162,95 @@ export default function StudentPortal({ setRole }: { setRole: (role: string | nu
                 key={item.name}
                 to={item.href}
                 className={clsx(
-                  current ? 'bg-blue-600/10 text-blue-400 border border-blue-500/20' : 'text-neutral-300 hover:bg-neutral-800/50 hover:text-neutral-50 border border-transparent',
-                  'group flex items-center px-3 py-2.5 text-sm font-medium rounded-xl transition-all'
+                  current ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 font-semibold shadow-sm border border-blue-100 dark:border-blue-800/30' : 'text-muted hover:bg-[var(--bg-app)] hover:text-[var(--text-main)] font-medium border border-transparent',
+                  'group flex items-center px-4 py-3.5 text-sm rounded-xl transition-all duration-200 relative overflow-hidden'
                 )}
               >
-                <item.icon className={clsx('mr-3 flex-shrink-0 h-5 w-5', current ? 'text-blue-400' : 'text-neutral-400 group-hover:text-neutral-300')} />
-                {item.name}
+                {current && <motion.div layoutId="activeNav" className="absolute left-0 w-1 h-8 bg-blue-600 rounded-r-full" />}
+                <item.icon className={clsx('mr-4 flex-shrink-0 h-5 w-5 z-10 relative', current ? 'text-blue-600 dark:text-blue-400' : 'text-muted group-hover:text-[var(--text-main)]')} />
+                <span className="z-10 relative">{item.name}</span>
               </Link>
             );
           })}
         </nav>
-        <div className="p-4 border-t border-white/10">
-          <button onClick={handleLogout} className="flex items-center w-full px-3 py-2.5 text-sm font-medium text-neutral-400 rounded-xl hover:bg-neutral-800 hover:text-neutral-50 transition-colors">
-            <LogOut className="mr-3 h-5 w-5 text-neutral-400" />
-            Sign Out
-          </button>
-        </div>
       </div>
 
       {/* Main content */}
-      <div className="flex-1 lg:pl-64 flex flex-col min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-neutral-900 via-neutral-800 to-neutral-900 print:pl-0 print:bg-neutral-800 print:bg-none">
-        <div className="sticky top-0 z-10 flex-shrink-0 flex h-16 bg-neutral-800/50 backdrop-blur-md border-b border-neutral-700/60 lg:hidden px-4 justify-between items-center print:hidden">
-          <button onClick={() => setSidebarOpen(true)} className="text-neutral-400 hover:text-neutral-200">
-            <Menu className="h-6 w-6" />
-          </button>
-          <span className="font-bold text-neutral-50 tracking-tight">JIRVI EDU</span>
-          <ThemeToggle />
-        </div>
-
-        {/* Desktop Header Theme Toggle */}
-        <div className="hidden lg:flex justify-end p-4 absolute top-0 right-0 w-full z-10 pointer-events-none print:hidden">
-          <div className="pointer-events-auto">
-            <ThemeToggle />
+      <div className="flex-1 lg:pl-72 flex flex-col min-h-screen relative z-10 w-full overflow-hidden">
+        {/* Top Header */}
+        <header className="sticky top-0 z-30 flex h-20 bg-[var(--bg-card)]/80 backdrop-blur-xl border-b border-[var(--border-subtle)] px-4 sm:px-6 lg:px-8 justify-between items-center shadow-sm print:hidden">
+          <div className="flex items-center lg:hidden">
+            <button onClick={() => setSidebarOpen(true)} className="p-2 -ml-2 text-muted hover:text-[var(--text-main)] rounded-lg hover:bg-[var(--bg-app)] transition-colors">
+              <Menu className="h-6 w-6" />
+            </button>
           </div>
-        </div>
+          
+          <div className="flex-1 flex items-center justify-between lg:justify-end gap-4 lg:gap-6 ml-4 lg:ml-0">
+            {/* Desktop Search */}
+            <div className="hidden lg:flex flex-1 max-w-md relative mr-auto">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="h-5 w-5 text-muted" />
+              </div>
+              <input
+                type="text"
+                className="block w-full pl-10 pr-3 py-2.5 border border-[var(--border-strong)] rounded-xl leading-5 bg-[var(--bg-app)] text-[var(--text-main)] placeholder-muted focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all sm:text-sm shadow-inner"
+                placeholder="Search courses, assignments..."
+              />
+            </div>
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 w-full max-w-full overflow-x-hidden">
-          <Routes>
-            <Route path="/" element={<StudentDashboard student={student} />} />
-            <Route path="/modules" element={<StudentModules studentId={student?.id || ''} />} />
-            <Route path="/lectures" element={<StudentLectures studentId={student?.id || ''} />} />
-            <Route path="/assignments" element={<StudentAssignments studentId={student?.id || ''} />} />
-            <Route path="/results" element={<StudentResults student={student} />} />
-            <Route path="/timetable" element={<Timetable studentId={student?.id || ''} />} />
-            <Route path="/materials" element={<StudentMaterials studentId={student?.id || ''} />} />
-            <Route path="/settings" element={<StudentSettings student={student} studentId={student?.id || ''} />} />
-          </Routes>
+            <div className="flex items-center gap-3 sm:gap-5">
+              <ThemeToggle />
+              
+              <button className="p-2.5 rounded-full bg-[var(--bg-app)] border border-[var(--border-subtle)] text-muted hover:text-[var(--text-main)] hover:border-[var(--border-strong)] transition-all shadow-sm relative">
+                <Bell className="w-5 h-5" />
+                <span className="absolute top-0 right-0 block h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-[var(--bg-card)] translate-x-1/4 -translate-y-1/4"></span>
+              </button>
+
+              <div className="h-8 w-px bg-[var(--border-subtle)] hidden sm:block"></div>
+
+              {/* User Dropdown trigger mockup */}
+              <div className="flex items-center gap-3 cursor-pointer p-1.5 pr-3 rounded-xl border border-transparent hover:border-[var(--border-subtle)] hover:bg-[var(--bg-app)] transition-all">
+                {student?.photoUrl ? (
+                  <img src={student.photoUrl} alt="" className="w-9 h-9 rounded-full object-cover border-2 border-white dark:border-[var(--border-subtle)] shadow-sm" />
+                ) : (
+                  <div className="w-9 h-9 bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300 rounded-full flex items-center justify-center text-sm font-bold border-2 border-white dark:border-[var(--border-subtle)] shadow-sm">
+                    {student?.fullName?.charAt(0) || 'S'}
+                  </div>
+                )}
+                <div className="hidden sm:block text-left">
+                  <p className="text-sm font-semibold text-[var(--text-main)] leading-none mb-1">{student?.fullName || 'Student'}</p>
+                  <p className="text-xs text-muted leading-none font-medium">{student?.regNumber || 'Not Registered'}</p>
+                </div>
+              </div>
+              
+              <button onClick={handleLogout} className="lg:hidden p-2.5 rounded-full bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 text-red-600 hover:bg-red-100 transition-colors shadow-sm">
+                <LogOut className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full pb-20">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={location.pathname}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+            >
+              <Routes>
+                <Route path="/" element={<StudentDashboard student={student} />} />
+                <Route path="/modules" element={<StudentModules studentId={student?.id || ''} />} />
+                <Route path="/lectures" element={<StudentLectures studentId={student?.id || ''} />} />
+                <Route path="/assignments" element={<StudentAssignments studentId={student?.id || ''} />} />
+                <Route path="/results" element={<StudentResults student={student} />} />
+                <Route path="/timetable" element={<Timetable studentId={student?.id || ''} />} />
+                <Route path="/materials" element={<StudentMaterials studentId={student?.id || ''} />} />
+                <Route path="/settings" element={<StudentSettings student={student} studentId={student?.id || ''} />} />
+              </Routes>
+            </motion.div>
+          </AnimatePresence>
         </main>
       </div>
     </div>
@@ -239,7 +291,6 @@ function StudentDashboard({ student }: { student: Student | null }) {
           });
         }
 
-        // Sort by date/time
         allLecs.sort((a,b) => {
           const dateA = new Date(`${a.lec.date}T${a.lec.time}`).getTime();
           const dateB = new Date(`${b.lec.date}T${b.lec.time}`).getTime();
@@ -248,7 +299,6 @@ function StudentDashboard({ student }: { student: Student | null }) {
         
         setAllLectures(allLecs);
 
-        // Filter only upcoming or today
         const now = new Date();
         now.setHours(0,0,0,0);
         
@@ -257,7 +307,7 @@ function StudentDashboard({ student }: { student: Student | null }) {
           return lDate.getTime() >= now.getTime();
         });
 
-        setUpcomingLectures(upcoming.slice(0, 3)); // Top 3
+        setUpcomingLectures(upcoming.slice(0, 3)); 
       } catch (err) {
         console.error(err);
       } finally {
@@ -277,37 +327,37 @@ function StudentDashboard({ student }: { student: Student | null }) {
   const startDate = startOfWeek(monthStart);
   const endDate = endOfWeek(monthEnd);
 
-  const dateFormat = "d";
   const rows = [];
   let days = [];
   let day = startDate;
-  let formattedDate = "";
 
   while (day <= endDate) {
     for (let i = 0; i < 7; i++) {
-      formattedDate = format(day, dateFormat);
+      const formattedDate = format(day, "d");
       const cloneDay = day;
       const isLectureDay = allLectures.some(item => isSameDay(new Date(`${item.lec.date}T${item.lec.time}`), cloneDay));
+      const today = isToday(day);
+      const isCurrentMonth = isSameMonth(day, monthStart);
       
       days.push(
         <div 
           key={day.toString()} 
           className={clsx(
-            "p-2 flex flex-col items-center justify-center rounded-lg text-sm aspect-square transition-colors",
-            !isSameMonth(day, monthStart) ? "text-neutral-600 border-none opacity-50" : isToday(day) ? "bg-blue-600 text-white font-bold" : "text-neutral-300 hover:bg-neutral-700",
-            isLectureDay && !isToday(day) && isSameMonth(day, monthStart) && "border border-blue-500/50 text-white font-bold bg-blue-500/10"
+            "h-10 w-10 flex flex-col items-center justify-center rounded-full text-sm mx-auto transition-all",
+            !isCurrentMonth ? "text-muted opacity-40" : today ? "bg-blue-600 text-white font-bold shadow-md shadow-blue-500/30" : "text-[var(--text-main)] hover:bg-[var(--bg-app)] font-medium",
+            isLectureDay && !today && isCurrentMonth && "ring-2 ring-blue-500/30 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 font-bold"
           )}
         >
           <span>{formattedDate}</span>
-          {isLectureDay && isSameMonth(day, monthStart) && !isToday(day) && (
-            <div className="w-1 h-1 bg-blue-400 rounded-full mt-1"></div>
+          {isLectureDay && isCurrentMonth && !today && (
+            <div className="w-1 h-1 bg-blue-500 rounded-full mt-0.5 absolute bottom-1.5"></div>
           )}
         </div>
       );
       day = addDays(day, 1);
     }
     rows.push(
-      <div className="grid grid-cols-7 gap-1" key={day.toString()}>
+      <div className="grid grid-cols-7 gap-1 py-1" key={day.toString()}>
         {days}
       </div>
     );
@@ -316,7 +366,7 @@ function StudentDashboard({ student }: { student: Student | null }) {
 
   const attendanceData = [
     { name: 'Attended', value: 85, color: '#3b82f6' },
-    { name: 'Missed', value: 15, color: '#262626' } 
+    { name: 'Missed', value: 15, color: '#e2e8f0' } 
   ];
 
   const performanceData = [
@@ -328,59 +378,73 @@ function StudentDashboard({ student }: { student: Student | null }) {
   ];
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-neutral-50">Welcome back, {student?.fullName?.split(' ')[0] || 'Student'}!</h1>
-        <p className="mt-2 text-neutral-400">Here's a summary of your academic activities for today.</p>
+    <div className="space-y-8">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-[var(--text-main)]">Welcome back, {student?.fullName?.split(' ')[0] || 'Student'}! 👋</h1>
+          <p className="mt-2 text-muted font-medium">Continue your learning journey and stay on top of your schedule.</p>
+        </div>
+        <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-semibold shadow-sm shadow-blue-500/20 transition-all active:scale-95">
+          <BookOpen className="w-5 h-5" />
+          Continue Learning
+        </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="card-blue bg-neutral-800 p-6 md:p-8 rounded-3xl border border-neutral-700/60 shadow-sm ring-1 ring-neutral-900/5 col-span-1 lg:col-span-2 flex flex-col">
-          <h2 className="text-lg font-bold text-neutral-50 mb-6 flex items-center">
-            <div className="icon-bg w-10 h-10 bg-neutral-900 rounded-xl flex items-center justify-center mr-3">
-              <Video className="w-5 h-5 text-blue-500"/>
-            </div>
-            Upcoming Lectures
-          </h2>
+        <div className="premium-card p-6 md:p-8 col-span-1 lg:col-span-2 flex flex-col relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+          
+          <div className="flex items-center justify-between mb-8 relative z-10">
+            <h2 className="text-xl font-bold text-[var(--text-main)] flex items-center">
+              <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded-xl flex items-center justify-center mr-4 border border-blue-200 dark:border-blue-800/50 shadow-inner">
+                <Video className="w-5 h-5"/>
+              </div>
+              Upcoming Live Classes
+            </h2>
+            <Link to="/student/lectures" className="text-sm font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400">View All</Link>
+          </div>
           
           {loading ? (
-            <div className="bg-neutral-900 rounded-2xl border border-neutral-700 p-8 text-center text-neutral-400 flex-1 flex items-center justify-center">
-              Loading lectures...
+            <div className="flex-1 flex items-center justify-center min-h-[200px]">
+              <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
             </div>
           ) : upcomingLectures.length > 0 ? (
-            <div className="space-y-4 flex-1">
+            <div className="space-y-4 flex-1 relative z-10">
               {upcomingLectures.map((item, idx) => (
-                <div key={idx} className="flex items-center justify-between p-4 bg-neutral-800 rounded-2xl border border-neutral-700/60 shadow-sm hover:shadow-md transition-shadow">
-                  <div className="flex items-center">
-                    <div className="w-12 h-12 bg-neutral-900 rounded-xl flex items-center justify-center mr-4">
-                      <Video className="w-5 h-5 text-blue-600" />
+                <div key={idx} className="flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-[var(--bg-app)] rounded-2xl border border-[var(--border-subtle)] hover:border-blue-300 dark:hover:border-blue-700/50 transition-colors shadow-sm group/item">
+                  <div className="flex items-start sm:items-center mb-4 sm:mb-0">
+                    <div className="w-12 h-12 bg-white dark:bg-neutral-800 rounded-xl flex items-center justify-center mr-4 shadow-sm border border-[var(--border-subtle)] shrink-0">
+                      <Video className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-neutral-50">{item.lec.title}</h3>
-                      <p className="text-sm font-medium text-neutral-400">{item.mod.code} • <span className="text-blue-600">{item.lec.date} at {item.lec.time}</span></p>
+                      <h3 className="font-bold text-[var(--text-main)] text-base group-hover/item:text-blue-600 dark:group-hover/item:text-blue-400 transition-colors">{item.lec.title}</h3>
+                      <p className="text-sm font-medium text-muted mt-1">{item.mod.code} • <span className="text-blue-600 dark:text-blue-400 font-semibold">{item.lec.date} at {item.lec.time}</span></p>
                     </div>
                   </div>
-                  <a href={item.lec.meetLink} target="_blank" rel="noreferrer" className="px-5 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 text-sm font-medium transition-colors shadow-sm focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Join Class</a>
+                  <a href={item.lec.meetLink} target="_blank" rel="noreferrer" className="px-5 py-2.5 bg-[var(--bg-card)] text-[var(--text-main)] border border-[var(--border-strong)] rounded-xl hover:bg-blue-600 hover:text-white hover:border-transparent text-sm font-semibold transition-all shadow-sm text-center">Join Class</a>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="bg-neutral-900 rounded-2xl border border-neutral-700 p-8 text-center text-neutral-400 border-dashed flex-1 flex items-center justify-center flex-col">
-              <BookOpen className="w-10 h-10 text-neutral-600 mb-3" />
-              <p>No upcoming lectures scheduled.</p>
+            <div className="bg-[var(--bg-app)] rounded-2xl border border-[var(--border-subtle)] border-dashed p-8 text-center text-muted flex-1 flex items-center justify-center flex-col min-h-[200px]">
+              <div className="w-12 h-12 bg-[var(--bg-card)] rounded-full flex items-center justify-center mb-4 shadow-sm border border-[var(--border-subtle)]">
+                <BookOpen className="w-6 h-6 text-muted" />
+              </div>
+              <p className="font-medium">No upcoming lectures scheduled.</p>
+              <p className="text-sm mt-1">Enjoy your free time!</p>
             </div>
           )}
         </div>
 
-        <div className="card-emerald bg-neutral-800 p-6 md:p-8 rounded-3xl border border-neutral-700 shadow-sm ring-1 ring-neutral-900/5 flex flex-col">
-          <h2 className="text-lg font-bold text-neutral-50 mb-6 flex items-center">
-            <div className="icon-bg w-10 h-10 bg-neutral-900 rounded-xl shadow-sm border border-neutral-700 flex items-center justify-center mr-3">
-              <PieChart className="w-5 h-5 text-emerald-500"/>
+        <div className="premium-card p-6 md:p-8 flex flex-col relative overflow-hidden">
+          <h2 className="text-xl font-bold text-[var(--text-main)] mb-6 flex items-center">
+            <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 rounded-xl flex items-center justify-center mr-4 border border-emerald-200 dark:border-emerald-800/50 shadow-inner">
+              <PieChart className="w-5 h-5"/>
             </div>
             Attendance
           </h2>
-          <div className="flex-1 flex flex-col items-center justify-center bg-neutral-900/50 rounded-2xl border border-neutral-700/50 p-6 relative">
-             <div className="w-full h-48 mt-2">
+          <div className="flex-1 flex flex-col items-center justify-center relative">
+             <div className="w-full h-48">
                 <ResponsiveContainer width="100%" height="100%">
                   <RePieChart>
                     <Pie
@@ -389,32 +453,32 @@ function StudentDashboard({ student }: { student: Student | null }) {
                       cy="50%"
                       innerRadius={65}
                       outerRadius={85}
-                      paddingAngle={4}
+                      paddingAngle={5}
                       dataKey="value"
                       stroke="none"
-                      cornerRadius={4}
+                      cornerRadius={8}
                     >
                       {attendanceData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
+                        <Cell key={`cell-${index}`} fill={index === 1 ? 'var(--border-strong)' : entry.color} />
                       ))}
                     </Pie>
                     <Tooltip 
                       formatter={(value: number) => [`${value}%`, '']}
-                      contentStyle={{ backgroundColor: '#171717', borderColor: '#404040', borderRadius: '0.5rem', color: '#fff' }}
-                      itemStyle={{ color: '#fff', fontWeight: 'bold' }}
+                      contentStyle={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-subtle)', borderRadius: '0.75rem', color: 'var(--text-main)', boxShadow: 'var(--shadow-md)' }}
+                      itemStyle={{ color: 'var(--text-main)', fontWeight: 'bold' }}
                     />
                   </RePieChart>
                 </ResponsiveContainer>
               </div>
-              <div className="absolute inset-0 flex items-center justify-center flex-col pointer-events-none -mt-4">
-                 <span className="text-4xl font-bold text-neutral-50 tracking-tight">85%</span>
-                 <span className="text-xs text-neutral-400 font-medium uppercase tracking-wider mt-1">Overall</span>
+              <div className="absolute inset-0 flex items-center justify-center flex-col pointer-events-none mt-2">
+                 <span className="text-4xl font-bold text-[var(--text-main)] tracking-tight">85%</span>
+                 <span className="text-xs text-muted font-bold uppercase tracking-widest mt-1">Overall</span>
               </div>
-              <div className="mt-6 w-full flex justify-center gap-6 px-2">
+              <div className="mt-8 w-full flex justify-center gap-6">
                  {attendanceData.map((entry, index) => (
-                    <div key={index} className="flex items-center text-sm bg-neutral-800 px-4 py-2 rounded-xl border border-neutral-700/80 shadow-sm">
-                       <span className="w-3.5 h-3.5 rounded-full mr-2.5 outline outline-2 outline-offset-1" style={{ backgroundColor: entry.color, outlineColor: `${entry.color}40` }}></span>
-                       <span className="text-neutral-100 font-semibold">{entry.name} <span className="ml-1 text-neutral-400 font-medium">({entry.value}%)</span></span>
+                    <div key={index} className="flex items-center text-sm font-medium">
+                       <span className="w-3 h-3 rounded-full mr-2.5 shadow-sm" style={{ backgroundColor: index === 1 ? 'var(--border-strong)' : entry.color }}></span>
+                       <span className="text-[var(--text-main)]">{entry.name} <span className="text-muted ml-1">{entry.value}%</span></span>
                     </div>
                  ))}
               </div>
@@ -423,81 +487,98 @@ function StudentDashboard({ student }: { student: Student | null }) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="card-amber bg-neutral-800 p-6 md:p-8 rounded-3xl border border-neutral-700 shadow-sm ring-1 ring-neutral-900/5 flex flex-col lg:col-span-1">
-          <h2 className="text-lg font-bold text-neutral-50 mb-6 flex items-center">
-            <div className="icon-bg w-10 h-10 bg-neutral-900 rounded-xl shadow-sm border border-neutral-700 flex items-center justify-center mr-3">
-              <Bell className="w-5 h-5 text-amber-500"/>
+        <div className="premium-card p-6 md:p-8 flex flex-col lg:col-span-1">
+          <h2 className="text-xl font-bold text-[var(--text-main)] mb-6 flex items-center">
+            <div className="w-10 h-10 bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 rounded-xl flex items-center justify-center mr-4 border border-amber-200 dark:border-amber-800/50 shadow-inner">
+              <Bell className="w-5 h-5"/>
             </div>
             Announcements
           </h2>
-          <div className="bg-neutral-900/50 rounded-2xl border border-neutral-700/50 p-5 shadow-sm flex-1">
-            <p className="text-sm font-bold text-neutral-50 mb-1">Welcome to JIRVI EDU</p>
-            <p className="text-sm text-neutral-400 leading-relaxed mb-4">Please make sure to check your enrolled modules for required materials.</p>
-            
-            <div className="h-px bg-neutral-700 w-full my-4"></div>
-            
-            <p className="text-sm font-bold text-neutral-50 mb-1">Upcoming Exam Schedule</p>
-            <p className="text-sm text-neutral-400 leading-relaxed">The final schedule will be posted next week on the dashboard.</p>
+          <div className="bg-[var(--bg-app)] rounded-2xl border border-[var(--border-subtle)] p-6 shadow-sm flex-1 overflow-hidden relative">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
+            <div className="relative z-10">
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm font-bold text-[var(--text-main)]">Welcome to JIRVI EDU</p>
+                  <span className="text-[10px] font-bold text-amber-600 bg-amber-100 dark:bg-amber-900/40 px-2 py-0.5 rounded-full uppercase tracking-wider">New</span>
+                </div>
+                <p className="text-sm text-muted leading-relaxed">Please make sure to check your enrolled modules for required materials.</p>
+              </div>
+              
+              <div className="h-px bg-[var(--border-subtle)] w-full my-4"></div>
+              
+              <div>
+                <p className="text-sm font-bold text-[var(--text-main)] mb-2">Upcoming Exam Schedule</p>
+                <p className="text-sm text-muted leading-relaxed">The final schedule will be posted next week on the dashboard.</p>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="card-blue bg-neutral-800 p-6 md:p-8 rounded-3xl border border-neutral-700 shadow-sm ring-1 ring-neutral-900/5 lg:col-span-2 flex flex-col">
-           <div className="flex justify-between items-center mb-6">
-              <h2 className="text-lg font-bold text-neutral-50 flex items-center">
-                <div className="icon-bg w-10 h-10 bg-neutral-900 rounded-xl flex items-center justify-center mr-3 border border-neutral-700 shadow-sm">
-                  <Calendar className="w-5 h-5 text-blue-500"/>
+        <div className="premium-card p-6 md:p-8 lg:col-span-2 flex flex-col">
+           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
+              <h2 className="text-xl font-bold text-[var(--text-main)] flex items-center">
+                <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 rounded-xl flex items-center justify-center mr-4 border border-indigo-200 dark:border-indigo-800/50 shadow-inner">
+                  <Calendar className="w-5 h-5"/>
                 </div>
                 Academic Calendar
               </h2>
-              <div className="flex items-center gap-4 bg-neutral-900/50 px-4 py-2 rounded-xl border border-neutral-700/50">
-                 <button onClick={handlePrevMonth} className="text-neutral-400 hover:text-neutral-50 p-1 rounded-md hover:bg-neutral-700 transition-colors">
+              <div className="flex items-center justify-between bg-[var(--bg-app)] px-2 py-1.5 rounded-xl border border-[var(--border-subtle)] shadow-sm">
+                 <button onClick={handlePrevMonth} className="text-muted hover:text-[var(--text-main)] p-1.5 rounded-lg hover:bg-[var(--bg-card)] transition-colors shadow-sm">
                     <ChevronLeft className="w-5 h-5" />
                  </button>
-                 <span className="text-sm font-bold text-neutral-50 min-w-[100px] text-center">
+                 <span className="text-sm font-bold text-[var(--text-main)] min-w-[120px] text-center">
                     {format(currentDate, 'MMMM yyyy')}
                  </span>
-                 <button onClick={handleNextMonth} className="text-neutral-400 hover:text-neutral-50 p-1 rounded-md hover:bg-neutral-700 transition-colors">
+                 <button onClick={handleNextMonth} className="text-muted hover:text-[var(--text-main)] p-1.5 rounded-lg hover:bg-[var(--bg-card)] transition-colors shadow-sm">
                     <ChevronRight className="w-5 h-5" />
                  </button>
               </div>
            </div>
            
-           <div className="bg-neutral-900/50 rounded-2xl border border-neutral-700/50 p-6 flex-1 flex flex-col">
-              <div className="grid grid-cols-7 gap-1 mb-2">
-                 {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(day => (
-                    <div key={day} className="text-center text-xs font-bold text-neutral-500 py-2 uppercase tracking-wider">{day}</div>
+           <div className="flex-1 flex flex-col">
+              <div className="grid grid-cols-7 gap-1 mb-3">
+                 {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                    <div key={day} className="text-center text-xs font-bold text-muted py-2 uppercase tracking-wider">{day}</div>
                  ))}
               </div>
-              <div className="flex-1 flex flex-col gap-1">
+              <div className="flex-1 flex flex-col relative z-10">
                  {rows}
               </div>
-              <div className="mt-4 pt-4 border-t border-neutral-700/50 flex items-center gap-4 text-xs font-medium text-neutral-400">
-                <div className="flex items-center gap-2"><span className="w-3 h-3 bg-blue-600 rounded-md"></span> Today</div>
-                <div className="flex items-center gap-2"><span className="w-3 h-3 bg-blue-500/10 border border-blue-500/50 rounded-md"></span> Scheduled Lecture</div>
+              <div className="mt-6 pt-4 border-t border-[var(--border-subtle)] flex items-center gap-6 text-xs font-semibold text-muted">
+                <div className="flex items-center gap-2.5"><span className="w-3 h-3 bg-blue-600 rounded-md shadow-sm"></span> Today</div>
+                <div className="flex items-center gap-2.5"><span className="w-3 h-3 bg-blue-100 dark:bg-blue-900/40 border border-blue-300 dark:border-blue-700 rounded-md"></span> Scheduled Lecture</div>
               </div>
            </div>
         </div>
       </div>
 
-      <div className="card-red bg-neutral-800 p-6 md:p-8 rounded-3xl border border-neutral-700 shadow-sm ring-1 ring-neutral-900/5">
-        <h2 className="text-lg font-bold text-neutral-50 mb-6 flex items-center">
-          <div className="icon-bg w-10 h-10 bg-neutral-900 rounded-xl flex items-center justify-center mr-3 border border-neutral-700 shadow-sm">
-            <TrendingUp className="w-5 h-5 text-blue-500" />
+      <div className="premium-card p-6 md:p-8">
+        <h2 className="text-xl font-bold text-[var(--text-main)] mb-8 flex items-center">
+          <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 rounded-xl flex items-center justify-center mr-4 border border-purple-200 dark:border-purple-800/50 shadow-inner">
+            <TrendingUp className="w-5 h-5" />
           </div>
           Performance Trend
         </h2>
-        <div className="w-full h-64 bg-neutral-900/50 rounded-2xl border border-neutral-700/50 p-6">
+        <div className="w-full h-72">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={performanceData} margin={{ top: 5, right: 20, left: -20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#404040" vertical={false} />
-              <XAxis dataKey="name" stroke="#a3a3a3" fontSize={12} tickLine={false} axisLine={false} />
-              <YAxis stroke="#a3a3a3" fontSize={12} tickLine={false} axisLine={false} domain={[0, 100]} tickFormatter={(val) => `${val}%`} />
+              <CartesianGrid strokeDasharray="4 4" stroke="var(--border-subtle)" vertical={false} />
+              <XAxis dataKey="name" stroke="var(--text-muted)" fontSize={12} tickLine={false} axisLine={false} dy={10} />
+              <YAxis stroke="var(--text-muted)" fontSize={12} tickLine={false} axisLine={false} domain={[0, 100]} tickFormatter={(val) => `${val}%`} dx={-10} />
               <Tooltip
-                contentStyle={{ backgroundColor: '#171717', borderColor: '#404040', borderRadius: '0.5rem', color: '#fff' }}
-                itemStyle={{ color: '#fff' }}
+                contentStyle={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-subtle)', borderRadius: '0.75rem', color: 'var(--text-main)', boxShadow: 'var(--shadow-md)' }}
+                itemStyle={{ color: 'var(--text-main)', fontWeight: 'bold' }}
                 formatter={(value: number) => [`${value}%`, 'Score']}
               />
-              <Line type="monotone" dataKey="score" stroke="#3b82f6" strokeWidth={3} dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }} activeDot={{ r: 6 }} />
+              <Line 
+                type="monotone" 
+                dataKey="score" 
+                stroke="#8b5cf6" 
+                strokeWidth={4} 
+                dot={{ fill: 'var(--bg-card)', stroke: '#8b5cf6', strokeWidth: 3, r: 6 }} 
+                activeDot={{ r: 8, strokeWidth: 0, fill: '#8b5cf6' }} 
+              />
             </LineChart>
           </ResponsiveContainer>
         </div>

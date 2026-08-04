@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
-import { BookOpen, AlertCircle, ArrowRight, Loader2, Eye, EyeOff } from 'lucide-react';
+import { BookOpen, AlertCircle, ArrowRight, Loader2, Eye, EyeOff, GraduationCap } from 'lucide-react';
 import { hash, compare } from 'bcrypt-ts';
-import { collection, query, where, getDocs, authenticateStudent } from '../lib/db';
-import { db } from '../lib/db';
-import clsx from 'clsx';
+import { authenticateStudent } from '../lib/db';
 import ThemeToggle from './ThemeToggle';
 import { logActivity } from '../lib/activity-logger';
+import { motion, AnimatePresence } from 'motion/react';
 
 export default function Login({ setRole }: { setRole: (role: string | null) => void }) {
   const [regNumber, setRegNumber] = useState(localStorage.getItem('jirvi_saved_reg') || '');
-  const [password, setPassword] = useState('');
+  const [password, setPassword] = useState(localStorage.getItem('jirvi_saved_password') || '');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(localStorage.getItem('jirvi_saved_reg') !== null);
   const [loading, setLoading] = useState(false);
@@ -20,21 +19,23 @@ export default function Login({ setRole }: { setRole: (role: string | null) => v
     setError('');
 
     const MAX_ATTEMPTS = 5;
-    const LOCKOUT_DURATION = 15 * 60 * 1000; // 15 minutes
+    const LOCKOUT_DURATION = 15 * 60 * 1000;
     const lockoutKey = `lockout_${regNumber}`;
     const attemptsKey = `attempts_${regNumber}`;
     const lockoutTime = localStorage.getItem(lockoutKey);
 
     if (lockoutTime && Date.now() < parseInt(lockoutTime)) {
       const minutesLeft = Math.ceil((parseInt(lockoutTime) - Date.now()) / 60000);
-      setError(`Account temporarily locked due to too many failed attempts. Try again in ${minutesLeft} minute(s).`);
+      setError(`Account locked. Try again in ${minutesLeft} minute(s).`);
       return;
     }
 
     if (rememberMe) {
       localStorage.setItem('jirvi_saved_reg', regNumber);
+      localStorage.setItem('jirvi_saved_password', password);
     } else {
       localStorage.removeItem('jirvi_saved_reg');
+      localStorage.removeItem('jirvi_saved_password');
     }
 
     if (regNumber === 'REG-ADMIN-2026') {
@@ -52,10 +53,10 @@ export default function Login({ setRole }: { setRole: (role: string | null) => v
         if (attempts >= MAX_ATTEMPTS) {
           localStorage.setItem(lockoutKey, (Date.now() + LOCKOUT_DURATION).toString());
           localStorage.removeItem(attemptsKey);
-          setError('Account temporarily locked due to too many failed attempts. Try again in 15 minutes.');
+          setError('Account locked. Try again in 15 minutes.');
         } else {
           localStorage.setItem(attemptsKey, attempts.toString());
-          setError(`Invalid admin credentials. (${MAX_ATTEMPTS - attempts} attempts remaining)`);
+          setError(`Invalid admin credentials. (${MAX_ATTEMPTS - attempts} attempts left)`);
         }
         return;
       }
@@ -70,10 +71,10 @@ export default function Login({ setRole }: { setRole: (role: string | null) => v
         if (attempts >= MAX_ATTEMPTS) {
           localStorage.setItem(lockoutKey, (Date.now() + LOCKOUT_DURATION).toString());
           localStorage.removeItem(attemptsKey);
-          setError('Account temporarily locked due to too many failed attempts. Try again in 15 minutes.');
+          setError('Account locked. Try again in 15 minutes.');
         } else {
           localStorage.setItem(attemptsKey, attempts.toString());
-          setError(`Invalid login credentials or student not found. (${MAX_ATTEMPTS - attempts} attempts remaining)`);
+          setError(`Invalid credentials. (${MAX_ATTEMPTS - attempts} attempts left)`);
         }
         setLoading(false);
         return;
@@ -108,48 +109,91 @@ export default function Login({ setRole }: { setRole: (role: string | null) => v
   };
 
   return (
-    <div className="min-h-screen relative flex flex-col justify-center py-12 sm:px-6 lg:px-8 overflow-hidden bg-neutral-950 transition-colors duration-300">
-      <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2064&auto=format&fit=crop')] bg-cover bg-center opacity-30 mix-blend-luminosity"></div>
-      <div className="absolute inset-0 bg-gradient-to-b from-neutral-950/50 via-neutral-950/80 to-neutral-950" />
+    <div className="min-h-screen relative flex items-center justify-center p-4 overflow-hidden bg-[var(--bg-app)]">
+      {/* Decorative abstract elements */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl mix-blend-multiply dark:mix-blend-screen" />
+        <div className="absolute top-40 -left-40 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl mix-blend-multiply dark:mix-blend-screen" />
+        <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl mix-blend-multiply dark:mix-blend-screen" />
+      </div>
       
-      {/* Decorative Orbs */}
-      <div className="absolute top-0 -left-64 w-[600px] h-[600px] bg-blue-600/20 rounded-full mix-blend-screen filter blur-[100px] opacity-70 animate-pulse"></div>
-      <div className="absolute bottom-0 -right-64 w-[600px] h-[600px] bg-emerald-600/20 rounded-full mix-blend-screen filter blur-[100px] opacity-70 animate-pulse" style={{ animationDelay: '2s' }}></div>
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-indigo-500/10 rounded-full mix-blend-screen filter blur-[120px] opacity-50"></div>
-      
-      <div className="absolute top-4 right-4 z-50">
+      <div className="absolute top-6 right-6 z-50">
         <ThemeToggle />
       </div>
 
-      <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10 transition-all duration-500">
-        <div className="flex justify-center relative">
-          <div className="absolute inset-0 bg-blue-500/20 blur-2xl rounded-full scale-150"></div>
-          <div className="h-16 w-16 bg-blue-600/80 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-[0_0_30px_rgba(37,99,235,0.4)] transform rotate-3 border border-blue-400/30 relative z-10">
-            <BookOpen className="h-8 w-8 text-white -rotate-3" />
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="w-full max-w-[1000px] bg-[var(--bg-card)] rounded-3xl shadow-2xl flex flex-col md:flex-row overflow-hidden border border-[var(--border-subtle)] relative z-10"
+      >
+        {/* Left Side: Branding & Info */}
+        <div className="hidden md:flex md:w-1/2 bg-gradient-to-br from-blue-600 to-indigo-700 p-12 flex-col justify-between relative overflow-hidden text-white">
+          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-20 mix-blend-luminosity"></div>
+          <div className="absolute inset-0 bg-blue-600/30 backdrop-blur-[2px]"></div>
+          
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-12">
+              <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center shadow-inner">
+                <GraduationCap className="w-6 h-6 text-white" />
+              </div>
+              <span className="text-2xl font-bold tracking-tight">JIRVI EDU</span>
+            </div>
+            
+            <h1 className="text-4xl lg:text-5xl font-bold leading-tight mb-6">
+              Unlock Your <br/>
+              <span className="text-blue-200">Learning Potential</span>
+            </h1>
+            <p className="text-blue-100/80 text-lg max-w-sm">
+              The premium e-learning platform designed to help you achieve academic excellence through interactive and personalized education.
+            </p>
+          </div>
+          
+          <div className="relative z-10">
+            <div className="flex -space-x-4">
+              <img className="w-10 h-10 rounded-full border-2 border-indigo-700" src="https://i.pravatar.cc/100?img=1" alt="Avatar" />
+              <img className="w-10 h-10 rounded-full border-2 border-indigo-700" src="https://i.pravatar.cc/100?img=2" alt="Avatar" />
+              <img className="w-10 h-10 rounded-full border-2 border-indigo-700" src="https://i.pravatar.cc/100?img=3" alt="Avatar" />
+              <div className="w-10 h-10 rounded-full border-2 border-indigo-700 bg-white/20 backdrop-blur-md flex items-center justify-center text-xs font-bold">+2k</div>
+            </div>
+            <p className="mt-3 text-sm text-blue-100 font-medium">Join over 2,000+ students worldwide</p>
           </div>
         </div>
-        <h2 className="mt-6 text-center text-4xl font-extrabold tracking-tighter text-white drop-shadow-md">
-          JIRVI EDU
-        </h2>
-        <p className="mt-3 text-center text-sm font-medium text-indigo-200/80 tracking-wide uppercase">
-          E-Learning Management System
-        </p>
-      </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
-        <div className="bg-neutral-900/60 backdrop-blur-xl py-8 px-4 shadow-2xl sm:rounded-2xl sm:px-10 border border-neutral-700/50">
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            {error && (
-              <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-3 text-sm text-red-400 flex items-center">
-                <AlertCircle className="w-4 h-4 mr-2" />
-                {error}
-              </div>
-            )}
-            <div>
-              <label htmlFor="regNumber" className="block text-sm font-medium text-neutral-200">
+        {/* Right Side: Login Form */}
+        <div className="w-full md:w-1/2 p-8 sm:p-12 lg:p-16 flex flex-col justify-center bg-[var(--bg-card)]">
+          <div className="md:hidden flex items-center gap-3 mb-8">
+            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+              <GraduationCap className="w-6 h-6 text-white" />
+            </div>
+            <span className="text-2xl font-bold tracking-tight text-[var(--text-main)]">JIRVI EDU</span>
+          </div>
+
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold text-[var(--text-main)] mb-2">Welcome Back</h2>
+            <p className="text-muted">Please sign in to your account</p>
+          </div>
+
+          <form className="space-y-5" onSubmit={handleSubmit}>
+            <AnimatePresence>
+              {error && (
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-500/30 rounded-xl p-4 text-sm text-red-600 dark:text-red-400 flex items-start"
+                >
+                  <AlertCircle className="w-5 h-5 mr-3 flex-shrink-0 mt-0.5" />
+                  <span>{error}</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <div className="space-y-1">
+              <label htmlFor="regNumber" className="block text-sm font-semibold text-[var(--text-main)]">
                 Registration Number
               </label>
-              <div className="mt-1">
+              <div className="relative">
                 <input
                   id="regNumber"
                   name="regNumber"
@@ -157,73 +201,89 @@ export default function Login({ setRole }: { setRole: (role: string | null) => v
                   required
                   value={regNumber}
                   onChange={(e) => setRegNumber(e.target.value)}
-                  className="block w-full appearance-none rounded-lg border border-neutral-600/50 px-3 py-2 placeholder-neutral-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm bg-neutral-900/50 backdrop-blur-sm text-neutral-50 transition-colors"
+                  className="block w-full rounded-xl border border-[var(--border-strong)] px-4 py-3 placeholder:text-muted focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 text-[var(--text-main)] bg-[var(--bg-app)] transition-all"
                   placeholder="REG-XXXX-XXXX"
                 />
               </div>
             </div>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-neutral-200">
+            <div className="space-y-1">
+              <label htmlFor="password" className="block text-sm font-semibold text-[var(--text-main)]">
                 Password
               </label>
-              <div className="mt-1 relative">
+              <div className="relative">
                 <input
                   id="password"
                   name="password"
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full appearance-none rounded-lg border border-neutral-600/50 px-3 py-2 pr-10 placeholder-neutral-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm bg-neutral-900/50 backdrop-blur-sm text-neutral-50 transition-colors"
+                  className="block w-full rounded-xl border border-[var(--border-strong)] px-4 py-3 pr-12 placeholder:text-muted focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 text-[var(--text-main)] bg-[var(--bg-app)] transition-all"
+                  placeholder="••••••••"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 hover:text-neutral-50"
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-muted hover:text-[var(--text-main)] transition-colors"
                 >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5" aria-hidden="true" />
-                  ) : (
-                    <Eye className="h-5 w-5" aria-hidden="true" />
-                  )}
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
               </div>
             </div>
             
-            <div className="flex items-center">
-              <input
-                id="remember-me"
-                name="remember-me"
-                type="checkbox"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-                className="h-4 w-4 rounded border-neutral-600 bg-neutral-900 text-blue-600 focus:ring-blue-500 focus:ring-offset-neutral-900"
-              />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-neutral-300">
-                Remember me
+            <div className="flex items-center justify-between pt-2">
+              <label className="flex items-center gap-2 cursor-pointer group">
+                <div className="relative flex items-center justify-center w-5 h-5">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="peer sr-only"
+                  />
+                  <div className="w-5 h-5 border-2 border-[var(--border-strong)] rounded flex items-center justify-center bg-[var(--bg-app)] peer-checked:bg-blue-600 peer-checked:border-blue-600 transition-colors">
+                    <motion.svg 
+                      initial={false}
+                      animate={rememberMe ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.5 }}
+                      className="w-3.5 h-3.5 text-white" 
+                      fill="none" 
+                      viewBox="0 0 24 24" 
+                      stroke="currentColor" 
+                      strokeWidth={3}
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </motion.svg>
+                  </div>
+                </div>
+                <span className="text-sm font-medium text-[var(--text-main)] group-hover:text-blue-600 transition-colors">Remember me</span>
               </label>
+              <a href="#" className="text-sm font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                Forgot password?
+              </a>
             </div>
 
-            <div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="flex w-full justify-center rounded-lg border border-transparent bg-indigo-600/80 backdrop-blur-md py-3 px-4 text-sm font-bold text-white shadow-[0_0_20px_rgba(79,70,229,0.3)] hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-neutral-900 transition-all duration-300 hover:shadow-[0_0_30px_rgba(79,70,229,0.5)] disabled:opacity-50 mt-4 outline outline-1 outline-indigo-500/50"
-              >
-                {loading ? (
-                  <span className="flex items-center">
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Verifying...
-                  </span>
-                ) : (
-                  <span className="flex items-center">
-                    Sign in <ArrowRight className="ml-2 h-4 w-4" />
-                  </span>
-                )}
-              </button>
-            </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="relative w-full flex justify-center py-3.5 px-4 rounded-xl border border-transparent bg-blue-600 text-sm font-bold text-white shadow-lg shadow-blue-600/30 hover:bg-blue-700 hover:shadow-blue-600/40 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-[var(--bg-card)] transition-all disabled:opacity-70 disabled:cursor-not-allowed mt-8 overflow-hidden group"
+            >
+              <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></div>
+              {loading ? (
+                <span className="flex items-center">
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Authenticating...
+                </span>
+              ) : (
+                <span className="flex items-center">
+                  Sign In <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                </span>
+              )}
+            </button>
           </form>
+          
+          <div className="mt-8 text-center text-sm text-muted">
+            <p>Admin? Use <span className="font-mono bg-[var(--bg-app)] px-2 py-1 rounded text-[var(--text-main)]">REG-ADMIN-2026</span></p>
+          </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

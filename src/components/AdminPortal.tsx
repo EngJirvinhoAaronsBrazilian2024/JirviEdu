@@ -5,7 +5,7 @@ import { db } from '../lib/db';
 import { collection, getDocs, doc, setDoc, deleteDoc, query, onSnapshot } from '../lib/db';
 import { 
   LayoutDashboard, Users, BookOpen, Video, FileText, 
-  Settings, LogOut, Menu, X, Calendar, FileDown, Plus, Activity
+  Settings, LogOut, Menu, X, Calendar, FileDown, Plus, Activity, Search
 } from 'lucide-react';
 import clsx from 'clsx';
 import { handleFirestoreError, OperationType } from '../lib/error-handler';
@@ -13,6 +13,8 @@ import { Student, Module } from '../types';
 import { isStrongPassword } from '../lib/security';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip } from 'recharts';
 import ThemeToggle from './ThemeToggle';
+import { motion, AnimatePresence } from 'motion/react';
+import { GraduationCap } from 'lucide-react';
 
 import AdminModules from './admin/AdminModules';
 import AdminLectures from './admin/AdminLectures';
@@ -47,58 +49,78 @@ export default function AdminPortal({ setRole }: { setRole: (role: string | null
   ];
 
   return (
-    <div className="min-h-screen bg-neutral-900 flex">
+    <div className="min-h-screen bg-[var(--bg-app)] flex print:block">
       {/* Mobile sidebar */}
-      <div className={clsx("fixed inset-0 z-50 lg:hidden", sidebarOpen ? "block" : "hidden")}>
-        <div className="fixed inset-0 bg-neutral-900/80 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
-        <div className="fixed inset-y-0 left-0 w-64 bg-neutral-900 flex flex-col shadow-2xl">
-          <div className="flex items-center justify-between h-16 px-4 border-b border-white/10">
-            <span className="text-xl font-bold text-neutral-50 flex items-center gap-2">
-              <BookOpen className="w-6 h-6 text-blue-400" />
-              JIRVI EDU
-            </span>
-            <button onClick={() => setSidebarOpen(false)} className="text-neutral-400 hover:text-neutral-50 transition-colors">
-              <X className="w-6 h-6" />
-            </button>
+      <AnimatePresence>
+        {sidebarOpen && (
+          <div className="fixed inset-0 z-50 lg:hidden print:hidden">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-neutral-900/60 backdrop-blur-sm" 
+              onClick={() => setSidebarOpen(false)} 
+            />
+            <motion.div 
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
+              className="fixed inset-y-0 left-0 w-72 bg-[var(--bg-card)] flex flex-col shadow-2xl border-r border-[var(--border-subtle)]"
+            >
+              <div className="flex items-center justify-between h-20 px-6 border-b border-[var(--border-subtle)]">
+                <span className="text-xl font-bold text-[var(--text-main)] flex items-center gap-3 tracking-tight">
+                  <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-md">
+                    <GraduationCap className="w-5 h-5 text-white" />
+                  </div>
+                  JIRVI ADMIN
+                </span>
+                <button onClick={() => setSidebarOpen(false)} className="text-muted hover:text-[var(--text-main)] transition-colors p-2 rounded-full hover:bg-[var(--border-subtle)]">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+                {navigation.map((item) => {
+                  const current = location.pathname === item.href;
+                  return (
+                    <Link
+                      key={item.name}
+                      to={item.href}
+                      onClick={() => setSidebarOpen(false)}
+                      className={clsx(
+                        current ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-semibold' : 'text-muted hover:bg-[var(--bg-app)] hover:text-[var(--text-main)] font-medium',
+                        'group flex items-center px-4 py-3 text-sm rounded-xl transition-all duration-200'
+                      )}
+                    >
+                      <item.icon className={clsx('mr-4 flex-shrink-0 h-5 w-5', current ? 'text-blue-600 dark:text-blue-400' : 'text-muted group-hover:text-[var(--text-main)]')} />
+                      {item.name}
+                    </Link>
+                  );
+                })}
+              </nav>
+              <div className="p-6 border-t border-[var(--border-subtle)]">
+                <button onClick={handleLogout} className="flex items-center justify-center w-full px-4 py-3 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors shadow-sm">
+                  <LogOut className="mr-3 h-4 w-4" />
+                  Sign Out
+                </button>
+              </div>
+            </motion.div>
           </div>
-          <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
-            {navigation.map((item) => {
-              const current = location.pathname === item.href;
-              return (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  onClick={() => setSidebarOpen(false)}
-                  className={clsx(
-                    current ? 'bg-blue-600/10 text-blue-400' : 'text-neutral-300 hover:bg-neutral-800 hover:text-neutral-50',
-                    'group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors'
-                  )}
-                >
-                  <item.icon className={clsx('mr-3 flex-shrink-0 h-5 w-5', current ? 'text-blue-400' : 'text-neutral-400 group-hover:text-neutral-300')} />
-                  {item.name}
-                </Link>
-              );
-            })}
-          </nav>
-          <div className="p-4 border-t border-white/10">
-            <button onClick={handleLogout} className="flex items-center w-full px-3 py-2 text-sm font-medium text-neutral-300 rounded-md hover:bg-neutral-800 hover:text-neutral-50 transition-colors">
-              <LogOut className="mr-3 h-5 w-5 text-neutral-400" />
-              Sign Out
-            </button>
-          </div>
-        </div>
-      </div>
+        )}
+      </AnimatePresence>
 
       {/* Desktop sidebar */}
-      <div className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 lg:bg-neutral-900 overflow-hidden lg:border-r lg:border-neutral-800">
-        <div className="flex items-center h-16 px-6 bg-neutral-900/50">
-          <span className="text-xl font-bold text-neutral-50 flex items-center gap-2">
-            <BookOpen className="w-6 h-6 text-blue-400" />
-            JIRVI EDU
+      <div className="hidden lg:flex lg:flex-col lg:w-72 lg:fixed lg:inset-y-0 lg:bg-[var(--bg-card)] overflow-hidden lg:border-r lg:border-[var(--border-subtle)] shadow-sm print:hidden z-20">
+        <div className="flex items-center h-20 px-8">
+          <span className="text-2xl font-bold text-[var(--text-main)] flex items-center gap-3 tracking-tight">
+            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-md">
+              <GraduationCap className="w-6 h-6 text-white" />
+            </div>
+            JIRVI ADMIN
           </span>
         </div>
         
-        <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+        <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
           {navigation.map((item) => {
             const current = location.pathname === item.href;
             return (
@@ -106,60 +128,84 @@ export default function AdminPortal({ setRole }: { setRole: (role: string | null
                 key={item.name}
                 to={item.href}
                 className={clsx(
-                  current ? 'bg-blue-600/10 text-blue-400 border border-blue-500/20' : 'text-neutral-300 hover:bg-neutral-800/50 hover:text-neutral-50 border border-transparent',
-                  'group flex items-center px-3 py-2.5 text-sm font-medium rounded-xl transition-all'
+                  current ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 font-semibold shadow-sm border border-blue-100 dark:border-blue-800/30' : 'text-muted hover:bg-[var(--bg-app)] hover:text-[var(--text-main)] font-medium border border-transparent',
+                  'group flex items-center px-4 py-3.5 text-sm rounded-xl transition-all duration-200 relative overflow-hidden'
                 )}
               >
-                <item.icon className={clsx('mr-3 flex-shrink-0 h-5 w-5', current ? 'text-blue-400' : 'text-neutral-400 group-hover:text-neutral-300')} />
-                {item.name}
+                {current && <motion.div layoutId="activeAdminNav" className="absolute left-0 w-1 h-8 bg-blue-600 rounded-r-full" />}
+                <item.icon className={clsx('mr-4 flex-shrink-0 h-5 w-5 z-10 relative', current ? 'text-blue-600 dark:text-blue-400' : 'text-muted group-hover:text-[var(--text-main)]')} />
+                <span className="z-10 relative">{item.name}</span>
               </Link>
             );
           })}
         </nav>
-        <div className="p-4 border-t border-white/10">
-          <div className="flex items-center px-3 py-2 mb-2">
-            <div className="w-8 h-8 bg-blue-600/20 border border-blue-500/30 rounded-xl flex items-center justify-center mr-3">
-              <span className="text-sm font-bold text-blue-400">AD</span>
+        <div className="p-6 border-t border-[var(--border-subtle)]">
+          <div className="flex items-center gap-3 cursor-pointer p-2 rounded-xl border border-transparent hover:border-[var(--border-subtle)] hover:bg-[var(--bg-app)] transition-all mb-4">
+            <div className="w-10 h-10 bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300 rounded-full flex items-center justify-center text-sm font-bold border-2 border-white dark:border-[var(--border-subtle)] shadow-sm">
+              AD
             </div>
             <div>
-              <p className="text-sm font-bold text-neutral-50">Administrator</p>
+              <p className="text-sm font-semibold text-[var(--text-main)] leading-none mb-1">Administrator</p>
+              <p className="text-xs text-muted leading-none font-medium">System Manager</p>
             </div>
           </div>
-          <button onClick={handleLogout} className="flex items-center w-full px-3 py-2.5 text-sm font-medium text-neutral-400 rounded-xl hover:bg-neutral-800 hover:text-neutral-50 transition-colors">
-            <LogOut className="mr-3 h-5 w-5 text-neutral-400" />
+          <button onClick={handleLogout} className="flex items-center justify-center w-full px-4 py-3 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors shadow-sm">
+            <LogOut className="mr-3 h-4 w-4" />
             Sign Out
           </button>
         </div>
       </div>
 
       {/* Main content */}
-      <div className="flex-1 lg:pl-64 flex flex-col min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-neutral-900 via-neutral-800 to-neutral-900">
-        <div className="sticky top-0 z-10 flex-shrink-0 flex h-16 bg-neutral-800/50 backdrop-blur-md border-b border-neutral-700/60 lg:hidden px-4 justify-between items-center">
-          <button onClick={() => setSidebarOpen(true)} className="text-neutral-400 hover:text-neutral-200">
-            <Menu className="h-6 w-6" />
-          </button>
-          <span className="font-bold text-neutral-50 tracking-tight">JIRVI EDU ADMIN</span>
-          <ThemeToggle />
-        </div>
-
-        {/* Desktop Header Theme Toggle */}
-        <div className="hidden lg:flex justify-end p-4 absolute top-0 right-0 w-full z-10 pointer-events-none">
-          <div className="pointer-events-auto">
-            <ThemeToggle />
+      <div className="flex-1 lg:pl-72 flex flex-col min-h-screen relative z-10 w-full overflow-hidden">
+        {/* Top Header */}
+        <header className="sticky top-0 z-30 flex h-20 bg-[var(--bg-card)]/80 backdrop-blur-xl border-b border-[var(--border-subtle)] px-4 sm:px-6 lg:px-8 justify-between items-center shadow-sm print:hidden">
+          <div className="flex items-center lg:hidden">
+            <button onClick={() => setSidebarOpen(true)} className="p-2 -ml-2 text-muted hover:text-[var(--text-main)] rounded-lg hover:bg-[var(--bg-app)] transition-colors">
+              <Menu className="h-6 w-6" />
+            </button>
           </div>
-        </div>
+          
+          <div className="flex-1 flex items-center justify-between lg:justify-end gap-4 lg:gap-6 ml-4 lg:ml-0">
+            {/* Desktop Search */}
+            <div className="hidden lg:flex flex-1 max-w-md relative mr-auto">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="h-5 w-5 text-muted" />
+              </div>
+              <input
+                type="text"
+                className="block w-full pl-10 pr-3 py-2.5 border border-[var(--border-strong)] rounded-xl leading-5 bg-[var(--bg-app)] text-[var(--text-main)] placeholder-muted focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all sm:text-sm shadow-inner"
+                placeholder="Search students, courses..."
+              />
+            </div>
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 w-full max-w-full overflow-x-hidden">
-          <Routes>
-            <Route path="/" element={<AdminDashboard />} />
-            <Route path="/students" element={<StudentManagement />} />
-            <Route path="/modules" element={<AdminModules />} />
-            <Route path="/lectures" element={<AdminLectures />} />
-            <Route path="/assignments" element={<AdminAssignments />} />
-            <Route path="/timetable" element={<Timetable />} />
-            <Route path="/materials" element={<AdminMaterials />} />
-            <Route path="/activity-logs" element={<AdminActivityLogs />} />
-          </Routes>
+            <div className="flex items-center gap-3 sm:gap-5">
+              <ThemeToggle />
+            </div>
+          </div>
+        </header>
+
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full pb-20">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={location.pathname}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+            >
+              <Routes>
+                <Route path="/" element={<AdminDashboard />} />
+                <Route path="/students" element={<StudentManagement />} />
+                <Route path="/modules" element={<AdminModules />} />
+                <Route path="/lectures" element={<AdminLectures />} />
+                <Route path="/assignments" element={<AdminAssignments />} />
+                <Route path="/timetable" element={<Timetable />} />
+                <Route path="/materials" element={<AdminMaterials />} />
+                <Route path="/activity-logs" element={<AdminActivityLogs />} />
+              </Routes>
+            </motion.div>
+          </AnimatePresence>
         </main>
       </div>
     </div>
@@ -185,7 +231,7 @@ function AdminDashboard() {
       const allSubs: any[] = [];
 
       try {
-        const studentsSnap = await getDocs(collection(fbDb, 'students'));
+        const studentsSnap = await getDocs(collection(db, 'students'));
         stCount = studentsSnap.docs.length;
         const sMap: Record<string, string> = {};
         studentsSnap.docs.forEach(d => {
@@ -197,7 +243,7 @@ function AdminDashboard() {
       }
 
       try {
-        const modulesSnap = await getDocs(collection(fbDb, 'modules'));
+        const modulesSnap = await getDocs(collection(db, 'modules'));
         mCount = modulesSnap.docs.length;
         
         const modulePromises = modulesSnap.docs.map(async (modDoc) => {
@@ -208,8 +254,8 @@ function AdminDashboard() {
           
           try {
             const [assignmentsSnap, lecturesSnap] = await Promise.all([
-              getDocs(collection(fbDb, `modules/${modDoc.id}/assignments`)).catch(() => ({ docs: [] })),
-              getDocs(collection(fbDb, `modules/${modDoc.id}/lectures`)).catch(() => ({ docs: [] }))
+              getDocs(collection(db, `modules/${modDoc.id}/assignments`)).catch(() => ({ docs: [] })),
+              getDocs(collection(db, `modules/${modDoc.id}/lectures`)).catch(() => ({ docs: [] }))
             ]);
             
             aCount = assignmentsSnap.docs.length;
@@ -218,7 +264,7 @@ function AdminDashboard() {
             const subPromises = assignmentsSnap.docs.map(async (aDoc) => {
               const aData = aDoc.data() as any;
               try {
-                const subsSnap = await getDocs(collection(fbDb, `modules/${modDoc.id}/assignments/${aDoc.id}/submissions`));
+                const subsSnap = await getDocs(collection(db, `modules/${modDoc.id}/assignments/${aDoc.id}/submissions`));
                 return subsSnap.docs.map(subDoc => ({
                   id: subDoc.id,
                   assignmentTitle: aData.title,
@@ -268,7 +314,6 @@ function AdminDashboard() {
     };
     fetchStats();
     
-    // Subscribe to DB mutations to keep dashboard live
     import('../lib/db').then((dbModule) => {
        if (dbModule.mutationEmitter) {
           const unsub = dbModule.mutationEmitter.subscribe(() => {
@@ -288,77 +333,83 @@ function AdminDashboard() {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
-      <h1 className="text-3xl font-bold tracking-tight text-neutral-50">Dashboard</h1>
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight text-[var(--text-main)]">System Overview</h1>
+        <p className="mt-2 text-muted font-medium">Manage your educational institution effectively.</p>
+      </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="bg-neutral-800 rounded-2xl p-8 shadow-sm border border-neutral-700/60 ring-1 ring-neutral-900/5 lg:col-span-2">
-          <h2 className="text-lg font-bold text-neutral-50 mb-6">System Statistics</h2>
+        <div className="premium-card p-6 md:p-8 lg:col-span-2">
+          <h2 className="text-xl font-bold text-[var(--text-main)] mb-8 flex items-center">
+            <Activity className="w-5 h-5 text-blue-500 mr-3" />
+            Key Metrics
+          </h2>
           
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            <div className="dashboard-stat-students bg-neutral-900/50 p-6 rounded-2xl border border-neutral-700/50 shadow-sm flex flex-col justify-between h-36 relative overflow-hidden group">
-              <div className="absolute -right-4 -bottom-4 bg-blue-500/10 w-24 h-24 rounded-full blur-2xl group-hover:bg-blue-500/20 transition-all duration-500"></div>
+            <div className="bg-[var(--bg-app)] p-6 rounded-2xl border border-[var(--border-subtle)] shadow-sm flex flex-col justify-between h-36 relative overflow-hidden group hover:border-blue-300 dark:hover:border-blue-700/50 transition-colors">
+              <div className="absolute -right-4 -bottom-4 bg-blue-500/10 w-32 h-32 rounded-full blur-3xl group-hover:bg-blue-500/20 transition-all duration-500"></div>
               <div className="flex items-center justify-between z-10">
-                <div className="icon-bg w-12 h-12 bg-neutral-800 rounded-xl shadow-sm border border-neutral-700 flex items-center justify-center">
+                <div className="w-12 h-12 bg-[var(--bg-card)] rounded-xl shadow-sm border border-[var(--border-subtle)] flex items-center justify-center">
                   <Users className="w-6 h-6 text-blue-500" />
                 </div>
-                <span className="text-3xl font-bold text-neutral-50 tracking-tight">{stats.students}</span>
+                <span className="text-4xl font-bold text-[var(--text-main)] tracking-tight">{stats.students}</span>
               </div>
-              <p className="text-sm font-semibold text-neutral-400 z-10">Total Students</p>
+              <p className="text-sm font-semibold text-muted z-10 mt-auto">Total Students</p>
             </div>
 
-            <div className="dashboard-stat-modules bg-neutral-900/50 p-6 rounded-2xl border border-neutral-700/50 shadow-sm flex flex-col justify-between h-36 relative overflow-hidden group">
-              <div className="absolute -right-4 -bottom-4 bg-blue-500/10 w-24 h-24 rounded-full blur-2xl group-hover:bg-blue-500/20 transition-all duration-500"></div>
+            <div className="bg-[var(--bg-app)] p-6 rounded-2xl border border-[var(--border-subtle)] shadow-sm flex flex-col justify-between h-36 relative overflow-hidden group hover:border-indigo-300 dark:hover:border-indigo-700/50 transition-colors">
+              <div className="absolute -right-4 -bottom-4 bg-indigo-500/10 w-32 h-32 rounded-full blur-3xl group-hover:bg-indigo-500/20 transition-all duration-500"></div>
               <div className="flex items-center justify-between z-10">
-                <div className="icon-bg w-12 h-12 bg-neutral-800 rounded-xl shadow-sm border border-neutral-700 flex items-center justify-center">
-                  <BookOpen className="w-6 h-6 text-blue-500" />
+                <div className="w-12 h-12 bg-[var(--bg-card)] rounded-xl shadow-sm border border-[var(--border-subtle)] flex items-center justify-center">
+                  <BookOpen className="w-6 h-6 text-indigo-500" />
                 </div>
-                <span className="text-3xl font-bold text-neutral-50 tracking-tight">{stats.modules}</span>
+                <span className="text-4xl font-bold text-[var(--text-main)] tracking-tight">{stats.modules}</span>
               </div>
-              <p className="text-sm font-semibold text-neutral-400 z-10">Active Modules</p>
+              <p className="text-sm font-semibold text-muted z-10 mt-auto">Active Modules</p>
             </div>
 
-            <div className="dashboard-stat-assignments bg-neutral-900/50 p-6 rounded-2xl border border-neutral-700/50 shadow-sm flex flex-col justify-between h-36 relative overflow-hidden group">
-              <div className="absolute -right-4 -bottom-4 bg-emerald-500/10 w-24 h-24 rounded-full blur-2xl group-hover:bg-emerald-500/20 transition-all duration-500"></div>
+            <div className="bg-[var(--bg-app)] p-6 rounded-2xl border border-[var(--border-subtle)] shadow-sm flex flex-col justify-between h-36 relative overflow-hidden group hover:border-emerald-300 dark:hover:border-emerald-700/50 transition-colors">
+              <div className="absolute -right-4 -bottom-4 bg-emerald-500/10 w-32 h-32 rounded-full blur-3xl group-hover:bg-emerald-500/20 transition-all duration-500"></div>
               <div className="flex items-center justify-between z-10">
-                <div className="icon-bg w-12 h-12 bg-neutral-800 rounded-xl shadow-sm border border-neutral-700 flex items-center justify-center">
+                <div className="w-12 h-12 bg-[var(--bg-card)] rounded-xl shadow-sm border border-[var(--border-subtle)] flex items-center justify-center">
                   <FileText className="w-6 h-6 text-emerald-500" />
                 </div>
-                <span className="text-3xl font-bold text-neutral-50 tracking-tight">{stats.assignments}</span>
+                <span className="text-4xl font-bold text-[var(--text-main)] tracking-tight">{stats.assignments}</span>
               </div>
-              <p className="text-sm font-semibold text-neutral-400 z-10">Total Assignments</p>
+              <p className="text-sm font-semibold text-muted z-10 mt-auto">Total Assignments</p>
             </div>
 
-            <div className="dashboard-stat-lectures bg-neutral-900/50 p-6 rounded-2xl border border-neutral-700/50 shadow-sm flex flex-col justify-between h-36 relative overflow-hidden group">
-              <div className="absolute -right-4 -bottom-4 bg-amber-500/10 w-24 h-24 rounded-full blur-2xl group-hover:bg-amber-500/20 transition-all duration-500"></div>
+            <div className="bg-[var(--bg-app)] p-6 rounded-2xl border border-[var(--border-subtle)] shadow-sm flex flex-col justify-between h-36 relative overflow-hidden group hover:border-amber-300 dark:hover:border-amber-700/50 transition-colors">
+              <div className="absolute -right-4 -bottom-4 bg-amber-500/10 w-32 h-32 rounded-full blur-3xl group-hover:bg-amber-500/20 transition-all duration-500"></div>
               <div className="flex items-center justify-between z-10">
-                <div className="icon-bg w-12 h-12 bg-neutral-800 rounded-xl shadow-sm border border-neutral-700 flex items-center justify-center">
+                <div className="w-12 h-12 bg-[var(--bg-card)] rounded-xl shadow-sm border border-[var(--border-subtle)] flex items-center justify-center">
                   <Video className="w-6 h-6 text-amber-500" />
                 </div>
-                <span className="text-3xl font-bold text-neutral-50 tracking-tight">{stats.lectures}</span>
+                <span className="text-4xl font-bold text-[var(--text-main)] tracking-tight">{stats.lectures}</span>
               </div>
-              <p className="text-sm font-semibold text-neutral-400 z-10">Lectures Scheduled</p>
+              <p className="text-sm font-semibold text-muted z-10 mt-auto">Lectures Scheduled</p>
             </div>
           </div>
         </div>
         
-        <div className="bg-neutral-800 rounded-2xl p-8 shadow-sm border border-neutral-700/60 ring-1 ring-neutral-900/5 lg:col-span-1 flex flex-col">
-          <h2 className="text-lg font-bold text-neutral-50 mb-6 flex items-center">
+        <div className="premium-card p-6 md:p-8 lg:col-span-1 flex flex-col">
+          <h2 className="text-xl font-bold text-[var(--text-main)] mb-6 flex items-center">
             Weekly Attendance
           </h2>
           <div className="flex-1 w-full min-h-[300px] mt-2">
             <ResponsiveContainer width="100%" height="100%">
                <BarChart data={attendanceData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                <XAxis dataKey="name" stroke="#737373" fontSize={12} fontWeight={600} tickLine={false} axisLine={false} dy={10} />
-                <YAxis stroke="#737373" fontSize={12} fontWeight={600} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}%`} dx={-10} />
+                <CartesianGrid strokeDasharray="4 4" stroke="var(--border-subtle)" vertical={false} />
+                <XAxis dataKey="name" stroke="var(--text-muted)" fontSize={12} fontWeight={600} tickLine={false} axisLine={false} dy={10} />
+                <YAxis stroke="var(--text-muted)" fontSize={12} fontWeight={600} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}%`} dx={-10} />
                 <RechartsTooltip 
-                  cursor={{ fill: 'rgba(255,255,255,0.03)' }}
-                  contentStyle={{ backgroundColor: 'rgba(15,23,42,0.9)', backdropFilter: 'blur(8px)', borderColor: 'rgba(59,130,246,0.3)', borderRadius: '1rem', color: '#fff', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.5)' }}
-                  itemStyle={{ color: '#fff', fontWeight: 'bold' }}
+                  cursor={{ fill: 'var(--border-subtle)' }}
+                  contentStyle={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-subtle)', borderRadius: '0.75rem', color: 'var(--text-main)', boxShadow: 'var(--shadow-md)' }}
+                  itemStyle={{ color: 'var(--text-main)', fontWeight: 'bold' }}
                   formatter={(value: number) => [`${value}%`, 'Attendance']}
                 />
-                <Bar dataKey="attendance" fill="#3b82f6" radius={[6, 6, 0, 0]} maxBarSize={32} />
+                <Bar dataKey="attendance" fill="#3b82f6" radius={[6, 6, 0, 0]} maxBarSize={40} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -366,44 +417,57 @@ function AdminDashboard() {
       </div>
 
       {/* Submissions Section */}
-      <div className="bg-neutral-800 rounded-2xl p-6 md:p-8 shadow-sm border border-neutral-700/60 ring-1 ring-neutral-900/5">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-bold text-neutral-50">Recent Assignment Submissions</h2>
-          <span className="text-sm font-medium text-neutral-400">{recentSubmissions.length} submissions</span>
+      <div className="premium-card p-6 md:p-8 overflow-hidden">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-xl font-bold text-[var(--text-main)]">Recent Submissions</h2>
+          <span className="text-sm font-semibold bg-[var(--bg-app)] border border-[var(--border-subtle)] px-3 py-1.5 rounded-full text-[var(--text-main)]">{recentSubmissions.length} recent</span>
         </div>
         
         {recentSubmissions.length === 0 ? (
-           <div className="py-8 text-center text-neutral-500 text-sm">No recent submissions found.</div>
+           <div className="py-12 text-center text-muted flex flex-col items-center">
+             <div className="w-16 h-16 bg-[var(--bg-app)] rounded-full flex items-center justify-center mb-4 border border-[var(--border-subtle)]">
+                <FileText className="w-8 h-8 text-muted opacity-50" />
+             </div>
+             <p className="font-medium text-[var(--text-main)]">No submissions found</p>
+             <p className="text-sm mt-1">When students submit work, it will appear here.</p>
+           </div>
         ) : (
           <div className="overflow-x-auto -mx-6 md:mx-0">
             <div className="inline-block min-w-full align-middle md:px-0 px-6">
-              <table className="min-w-full divide-y divide-neutral-700">
+              <table className="min-w-full divide-y divide-[var(--border-subtle)]">
                 <thead>
                   <tr>
-                    <th scope="col" className="py-3 text-left text-xs font-semibold text-neutral-400 uppercase tracking-wider">Student</th>
-                    <th scope="col" className="py-3 text-left text-xs font-semibold text-neutral-400 uppercase tracking-wider">Assignment</th>
-                    <th scope="col" className="py-3 text-left text-xs font-semibold text-neutral-400 uppercase tracking-wider hidden sm:table-cell">Status</th>
-                    <th scope="col" className="py-3 text-right text-xs font-semibold text-neutral-400 uppercase tracking-wider hidden sm:table-cell">Time</th>
+                    <th scope="col" className="py-4 text-left text-xs font-bold text-muted uppercase tracking-wider">Student</th>
+                    <th scope="col" className="py-4 text-left text-xs font-bold text-muted uppercase tracking-wider">Assignment</th>
+                    <th scope="col" className="py-4 text-left text-xs font-bold text-muted uppercase tracking-wider hidden sm:table-cell">Status</th>
+                    <th scope="col" className="py-4 text-right text-xs font-bold text-muted uppercase tracking-wider hidden sm:table-cell">Time</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-neutral-700/50">
+                <tbody className="divide-y divide-[var(--border-subtle)]">
                   {recentSubmissions.map((sub, i) => (
-                    <tr key={i} className="hover:bg-neutral-900/30 transition-colors">
-                      <td className="py-4 whitespace-nowrap text-sm hidden sm:table-cell">
-                        <div className="font-medium text-neutral-50">{studentsMap[sub.studentId] || studentsMap[sub.id] || sub.studentId || sub.id}</div>
+                    <tr key={i} className="hover:bg-[var(--bg-app)] transition-colors group cursor-default">
+                      <td className="py-5 whitespace-nowrap text-sm hidden sm:table-cell">
+                        <div className="font-semibold text-[var(--text-main)] flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-xs shadow-inner">
+                             {(studentsMap[sub.studentId] || studentsMap[sub.id] || sub.studentId || sub.id).charAt(0)}
+                          </div>
+                          {studentsMap[sub.studentId] || studentsMap[sub.id] || sub.studentId || sub.id}
+                        </div>
                       </td>
-                      <td className="py-4 whitespace-nowrap text-sm text-neutral-300">
-                        <span className="font-medium">{sub.assignmentTitle}</span>
-                        <span className="text-xs text-neutral-500 ml-2">({sub.moduleCode})</span>
+                      <td className="py-5 whitespace-nowrap text-sm text-[var(--text-main)]">
+                        <div className="flex flex-col">
+                          <span className="font-bold">{sub.assignmentTitle}</span>
+                          <span className="text-xs text-muted font-medium mt-0.5">{sub.moduleCode}</span>
+                        </div>
                       </td>
-                      <td className="py-4 whitespace-nowrap text-sm hidden sm:table-cell">
+                      <td className="py-5 whitespace-nowrap text-sm hidden sm:table-cell">
                          {sub.grade !== undefined ? (
-                           <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Graded</span>
+                           <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 shadow-sm">Graded</span>
                          ) : (
-                           <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">Needs Grading</span>
+                           <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20 shadow-sm">Needs Grading</span>
                          )}
                       </td>
-                      <td className="py-4 whitespace-nowrap text-sm text-right text-neutral-400 hidden sm:table-cell">
+                      <td className="py-5 whitespace-nowrap text-sm text-right text-muted font-medium hidden sm:table-cell">
                         {new Date(sub.submittedAt).toLocaleDateString()} {new Date(sub.submittedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                       </td>
                     </tr>
@@ -418,8 +482,6 @@ function AdminDashboard() {
   );
 }
 
-import { db as fbDb } from '../lib/db';
-
 function StudentManagement() {
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
@@ -433,7 +495,7 @@ function StudentManagement() {
   const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
-    const q = query(collection(fbDb, 'students'));
+    const q = query(collection(db, 'students'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const studs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Student));
       setStudents(studs);
@@ -498,7 +560,7 @@ function StudentManagement() {
         }
       }
 
-      await setDoc(doc(fbDb, 'students', uid), studentData, { merge: true });
+      await setDoc(doc(db, 'students', uid), studentData, { merge: true });
 
       setStudents(prev => {
         if (editingId) {
@@ -518,104 +580,136 @@ function StudentManagement() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6 relative">
+    <div className="space-y-6 relative">
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/60 p-4">
-          <div className="bg-neutral-800 rounded-xl shadow-xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh]">
-            <div className="px-6 py-4 border-b border-neutral-700 flex justify-between items-center bg-neutral-900 shrink-0">
-              <h3 className="text-lg font-medium text-neutral-50">{editingId ? 'Edit Student' : 'Add New Student'}</h3>
-              <button onClick={() => setModalOpen(false)} className="text-neutral-400 hover:text-neutral-400">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm" 
+            onClick={() => setModalOpen(false)}
+          />
+          <motion.div 
+            initial={{ scale: 0.95, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.95, opacity: 0, y: 20 }}
+            className="premium-card w-full max-w-md flex flex-col relative z-10 max-h-[90vh]"
+          >
+            <div className="px-6 py-5 border-b border-[var(--border-subtle)] flex justify-between items-center bg-[var(--bg-card)] rounded-t-2xl shrink-0">
+              <h3 className="text-xl font-bold text-[var(--text-main)]">{editingId ? 'Edit Student' : 'Add New Student'}</h3>
+              <button onClick={() => setModalOpen(false)} className="text-muted hover:text-[var(--text-main)] transition-colors p-2 rounded-full hover:bg-[var(--bg-app)]">
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <form onSubmit={handleSaveStudent} className="p-6 space-y-4 overflow-y-auto">
+            <form onSubmit={handleSaveStudent} className="p-6 space-y-5 overflow-y-auto">
               {errorMsg && (
-                <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-3 text-sm text-red-400">
+                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-500/30 rounded-xl p-4 text-sm text-red-600 dark:text-red-400">
                   {errorMsg}
                 </div>
               )}
-              <div>
-                <label className="block text-sm font-medium text-neutral-200">Registration Number</label>
-                <input required value={newReg} onChange={e=>setNewReg(e.target.value)} type="text" className="mt-1 block w-full rounded-md border-neutral-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2" placeholder="REG-XXXX-XXXX" />
+              <div className="space-y-1.5">
+                <label className="block text-sm font-semibold text-[var(--text-main)]">Registration Number</label>
+                <input required value={newReg} onChange={e=>setNewReg(e.target.value)} type="text" className="block w-full rounded-xl border border-[var(--border-strong)] px-4 py-2.5 placeholder:text-muted focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 text-[var(--text-main)] bg-[var(--bg-app)] transition-all shadow-sm" placeholder="REG-XXXX-XXXX" />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-neutral-200">Full Name</label>
-                <input required value={newName} onChange={e=>setNewName(e.target.value)} type="text" className="mt-1 block w-full rounded-md border-neutral-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2" placeholder="John Doe" />
+              <div className="space-y-1.5">
+                <label className="block text-sm font-semibold text-[var(--text-main)]">Full Name</label>
+                <input required value={newName} onChange={e=>setNewName(e.target.value)} type="text" className="block w-full rounded-xl border border-[var(--border-strong)] px-4 py-2.5 placeholder:text-muted focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 text-[var(--text-main)] bg-[var(--bg-app)] transition-all shadow-sm" placeholder="John Doe" />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-neutral-200">Course</label>
-                <input required value={newCourse} onChange={e=>setNewCourse(e.target.value)} type="text" className="mt-1 block w-full rounded-md border-neutral-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2" placeholder="BSc Computer Science" />
+              <div className="space-y-1.5">
+                <label className="block text-sm font-semibold text-[var(--text-main)]">Course</label>
+                <input required value={newCourse} onChange={e=>setNewCourse(e.target.value)} type="text" className="block w-full rounded-xl border border-[var(--border-strong)] px-4 py-2.5 placeholder:text-muted focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 text-[var(--text-main)] bg-[var(--bg-app)] transition-all shadow-sm" placeholder="BSc Computer Science" />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-neutral-200">
-                  {editingId ? 'Update Password (leave blank to keep current)' : 'Default Password'}
+              <div className="space-y-1.5">
+                <label className="block text-sm font-semibold text-[var(--text-main)]">
+                  {editingId ? 'Update Password (leave blank to keep)' : 'Initial Password'}
                 </label>
-                <input required={!editingId} value={newPassword} onChange={e=>setNewPassword(e.target.value)} type="text" className="mt-1 block w-full rounded-md border-neutral-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2" placeholder={editingId ? "Type new password to update..." : "Type initial password..."} />
+                <input required={!editingId} value={newPassword} onChange={e=>setNewPassword(e.target.value)} type="text" className="block w-full rounded-xl border border-[var(--border-strong)] px-4 py-2.5 placeholder:text-muted focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 text-[var(--text-main)] bg-[var(--bg-app)] transition-all shadow-sm" placeholder={editingId ? "Type new password to update..." : "Type initial password..."} />
               </div>
-              <div className="pt-4 flex justify-end gap-3">
-                <button type="button" onClick={() => setModalOpen(false)} className="px-4 py-2 border border-neutral-600 rounded-md shadow-sm text-sm font-medium text-neutral-200 bg-neutral-800 hover:bg-neutral-700">Cancel</button>
-                <button type="submit" disabled={creating} className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50">
-                  {creating ? 'Creating...' : 'Create Student'}
+              <div className="pt-4 flex justify-end gap-3 border-t border-[var(--border-subtle)] mt-6">
+                <button type="button" onClick={() => setModalOpen(false)} className="px-5 py-2.5 border border-[var(--border-strong)] rounded-xl shadow-sm text-sm font-semibold text-[var(--text-main)] bg-[var(--bg-app)] hover:bg-[var(--border-subtle)] transition-colors">Cancel</button>
+                <button type="submit" disabled={creating} className="px-5 py-2.5 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors disabled:opacity-50">
+                  {creating ? 'Saving...' : (editingId ? 'Update Student' : 'Create Student')}
                 </button>
               </div>
             </form>
-          </div>
+          </motion.div>
         </div>
       )}
 
-      <div className="sm:flex sm:items-center sm:justify-between">
+      <div className="sm:flex sm:items-center sm:justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-neutral-50">Student Management</h1>
-          <p className="mt-1 text-sm text-neutral-400">Manage student accounts, registration, and access limits.</p>
+          <h1 className="text-3xl font-bold text-[var(--text-main)] tracking-tight">Student Management</h1>
+          <p className="mt-2 text-muted font-medium">Manage student accounts, registration, and access limits.</p>
         </div>
         <div className="mt-4 sm:mt-0">
-          <button onClick={openAddModal} className="flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
-            <Plus className="w-4 h-4 mr-2" /> Add Student
+          <button onClick={openAddModal} className="flex items-center px-5 py-2.5 border border-transparent rounded-xl shadow-sm shadow-blue-500/20 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-all active:scale-95">
+            <Plus className="w-5 h-5 mr-2" /> Add Student
           </button>
         </div>
       </div>
 
-      <div className="bg-neutral-800 shadow-sm border border-neutral-700 rounded-lg overflow-hidden overflow-x-auto">
-        <table className="min-w-full divide-y divide-neutral-700">
-          <thead className="bg-neutral-900">
+      <div className="premium-card overflow-hidden overflow-x-auto">
+        <table className="min-w-full divide-y divide-[var(--border-subtle)]">
+          <thead className="bg-[var(--bg-app)]">
             <tr>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">Reg Number</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">Name</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider hidden sm:table-cell">Course</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider hidden sm:table-cell">Status</th>
-              <th scope="col" className="relative px-6 py-3"><span className="sr-only">Edit</span></th>
+              <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-muted uppercase tracking-wider">Student Profile</th>
+              <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-muted uppercase tracking-wider hidden sm:table-cell">Reg Number</th>
+              <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-muted uppercase tracking-wider hidden md:table-cell">Course</th>
+              <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-muted uppercase tracking-wider hidden sm:table-cell">Status</th>
+              <th scope="col" className="relative px-6 py-4"><span className="sr-only">Actions</span></th>
             </tr>
           </thead>
-          <tbody className="bg-neutral-800 divide-y divide-neutral-700">
+          <tbody className="bg-[var(--bg-card)] divide-y divide-[var(--border-subtle)]">
             {loading ? (
-              <tr><td colSpan={5} className="px-6 py-4 text-center text-sm text-neutral-400">Loading students...</td></tr>
+              <tr><td colSpan={5} className="px-6 py-12 text-center text-sm text-muted font-medium">Loading students...</td></tr>
             ) : students.length === 0 ? (
-              <tr><td colSpan={5} className="px-6 py-4 text-center text-sm text-neutral-400">No students found.</td></tr>
-            ) : students.map((student) => (
-              <tr key={student.id}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-neutral-50">{student.regNumber}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-400">
-                  <div>{student.fullName}</div>
-                  <div className="text-xs text-neutral-400">{student.email}</div>
+              <tr>
+                <td colSpan={5} className="px-6 py-16 text-center flex flex-col items-center">
+                  <Users className="w-12 h-12 text-muted opacity-50 mb-4" />
+                  <p className="text-[var(--text-main)] font-semibold text-lg">No students found</p>
+                  <p className="text-sm text-muted mt-1">Get started by adding a new student to the system.</p>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-400 hidden sm:table-cell">{student.course}</td>
-                <td className="px-6 py-4 whitespace-nowrap hidden sm:table-cell">
-                  <span className={clsx("px-2 inline-flex text-xs leading-5 font-semibold rounded-full", student.status === 'active' ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800")}>
-                    {student.status}
+              </tr>
+            ) : students.map((student) => (
+              <tr key={student.id} className="hover:bg-[var(--bg-app)] transition-colors group">
+                <td className="px-6 py-5 whitespace-normal break-words sm:whitespace-nowrap text-sm text-[var(--text-main)]">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-sm shadow-inner shrink-0">
+                       {student.fullName.charAt(0)}
+                    </div>
+                    <div>
+                      <div className="font-bold">{student.fullName}</div>
+                      <div className="text-xs font-medium text-muted mt-0.5">{student.email}</div>
+                    </div>
+                  </div>
+                </td>
+                <td className="px-6 py-5 whitespace-nowrap text-sm font-semibold text-[var(--text-main)] hidden sm:table-cell">
+                  {student.regNumber}
+                </td>
+                <td className="px-6 py-5 whitespace-nowrap text-sm text-muted font-medium hidden md:table-cell">{student.course}</td>
+                <td className="px-6 py-5 whitespace-nowrap hidden sm:table-cell">
+                  <span className={clsx(
+                    "px-2.5 py-1 inline-flex text-xs font-bold rounded-md shadow-sm border",
+                    student.status === 'active' 
+                      ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20" 
+                      : "bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 border-red-200 dark:border-red-500/20"
+                  )}>
+                    {student.status.toUpperCase()}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
-                  <button onClick={() => openEditModal(student)} className="text-blue-400 hover:text-blue-300">Edit</button>
+                <td className="px-6 py-5 whitespace-nowrap text-right text-sm font-medium space-x-3">
+                  <button onClick={() => openEditModal(student)} className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-semibold px-3 py-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors">Edit</button>
                   <button onClick={async () => {
-                    if (confirm('Delete this student?')) {
+                    if (confirm('Delete this student permanently?')) {
                       try {
-                        await deleteDoc(doc(fbDb, 'students', student.id));
+                        await deleteDoc(doc(db, 'students', student.id));
                         setStudents(prev => prev.filter(s => s.id !== student.id));
                       } catch (err) {
                         alert('Failed to delete student');
                       }
                     }
-                  }} className="text-red-400 hover:text-red-300">Delete</button>
+                  }} className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 font-semibold px-3 py-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">Delete</button>
                 </td>
               </tr>
             ))}

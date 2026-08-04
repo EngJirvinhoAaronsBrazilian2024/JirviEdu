@@ -41,48 +41,44 @@ function camelToSnake(obj: any): any {
   return obj;
 }
 
-// Helper to convert object keys from snake_case to camelCase
 function snakeToCamel(obj: any): any {
   if (Array.isArray(obj)) return obj.map(snakeToCamel);
   if (obj !== null && typeof obj === 'object') {
     return Object.keys(obj).reduce((acc, key) => {
-      const camelKey = key.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+      const camelKey = key.replace(/_([a-z])/g, (g) => g[1].toUpperCase());
       let val = obj[key];
-      // Convert ISO string back to timestamp
-      if (typeof val === 'string' && (camelKey.endsWith('At') || camelKey === 'deadline' || camelKey === 'startTime')) {
-        const d = new Date(val);
-        if (!isNaN(d.getTime())) {
-          val = d.getTime();
+      
+      // Attempt to convert ISO strings back to timestamps for specific fields if needed
+      // (Simplified: let's just return them as is, or convert if they look like ISO dates and the key implies a time)
+      if (typeof val === 'string' && val.includes('T') && val.includes('Z')) {
+        const time = new Date(val).getTime();
+        if (!isNaN(time) && (camelKey.endsWith('At') || camelKey === 'deadline' || camelKey === 'startTime')) {
+             val = time;
         }
       }
+      
       acc[camelKey] = snakeToCamel(val);
       return acc;
     }, {} as any);
   }
   return obj;
 }
+
 function parsePath(path: string) {
   const parts = path.split('/').filter(Boolean);
-  // Convert table name from camel case to snake case (e.g. learningMaterials -> learning_materials)
-  const camelTable = parts[parts.length - 1]; // e.g. "enrollments", "submissions", "students" or "123"
-  const table = camelTable.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
+  let collectionName = parts[0];
+  let docId = parts[1];
+  let conditions: any = {};
 
-  // If length is even, it's a doc reference, if odd it's a collection.
-  
-  const isDoc = parts.length % 2 === 0;
-  const collectionName = isDoc ? parts[parts.length - 2] : parts[parts.length - 1];
-  const docId = isDoc ? parts[parts.length - 1] : undefined;
-  
-  const conditions = {};
   if (parts.length >= 3) {
-    // collection/id/collection (e.g. modules/123/enrollments)
+    // nested paths like modules/123/assignments
+    collectionName = parts[2];
     conditions['module_id'] = parts[1];
   }
   if (parts.length >= 5) {
     // modules/123/assignments/456/submissions
     conditions['assignment_id'] = parts[3];
   }
-
   return { table: collectionName.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`), docId, conditions };
 }
 
@@ -107,7 +103,6 @@ export async function getDoc(docRef: any) {
   }
   
   let resultData = snakeToCamel(data);
-
   
   return { exists: () => true, data: () => resultData, id: docId };
 }
@@ -157,7 +152,7 @@ export async function getDocs(queryRef: any) {
     empty: data.length === 0,
     docs: data.map((d: any) => {
       let resultData = snakeToCamel(d);
-    
+      
       return {
         id: d.id || d.student_id, // fallback for enrollments/submissions
         data: () => resultData
@@ -201,8 +196,8 @@ export async function setDoc(docRef: any, data: any, options: { merge?: boolean 
       queryObj = queryObj.eq(k, v);
     }
     const { data: existingData } = await queryObj.single();
-    if (existingData && existingData.id) {
-       payload.id = existingData.id;
+    if (existingData && existingData.id) { 
+      payload.id = existingData.id;
     }
   } else {
     payload.id = docId;
@@ -343,9 +338,10 @@ export async function uploadBytes(storageRef: any, file: File) {
 }
 
 export async function getDownloadURL(storageRef: any) {
-  const publicUrl = insforge.storage.from('files').getPublicUrl(storageRef.path);
-  return publicUrl;
+  const { data } = insforge.storage.from('files').getPublicUrl(storageRef.path);
+  return data.publicUrl;
 }
+
 import { hash, compare } from 'bcrypt-ts';
 
 export async function authenticateStudent(regNumber: string, passwordStr: string) {

@@ -1,133 +1,82 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Poppins", ui-sans-serif, system-ui, sans-serif;
+
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
 }
 
-:root[data-theme="light"] {
-  --color-neutral-950: #c7d2fe;
-  --color-neutral-900: #e0e7ff;
-  --color-neutral-800: #ede9fe;
-  --color-neutral-700: #ddd6fe;
-  --color-neutral-600: #c4b5fd;
-  --color-neutral-500: #8b5cf6;
-  --color-neutral-400: #6d28d9;
-  --color-neutral-300: #5b21b6;
-  --color-neutral-200: #4c1d95;
-  --color-neutral-100: #2e1065;
-  --color-neutral-50: #1e1b4b;
+/* Base Light Theme */
+:root {
+  --bg-app: #f8fafc;
+  --bg-card: #ffffff;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --border-subtle: #e2e8f0;
+  --border-strong: #cbd5e1;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Dark Theme Overrides */
+:root[data-theme="dark"] {
+  --bg-app: #0f172a;
+  --bg-card: #1e293b;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --border-subtle: #334155;
+  --border-strong: #475569;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
 }
 
 body {
-  @apply font-sans antialiased bg-neutral-900 text-neutral-200 transition-colors duration-300;
+  @apply font-sans antialiased bg-[var(--bg-app)] text-[var(--text-main)] transition-colors duration-300;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  @apply font-display tracking-tight;
+  @apply font-display tracking-tight text-[var(--text-main)];
 }
 
-:root[data-theme="light"] .dashboard-card {
-  background-color: #ffffff !important;
-  border-color: #e5e7eb !important;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+.premium-card {
+  @apply bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-2xl transition-all duration-300;
+  box-shadow: var(--shadow-sm);
 }
 
-:root[data-theme="light"] h1, :root[data-theme="light"] h2 {
-  color: #111827 !important;
+.premium-card:hover {
+  box-shadow: var(--shadow-md);
+  @apply border-[var(--border-strong)];
 }
 
-:root[data-theme="light"] .dashboard-stat-students {
-  background-color: #3b82f6 !important;
-  border-color: #2563eb !important;
-}
-:root[data-theme="light"] .dashboard-stat-students .icon-bg { background-color: rgba(255,255,255,0.2) !important; border-color: rgba(255,255,255,0.3) !important; }
-
-:root[data-theme="light"] .dashboard-stat-modules {
-  background-color: #ef4444 !important;
-  border-color: #dc2626 !important;
-}
-:root[data-theme="light"] .dashboard-stat-modules .icon-bg { background-color: rgba(255,255,255,0.2) !important; border-color: rgba(255,255,255,0.3) !important; }
-
-:root[data-theme="light"] .dashboard-stat-assignments {
-  background-color: #10b981 !important;
-  border-color: #059669 !important;
-}
-:root[data-theme="light"] .dashboard-stat-assignments .icon-bg { background-color: rgba(255,255,255,0.2) !important; border-color: rgba(255,255,255,0.3) !important; }
-
-:root[data-theme="light"] .dashboard-stat-lectures {
-  background-color: #f59e0b !important;
-  border-color: #d97706 !important;
-}
-:root[data-theme="light"] .dashboard-stat-lectures .icon-bg { background-color: rgba(255,255,255,0.2) !important; border-color: rgba(255,255,255,0.3) !important; }
-
-:root[data-theme="light"] .card-blue {
-  background-color: #3b82f6 !important;
-  border-color: #2563eb !important;
-}
-:root[data-theme="light"] .card-blue .icon-bg { background-color: rgba(255,255,255,0.2) !important; border-color: rgba(255,255,255,0.3) !important; }
-
-:root[data-theme="light"] .card-red {
-  background-color: #ef4444 !important;
-  border-color: #dc2626 !important;
-}
-:root[data-theme="light"] .card-red .icon-bg { background-color: rgba(255,255,255,0.2) !important; border-color: rgba(255,255,255,0.3) !important; }
-
-:root[data-theme="light"] .card-emerald {
-  background-color: #10b981 !important;
-  border-color: #059669 !important;
-}
-:root[data-theme="light"] .card-emerald .icon-bg { background-color: rgba(255,255,255,0.2) !important; border-color: rgba(255,255,255,0.3) !important; }
-
-:root[data-theme="light"] .card-amber {
-  background-color: #f59e0b !important;
-  border-color: #d97706 !important;
-}
-:root[data-theme="light"] .card-amber .icon-bg { background-color: rgba(255,255,255,0.2) !important; border-color: rgba(255,255,255,0.3) !important; }
-
-:root[data-theme="light"] .card-orange {
-  background-color: #f97316 !important;
-  border-color: #ea580c !important;
-}
-:root[data-theme="light"] .card-orange .icon-bg { background-color: rgba(255,255,255,0.2) !important; border-color: rgba(255,255,255,0.3) !important; }
-
-:root[data-theme="light"] .module-card {
-  background-color: #ef4444 !important;
-  border-color: #dc2626 !important;
-}
-:root[data-theme="light"] .module-card .text-blue-400 {
-  color: #fef08a !important;
-}
-:root[data-theme="light"] .module-card .bg-blue-600\/20 {
-  background-color: rgba(255, 255, 255, 0.2) !important;
-}
-:root[data-theme="light"] .module-card.bg-blue-600\/10 {
-  background-color: #b91c1c !important;
-  box-shadow: 0 0 15px rgba(239, 68, 68, 0.4) !important;
-  border-color: #f87171 !important;
+.text-muted {
+  @apply text-[var(--text-muted)];
 }
 
-:root[data-theme="light"] .card-blue,
-:root[data-theme="light"] .card-red,
-:root[data-theme="light"] .card-emerald,
-:root[data-theme="light"] .card-amber,
-:root[data-theme="light"] .card-orange,
-:root[data-theme="light"] .module-card,
-:root[data-theme="light"] .dashboard-stat-students,
-:root[data-theme="light"] .dashboard-stat-modules,
-:root[data-theme="light"] .dashboard-stat-assignments,
-:root[data-theme="light"] .dashboard-stat-lectures {
-  --color-neutral-950: #020617;
-  --color-neutral-900: #0f172a;
-  --color-neutral-800: #1e293b;
-  --color-neutral-700: #334155;
-  --color-neutral-600: #475569;
-  --color-neutral-500: #64748b;
-  --color-neutral-400: #94a3b8;
-  --color-neutral-300: #cbd5e1;
-  --color-neutral-200: #e2e8f0;
-  --color-neutral-100: #f1f5f9;
-  --color-neutral-50: #ffffff;
-  color: #ffffff;
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-neutral-300 rounded-full;
+}
+:root[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  @apply bg-neutral-700;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-neutral-400;
+}
+:root[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  @apply bg-neutral-600;
 }
