@@ -66,16 +66,16 @@ export default function AdminPortal({ setRole }: { setRole: (role: string | null
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
-              className="fixed inset-y-0 left-0 w-72 bg-[var(--bg-card)] flex flex-col shadow-2xl border-r border-[var(--border-subtle)]"
+              className="fixed inset-y-0 left-0 w-72 bg-slate-700 dark:bg-[#1a1a1a] text-white flex flex-col shadow-2xl border-r border-slate-600 dark:border-[var(--border-subtle)]"
             >
-              <div className="flex items-center justify-between h-20 px-6 border-b border-[var(--border-subtle)]">
-                <span className="text-xl font-bold text-[var(--text-main)] flex items-center gap-3 tracking-tight">
-                  <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-md">
+              <div className="flex items-center justify-between h-20 px-6 border-b border-slate-600 dark:border-[var(--border-subtle)]">
+                <span className="text-xl font-bold text-white flex items-center gap-3 tracking-tight">
+                  <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center shadow-md">
                     <GraduationCap className="w-5 h-5 text-white" />
                   </div>
                   JIRVI ADMIN
                 </span>
-                <button onClick={() => setSidebarOpen(false)} className="text-muted hover:text-[var(--text-main)] transition-colors p-2 rounded-full hover:bg-[var(--border-subtle)]">
+                <button onClick={() => setSidebarOpen(false)} className="text-slate-300 hover:text-white transition-colors p-2 rounded-full hover:bg-slate-600">
                   <X className="w-5 h-5" />
                 </button>
               </div>
@@ -88,18 +88,18 @@ export default function AdminPortal({ setRole }: { setRole: (role: string | null
                       to={item.href}
                       onClick={() => setSidebarOpen(false)}
                       className={clsx(
-                        current ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-semibold' : 'text-muted hover:bg-[var(--bg-app)] hover:text-[var(--text-main)] font-medium',
+                        current ? 'bg-slate-600 text-white font-semibold' : 'text-slate-300 hover:bg-slate-600 hover:text-white font-medium',
                         'group flex items-center px-4 py-3 text-sm rounded-xl transition-all duration-200'
                       )}
                     >
-                      <item.icon className={clsx('mr-4 flex-shrink-0 h-5 w-5', current ? 'text-blue-600 dark:text-blue-400' : 'text-muted group-hover:text-[var(--text-main)]')} />
+                      <item.icon className={clsx('mr-4 flex-shrink-0 h-5 w-5', current ? 'text-white' : 'text-slate-400 group-hover:text-white')} />
                       {item.name}
                     </Link>
                   );
                 })}
               </nav>
-              <div className="p-6 border-t border-[var(--border-subtle)]">
-                <button onClick={handleLogout} className="flex items-center justify-center w-full px-4 py-3 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors shadow-sm">
+              <div className="p-6 border-t border-slate-600 dark:border-[var(--border-subtle)]">
+                <button onClick={handleLogout} className="flex items-center justify-center w-full px-4 py-3 text-sm font-semibold text-white bg-red-500 hover:bg-red-600 rounded-xl transition-colors shadow-sm">
                   <LogOut className="mr-3 h-4 w-4" />
                   Sign Out
                 </button>
@@ -110,10 +110,10 @@ export default function AdminPortal({ setRole }: { setRole: (role: string | null
       </AnimatePresence>
 
       {/* Desktop sidebar */}
-      <div className="hidden lg:flex lg:flex-col lg:w-72 lg:fixed lg:inset-y-0 lg:bg-[var(--bg-card)] overflow-hidden lg:border-r lg:border-[var(--border-subtle)] shadow-sm print:hidden z-20">
+      <div className="hidden lg:flex lg:flex-col lg:w-72 lg:fixed lg:inset-y-0 bg-slate-700 dark:bg-[#1a1a1a] text-white overflow-hidden lg:border-r border-slate-600 dark:border-[var(--border-subtle)] shadow-sm print:hidden z-20">
         <div className="flex items-center h-20 px-8">
-          <span className="text-2xl font-bold text-[var(--text-main)] flex items-center gap-3 tracking-tight">
-            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-md">
+          <span className="text-2xl font-bold text-white flex items-center gap-3 tracking-tight">
+            <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center shadow-md">
               <GraduationCap className="w-6 h-6 text-white" />
             </div>
             JIRVI ADMIN
@@ -128,28 +128,28 @@ export default function AdminPortal({ setRole }: { setRole: (role: string | null
                 key={item.name}
                 to={item.href}
                 className={clsx(
-                  current ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 font-semibold shadow-sm border border-blue-100 dark:border-blue-800/30' : 'text-muted hover:bg-[var(--bg-app)] hover:text-[var(--text-main)] font-medium border border-transparent',
+                  current ? 'bg-slate-600 text-white font-semibold shadow-sm border border-slate-500' : 'text-slate-300 hover:bg-slate-600 hover:text-white font-medium border border-transparent',
                   'group flex items-center px-4 py-3.5 text-sm rounded-xl transition-all duration-200 relative overflow-hidden'
                 )}
               >
-                {current && <motion.div layoutId="activeAdminNav" className="absolute left-0 w-1 h-8 bg-blue-600 rounded-r-full" />}
-                <item.icon className={clsx('mr-4 flex-shrink-0 h-5 w-5 z-10 relative', current ? 'text-blue-600 dark:text-blue-400' : 'text-muted group-hover:text-[var(--text-main)]')} />
+                {current && <motion.div layoutId="activeAdminNav" className="absolute left-0 w-1 h-8 bg-blue-400 rounded-r-full" />}
+                <item.icon className={clsx('mr-4 flex-shrink-0 h-5 w-5 z-10 relative', current ? 'text-white' : 'text-slate-400 group-hover:text-white')} />
                 <span className="z-10 relative">{item.name}</span>
               </Link>
             );
           })}
         </nav>
-        <div className="p-6 border-t border-[var(--border-subtle)]">
-          <div className="flex items-center gap-3 cursor-pointer p-2 rounded-xl border border-transparent hover:border-[var(--border-subtle)] hover:bg-[var(--bg-app)] transition-all mb-4">
-            <div className="w-10 h-10 bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300 rounded-full flex items-center justify-center text-sm font-bold border-2 border-white dark:border-[var(--border-subtle)] shadow-sm">
+        <div className="p-6 border-t border-slate-600 dark:border-[var(--border-subtle)]">
+          <div className="flex items-center gap-3 cursor-pointer p-2 rounded-xl border border-transparent hover:border-slate-500 hover:bg-slate-600 transition-all mb-4">
+            <div className="w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold shadow-sm">
               AD
             </div>
             <div>
-              <p className="text-sm font-semibold text-[var(--text-main)] leading-none mb-1">Administrator</p>
-              <p className="text-xs text-muted leading-none font-medium">System Manager</p>
+              <p className="text-sm font-semibold text-white leading-none mb-1">Administrator</p>
+              <p className="text-xs text-slate-300 leading-none font-medium">System Manager</p>
             </div>
           </div>
-          <button onClick={handleLogout} className="flex items-center justify-center w-full px-4 py-3 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors shadow-sm">
+          <button onClick={handleLogout} className="flex items-center justify-center w-full px-4 py-3 text-sm font-semibold text-white bg-red-500 hover:bg-red-600 rounded-xl transition-colors shadow-sm">
             <LogOut className="mr-3 h-4 w-4" />
             Sign Out
           </button>
@@ -246,11 +246,8 @@ function AdminDashboard() {
         const modulesSnap = await getDocs(collection(db, 'modules'));
         mCount = modulesSnap.docs.length;
         
-        const modulePromises = modulesSnap.docs.map(async (modDoc) => {
+        for (const modDoc of modulesSnap.docs) {
           const modData = modDoc.data() as any;
-          let aCount = 0;
-          let lCount = 0;
-          let subs: any[] = [];
           
           try {
             const [assignmentsSnap, lecturesSnap] = await Promise.all([
@@ -258,41 +255,27 @@ function AdminDashboard() {
               getDocs(collection(db, `modules/${modDoc.id}/lectures`)).catch(() => ({ docs: [] }))
             ]);
             
-            aCount = assignmentsSnap.docs.length;
-            lCount = lecturesSnap.docs.length;
+            assignmentsCount += assignmentsSnap.docs.length;
+            lecturesCount += lecturesSnap.docs.length;
 
-            const subPromises = assignmentsSnap.docs.map(async (aDoc) => {
+            for (const aDoc of assignmentsSnap.docs) {
               const aData = aDoc.data() as any;
               try {
                 const subsSnap = await getDocs(collection(db, `modules/${modDoc.id}/assignments/${aDoc.id}/submissions`));
-                return subsSnap.docs.map(subDoc => ({
+                const mappedSubs = subsSnap.docs.map(subDoc => ({
                   id: subDoc.id,
                   assignmentTitle: aData.title,
                   moduleCode: modData.code,
                   ...subDoc.data()
                 }));
+                allSubs.push(...mappedSubs);
               } catch (subErr) {
-                console.error("Failed fetching submissions", subErr);
-                return [];
+                console.error("Failed fetching submissions for assignment", aDoc.id, subErr);
               }
-            });
-            
-            const subsResults = await Promise.all(subPromises);
-            subs = subsResults.flat();
-            
+            }
           } catch (err) {
-            console.error("Failed fetching assignments/lectures", err);
+            console.error("Failed fetching assignments/lectures for module", modDoc.id, err);
           }
-          
-          return { aCount, lCount, subs };
-        });
-
-        const results = await Promise.all(modulePromises);
-        
-        for (const res of results) {
-          assignmentsCount += res.aCount;
-          lecturesCount += res.lCount;
-          allSubs.push(...res.subs);
         }
       } catch (err) {
         console.error("Failed to fetch modules in dashboard", err);
@@ -346,49 +329,53 @@ function AdminDashboard() {
             Key Metrics
           </h2>
           
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            <div className="bg-[var(--bg-app)] p-6 rounded-2xl border border-[var(--border-subtle)] shadow-sm flex flex-col justify-between h-36 relative overflow-hidden group hover:border-blue-300 dark:hover:border-blue-700/50 transition-colors">
-              <div className="absolute -right-4 -bottom-4 bg-blue-500/10 w-32 h-32 rounded-full blur-3xl group-hover:bg-blue-500/20 transition-all duration-500"></div>
-              <div className="flex items-center justify-between z-10">
-                <div className="w-12 h-12 bg-[var(--bg-card)] rounded-xl shadow-sm border border-[var(--border-subtle)] flex items-center justify-center">
-                  <Users className="w-6 h-6 text-blue-500" />
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="bg-orange-400 dark:bg-[var(--bg-card)] p-6 rounded-2xl dark:border dark:border-[var(--border-subtle)] shadow-sm flex flex-col justify-between h-36 relative overflow-hidden group transition-colors">
+              <div className="flex items-center justify-between z-10 text-white dark:text-[var(--text-main)] h-full">
+                <div className="flex items-center justify-center w-1/3">
+                  <Users className="w-12 h-12 text-white dark:text-muted" strokeWidth={1.5} />
                 </div>
-                <span className="text-4xl font-bold text-[var(--text-main)] tracking-tight">{stats.students}</span>
+                <div className="flex flex-col items-center justify-center w-2/3 h-full border-l border-white/20 dark:border-[var(--border-strong)]">
+                  <span className="text-4xl font-bold tracking-tight text-white">{stats.students}</span>
+                  <p className="text-sm font-semibold text-white/90 dark:text-muted mt-1 uppercase tracking-wider">Students</p>
+                </div>
               </div>
-              <p className="text-sm font-semibold text-muted z-10 mt-auto">Total Students</p>
             </div>
 
-            <div className="bg-[var(--bg-app)] p-6 rounded-2xl border border-[var(--border-subtle)] shadow-sm flex flex-col justify-between h-36 relative overflow-hidden group hover:border-indigo-300 dark:hover:border-indigo-700/50 transition-colors">
-              <div className="absolute -right-4 -bottom-4 bg-indigo-500/10 w-32 h-32 rounded-full blur-3xl group-hover:bg-indigo-500/20 transition-all duration-500"></div>
-              <div className="flex items-center justify-between z-10">
-                <div className="w-12 h-12 bg-[var(--bg-card)] rounded-xl shadow-sm border border-[var(--border-subtle)] flex items-center justify-center">
-                  <BookOpen className="w-6 h-6 text-indigo-500" />
+            <div className="bg-purple-500 dark:bg-[var(--bg-card)] p-6 rounded-2xl dark:border dark:border-[var(--border-subtle)] shadow-sm flex flex-col justify-between h-36 relative overflow-hidden group transition-colors">
+              <div className="flex items-center justify-between z-10 text-white dark:text-[var(--text-main)] h-full">
+                <div className="flex items-center justify-center w-1/3">
+                  <BookOpen className="w-12 h-12 text-white dark:text-muted" strokeWidth={1.5} />
                 </div>
-                <span className="text-4xl font-bold text-[var(--text-main)] tracking-tight">{stats.modules}</span>
+                <div className="flex flex-col items-center justify-center w-2/3 h-full border-l border-white/20 dark:border-[var(--border-strong)]">
+                  <span className="text-4xl font-bold tracking-tight text-white">{stats.modules}</span>
+                  <p className="text-sm font-semibold text-white/90 dark:text-muted mt-1 uppercase tracking-wider">Modules</p>
+                </div>
               </div>
-              <p className="text-sm font-semibold text-muted z-10 mt-auto">Active Modules</p>
             </div>
 
-            <div className="bg-[var(--bg-app)] p-6 rounded-2xl border border-[var(--border-subtle)] shadow-sm flex flex-col justify-between h-36 relative overflow-hidden group hover:border-emerald-300 dark:hover:border-emerald-700/50 transition-colors">
-              <div className="absolute -right-4 -bottom-4 bg-emerald-500/10 w-32 h-32 rounded-full blur-3xl group-hover:bg-emerald-500/20 transition-all duration-500"></div>
-              <div className="flex items-center justify-between z-10">
-                <div className="w-12 h-12 bg-[var(--bg-card)] rounded-xl shadow-sm border border-[var(--border-subtle)] flex items-center justify-center">
-                  <FileText className="w-6 h-6 text-emerald-500" />
+            <div className="bg-pink-500 dark:bg-[var(--bg-card)] p-6 rounded-2xl dark:border dark:border-[var(--border-subtle)] shadow-sm flex flex-col justify-between h-36 relative overflow-hidden group transition-colors">
+              <div className="flex items-center justify-between z-10 text-white dark:text-[var(--text-main)] h-full">
+                <div className="flex items-center justify-center w-1/3">
+                  <FileText className="w-12 h-12 text-white dark:text-muted" strokeWidth={1.5} />
                 </div>
-                <span className="text-4xl font-bold text-[var(--text-main)] tracking-tight">{stats.assignments}</span>
+                <div className="flex flex-col items-center justify-center w-2/3 h-full border-l border-white/20 dark:border-[var(--border-strong)]">
+                  <span className="text-4xl font-bold tracking-tight text-white">{stats.assignments}</span>
+                  <p className="text-sm font-semibold text-white/90 dark:text-muted mt-1 uppercase tracking-wider">Assignments</p>
+                </div>
               </div>
-              <p className="text-sm font-semibold text-muted z-10 mt-auto">Total Assignments</p>
             </div>
 
-            <div className="bg-[var(--bg-app)] p-6 rounded-2xl border border-[var(--border-subtle)] shadow-sm flex flex-col justify-between h-36 relative overflow-hidden group hover:border-amber-300 dark:hover:border-amber-700/50 transition-colors">
-              <div className="absolute -right-4 -bottom-4 bg-amber-500/10 w-32 h-32 rounded-full blur-3xl group-hover:bg-amber-500/20 transition-all duration-500"></div>
-              <div className="flex items-center justify-between z-10">
-                <div className="w-12 h-12 bg-[var(--bg-card)] rounded-xl shadow-sm border border-[var(--border-subtle)] flex items-center justify-center">
-                  <Video className="w-6 h-6 text-amber-500" />
+            <div className="bg-teal-500 dark:bg-[var(--bg-card)] p-6 rounded-2xl dark:border dark:border-[var(--border-subtle)] shadow-sm flex flex-col justify-between h-36 relative overflow-hidden group transition-colors">
+              <div className="flex items-center justify-between z-10 text-white dark:text-[var(--text-main)] h-full">
+                <div className="flex items-center justify-center w-1/3">
+                  <Video className="w-12 h-12 text-white dark:text-muted" strokeWidth={1.5} />
                 </div>
-                <span className="text-4xl font-bold text-[var(--text-main)] tracking-tight">{stats.lectures}</span>
+                <div className="flex flex-col items-center justify-center w-2/3 h-full border-l border-white/20 dark:border-[var(--border-strong)]">
+                  <span className="text-4xl font-bold tracking-tight text-white">{stats.lectures}</span>
+                  <p className="text-sm font-semibold text-white/90 dark:text-muted mt-1 uppercase tracking-wider">Lectures</p>
+                </div>
               </div>
-              <p className="text-sm font-semibold text-muted z-10 mt-auto">Lectures Scheduled</p>
             </div>
           </div>
         </div>

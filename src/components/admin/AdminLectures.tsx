@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../lib/db';
 import { collection, query, onSnapshot, doc, setDoc, deleteDoc } from '../../lib/db';
-import { Plus, Trash2, Video, Calendar as CalendarIcon, Clock, Link as LinkIcon, Users, AlertCircle } from 'lucide-react';
+import { Plus, Trash2, Video, Calendar as CalendarIcon, Clock, Link as LinkIcon, Users, AlertCircle, BookOpen } from 'lucide-react';
 import { Module } from '../../types';
 import { motion, AnimatePresence } from 'motion/react';
 

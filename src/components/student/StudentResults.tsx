@@ -161,6 +161,56 @@ export default function StudentResults({ student }: { student: Student | null })
         </button>
       </div>
 
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 print:hidden">
+        <div className="bg-orange-400 dark:bg-[var(--bg-card)] p-6 rounded-2xl dark:border dark:border-[var(--border-subtle)] shadow-sm flex flex-col justify-between h-36 relative overflow-hidden transition-colors">
+          <div className="flex items-center justify-between z-10 text-white dark:text-[var(--text-main)] h-full">
+            <div className="flex items-center justify-center w-1/3">
+              <Award className="w-12 h-12 text-white dark:text-muted" strokeWidth={1.5} />
+            </div>
+            <div className="flex flex-col items-center justify-center w-2/3 h-full border-l border-white/20 dark:border-[var(--border-strong)]">
+              <span className="text-4xl font-bold tracking-tight text-white">{results.length}</span>
+              <p className="text-sm font-semibold text-white/90 dark:text-muted mt-1 uppercase tracking-wider text-center">Graded<br/>Tasks</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-teal-500 dark:bg-[var(--bg-card)] p-6 rounded-2xl dark:border dark:border-[var(--border-subtle)] shadow-sm flex flex-col justify-between h-36 relative overflow-hidden transition-colors">
+          <div className="flex items-center justify-between z-10 text-white dark:text-[var(--text-main)] h-full">
+            <div className="flex items-center justify-center w-1/3">
+              <CheckCircle className="w-12 h-12 text-white dark:text-muted" strokeWidth={1.5} />
+            </div>
+            <div className="flex flex-col items-center justify-center w-2/3 h-full border-l border-white/20 dark:border-[var(--border-strong)]">
+              <span className="text-4xl font-bold tracking-tight text-white">{totalEarned}</span>
+              <p className="text-sm font-semibold text-white/90 dark:text-muted mt-1 uppercase tracking-wider text-center">Marks<br/>Earned</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-purple-500 dark:bg-[var(--bg-card)] p-6 rounded-2xl dark:border dark:border-[var(--border-subtle)] shadow-sm flex flex-col justify-between h-36 relative overflow-hidden transition-colors">
+          <div className="flex items-center justify-between z-10 text-white dark:text-[var(--text-main)] h-full">
+            <div className="flex items-center justify-center w-1/3">
+              <FileText className="w-12 h-12 text-white dark:text-muted" strokeWidth={1.5} />
+            </div>
+            <div className="flex flex-col items-center justify-center w-2/3 h-full border-l border-white/20 dark:border-[var(--border-strong)]">
+              <span className="text-4xl font-bold tracking-tight text-white">{totalPossible}</span>
+              <p className="text-sm font-semibold text-white/90 dark:text-muted mt-1 uppercase tracking-wider text-center">Total<br/>Possible</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-amber-400 dark:bg-[var(--bg-card)] p-6 rounded-2xl dark:border dark:border-[var(--border-subtle)] shadow-sm flex flex-col justify-between h-36 relative overflow-hidden transition-colors">
+          <div className="flex items-center justify-between z-10 text-white dark:text-[var(--text-main)] h-full">
+            <div className="flex items-center justify-center w-1/3">
+              <Trophy className="w-12 h-12 text-white dark:text-muted" strokeWidth={1.5} />
+            </div>
+            <div className="flex flex-col items-center justify-center w-2/3 h-full border-l border-white/20 dark:border-[var(--border-strong)]">
+              <span className="text-4xl font-bold tracking-tight text-white">{overallPercentage}%</span>
+              <p className="text-sm font-semibold text-white/90 dark:text-muted mt-1 uppercase tracking-wider text-center">Overall<br/>Score</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="print:hidden grid grid-cols-1 md:grid-cols-2 gap-6">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}

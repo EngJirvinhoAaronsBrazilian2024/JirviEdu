@@ -100,16 +100,16 @@ export default function StudentPortal({ setRole }: { setRole: (role: string | nu
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
-              className="fixed inset-y-0 left-0 w-72 bg-[var(--bg-card)] flex flex-col shadow-2xl border-r border-[var(--border-subtle)]"
+              className="fixed inset-y-0 left-0 w-72 bg-slate-700 dark:bg-[#1a1a1a] text-white flex flex-col shadow-2xl border-r border-slate-600 dark:border-[var(--border-subtle)]"
             >
-              <div className="flex items-center justify-between h-20 px-6 border-b border-[var(--border-subtle)]">
-                <span className="text-xl font-bold text-[var(--text-main)] flex items-center gap-3 tracking-tight">
-                  <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-md">
+              <div className="flex items-center justify-between h-20 px-6 border-b border-slate-600 dark:border-[var(--border-subtle)]">
+                <span className="text-xl font-bold text-white flex items-center gap-3 tracking-tight">
+                  <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center shadow-md">
                     <GraduationCap className="w-5 h-5 text-white" />
                   </div>
                   JIRVI EDU
                 </span>
-                <button onClick={() => setSidebarOpen(false)} className="text-muted hover:text-[var(--text-main)] transition-colors p-2 rounded-full hover:bg-[var(--border-subtle)]">
+                <button onClick={() => setSidebarOpen(false)} className="text-slate-300 hover:text-white transition-colors p-2 rounded-full hover:bg-slate-600">
                   <X className="w-5 h-5" />
                 </button>
               </div>
@@ -122,18 +122,18 @@ export default function StudentPortal({ setRole }: { setRole: (role: string | nu
                       to={item.href}
                       onClick={() => setSidebarOpen(false)}
                       className={clsx(
-                        current ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-semibold' : 'text-muted hover:bg-[var(--bg-app)] hover:text-[var(--text-main)] font-medium',
+                        current ? 'bg-slate-600 text-white font-semibold' : 'text-slate-300 hover:bg-slate-600 hover:text-white font-medium',
                         'group flex items-center px-4 py-3 text-sm rounded-xl transition-all duration-200'
                       )}
                     >
-                      <item.icon className={clsx('mr-4 flex-shrink-0 h-5 w-5', current ? 'text-blue-600 dark:text-blue-400' : 'text-muted group-hover:text-[var(--text-main)]')} />
+                      <item.icon className={clsx('mr-4 flex-shrink-0 h-5 w-5', current ? 'text-white' : 'text-slate-400 group-hover:text-white')} />
                       {item.name}
                     </Link>
                   );
                 })}
               </nav>
-              <div className="p-6 border-t border-[var(--border-subtle)]">
-                <button onClick={handleLogout} className="flex items-center justify-center w-full px-4 py-3 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors shadow-sm">
+              <div className="p-6 border-t border-slate-600 dark:border-[var(--border-subtle)]">
+                <button onClick={handleLogout} className="flex items-center justify-center w-full px-4 py-3 text-sm font-semibold text-white bg-red-500 hover:bg-red-600 rounded-xl transition-colors shadow-sm">
                   <LogOut className="mr-3 h-4 w-4" />
                   Sign Out
                 </button>
@@ -144,10 +144,10 @@ export default function StudentPortal({ setRole }: { setRole: (role: string | nu
       </AnimatePresence>
 
       {/* Desktop sidebar */}
-      <div className="hidden lg:flex lg:flex-col lg:w-72 lg:fixed lg:inset-y-0 lg:bg-[var(--bg-card)] overflow-hidden lg:border-r lg:border-[var(--border-subtle)] shadow-sm print:hidden z-20">
+      <div className="hidden lg:flex lg:flex-col lg:w-72 lg:fixed lg:inset-y-0 bg-slate-700 dark:bg-[#1a1a1a] text-white overflow-hidden lg:border-r border-slate-600 dark:border-[var(--border-subtle)] shadow-sm print:hidden z-20">
         <div className="flex items-center h-20 px-8">
-          <span className="text-2xl font-bold text-[var(--text-main)] flex items-center gap-3 tracking-tight">
-            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-md">
+          <span className="text-2xl font-bold text-white flex items-center gap-3 tracking-tight">
+            <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center shadow-md">
               <GraduationCap className="w-6 h-6 text-white" />
             </div>
             JIRVI EDU
@@ -162,12 +162,12 @@ export default function StudentPortal({ setRole }: { setRole: (role: string | nu
                 key={item.name}
                 to={item.href}
                 className={clsx(
-                  current ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 font-semibold shadow-sm border border-blue-100 dark:border-blue-800/30' : 'text-muted hover:bg-[var(--bg-app)] hover:text-[var(--text-main)] font-medium border border-transparent',
+                  current ? 'bg-slate-600 text-white font-semibold shadow-sm border border-slate-500' : 'text-slate-300 hover:bg-slate-600 hover:text-white font-medium border border-transparent',
                   'group flex items-center px-4 py-3.5 text-sm rounded-xl transition-all duration-200 relative overflow-hidden'
                 )}
               >
-                {current && <motion.div layoutId="activeNav" className="absolute left-0 w-1 h-8 bg-blue-600 rounded-r-full" />}
-                <item.icon className={clsx('mr-4 flex-shrink-0 h-5 w-5 z-10 relative', current ? 'text-blue-600 dark:text-blue-400' : 'text-muted group-hover:text-[var(--text-main)]')} />
+                {current && <motion.div layoutId="activeNav" className="absolute left-0 w-1 h-8 bg-blue-400 rounded-r-full" />}
+                <item.icon className={clsx('mr-4 flex-shrink-0 h-5 w-5 z-10 relative', current ? 'text-white' : 'text-slate-400 group-hover:text-white')} />
                 <span className="z-10 relative">{item.name}</span>
               </Link>
             );
@@ -260,6 +260,7 @@ export default function StudentPortal({ setRole }: { setRole: (role: string | nu
 function StudentDashboard({ student }: { student: Student | null }) {
   const [upcomingLectures, setUpcomingLectures] = useState<{mod: Module, lec: any}[]>([]);
   const [allLectures, setAllLectures] = useState<{mod: Module, lec: any}[]>([]);
+  const [stats, setStats] = useState({ modules: 0, assignments: 0, upcomingLectures: 0, results: 0 });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -284,11 +285,21 @@ function StudentDashboard({ student }: { student: Student | null }) {
         }
 
         const allLecs: {mod: Module, lec: any}[] = [];
+        let assignmentsCount = 0;
+        let resultsCount = 0;
+
         for (const m of enrolledMods) {
           const lecsSnap = await getDocs(collection(db, `modules/${m.id}/lectures`));
           lecsSnap.docs.forEach(d => {
             allLecs.push({ mod: m, lec: { id: d.id, ...d.data() } });
           });
+
+          const assignmentsSnap = await getDocs(collection(db, `modules/${m.id}/assignments`));
+          assignmentsCount += assignmentsSnap.docs.length;
+
+          // For results we can just mock or fetch
+          const resultsSnap = await getDocs(collection(db, `students/${student.id}/results`)).catch(() => ({ docs: [] }));
+          resultsCount = resultsSnap.docs.length || 0;
         }
 
         allLecs.sort((a,b) => {
@@ -308,6 +319,12 @@ function StudentDashboard({ student }: { student: Student | null }) {
         });
 
         setUpcomingLectures(upcoming.slice(0, 3)); 
+        setStats({
+          modules: enrolledMods.length,
+          assignments: assignmentsCount,
+          upcomingLectures: upcoming.length,
+          results: resultsCount
+        });
       } catch (err) {
         console.error(err);
       } finally {
@@ -388,6 +405,56 @@ function StudentDashboard({ student }: { student: Student | null }) {
           <BookOpen className="w-5 h-5" />
           Continue Learning
         </button>
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="bg-orange-400 dark:bg-[var(--bg-card)] p-6 rounded-2xl dark:border dark:border-[var(--border-subtle)] shadow-sm flex flex-col justify-between h-36 relative overflow-hidden group transition-colors">
+          <div className="flex items-center justify-between z-10 text-white dark:text-[var(--text-main)] h-full">
+            <div className="flex items-center justify-center w-1/3">
+              <BookOpen className="w-12 h-12 text-white dark:text-muted" strokeWidth={1.5} />
+            </div>
+            <div className="flex flex-col items-center justify-center w-2/3 h-full border-l border-white/20 dark:border-[var(--border-strong)]">
+              <span className="text-4xl font-bold tracking-tight text-white">{stats.modules}</span>
+              <p className="text-sm font-semibold text-white/90 dark:text-muted mt-1 uppercase tracking-wider text-center">Enrolled<br/>Modules</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-purple-500 dark:bg-[var(--bg-card)] p-6 rounded-2xl dark:border dark:border-[var(--border-subtle)] shadow-sm flex flex-col justify-between h-36 relative overflow-hidden group transition-colors">
+          <div className="flex items-center justify-between z-10 text-white dark:text-[var(--text-main)] h-full">
+            <div className="flex items-center justify-center w-1/3">
+              <FileText className="w-12 h-12 text-white dark:text-muted" strokeWidth={1.5} />
+            </div>
+            <div className="flex flex-col items-center justify-center w-2/3 h-full border-l border-white/20 dark:border-[var(--border-strong)]">
+              <span className="text-4xl font-bold tracking-tight text-white">{stats.assignments}</span>
+              <p className="text-sm font-semibold text-white/90 dark:text-muted mt-1 uppercase tracking-wider text-center">Total<br/>Assignments</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-pink-500 dark:bg-[var(--bg-card)] p-6 rounded-2xl dark:border dark:border-[var(--border-subtle)] shadow-sm flex flex-col justify-between h-36 relative overflow-hidden group transition-colors">
+          <div className="flex items-center justify-between z-10 text-white dark:text-[var(--text-main)] h-full">
+            <div className="flex items-center justify-center w-1/3">
+              <Video className="w-12 h-12 text-white dark:text-muted" strokeWidth={1.5} />
+            </div>
+            <div className="flex flex-col items-center justify-center w-2/3 h-full border-l border-white/20 dark:border-[var(--border-strong)]">
+              <span className="text-4xl font-bold tracking-tight text-white">{stats.upcomingLectures}</span>
+              <p className="text-sm font-semibold text-white/90 dark:text-muted mt-1 uppercase tracking-wider text-center">Upcoming<br/>Lectures</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-teal-500 dark:bg-[var(--bg-card)] p-6 rounded-2xl dark:border dark:border-[var(--border-subtle)] shadow-sm flex flex-col justify-between h-36 relative overflow-hidden group transition-colors">
+          <div className="flex items-center justify-between z-10 text-white dark:text-[var(--text-main)] h-full">
+            <div className="flex items-center justify-center w-1/3">
+              <PieChart className="w-12 h-12 text-white dark:text-muted" strokeWidth={1.5} />
+            </div>
+            <div className="flex flex-col items-center justify-center w-2/3 h-full border-l border-white/20 dark:border-[var(--border-strong)]">
+              <span className="text-4xl font-bold tracking-tight text-white">{stats.results || 'N/A'}</span>
+              <p className="text-sm font-semibold text-white/90 dark:text-muted mt-1 uppercase tracking-wider text-center">Published<br/>Results</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

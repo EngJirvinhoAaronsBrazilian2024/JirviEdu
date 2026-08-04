@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db, collection, query, getDocs, doc, setDoc, getDoc, storage, ref, uploadBytes, getDownloadURL, mutationEmitter } from '../../lib/db';
-import { FileText, Clock, Upload, CheckCircle, Loader2, Edit3, X, Send, Download, Check, AlertCircle } from 'lucide-react';
+import { FileText, Clock, Upload, CheckCircle, Loader2, Edit3, X, Send, Download, Check, AlertCircle, Calendar } from 'lucide-react';
 import clsx from 'clsx';
 import { Module } from '../../types';
 import { motion, AnimatePresence } from 'motion/react';
@@ -296,6 +296,15 @@ export default function StudentAssignments({ studentId }: { studentId: string })
     }
   };
 
+  const now = new Date().getTime();
+  
+  const stats = {
+    total: assignments.length,
+    completed: assignments.filter(a => a.sub !== null).length,
+    pending: assignments.filter(a => a.sub === null && new Date(a.asn.deadline).getTime() >= now).length,
+    overdue: assignments.filter(a => a.sub === null && new Date(a.asn.deadline).getTime() < now).length
+  };
+
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
       <div>
@@ -306,6 +315,56 @@ export default function StudentAssignments({ studentId }: { studentId: string })
         <p className="mt-2 text-muted font-medium max-w-2xl">
           Complete and submit tasks for your enrolled modules before the deadline.
         </p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="bg-pink-500 dark:bg-[var(--bg-card)] p-6 rounded-2xl dark:border dark:border-[var(--border-subtle)] shadow-sm flex flex-col justify-between h-36 relative overflow-hidden transition-colors">
+          <div className="flex items-center justify-between z-10 text-white dark:text-[var(--text-main)] h-full">
+            <div className="flex items-center justify-center w-1/3">
+              <FileText className="w-12 h-12 text-white dark:text-muted" strokeWidth={1.5} />
+            </div>
+            <div className="flex flex-col items-center justify-center w-2/3 h-full border-l border-white/20 dark:border-[var(--border-strong)]">
+              <span className="text-4xl font-bold tracking-tight text-white">{stats.total}</span>
+              <p className="text-sm font-semibold text-white/90 dark:text-muted mt-1 uppercase tracking-wider text-center">Total<br/>Assignments</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-amber-400 dark:bg-[var(--bg-card)] p-6 rounded-2xl dark:border dark:border-[var(--border-subtle)] shadow-sm flex flex-col justify-between h-36 relative overflow-hidden transition-colors">
+          <div className="flex items-center justify-between z-10 text-white dark:text-[var(--text-main)] h-full">
+            <div className="flex items-center justify-center w-1/3">
+              <Clock className="w-12 h-12 text-white dark:text-muted" strokeWidth={1.5} />
+            </div>
+            <div className="flex flex-col items-center justify-center w-2/3 h-full border-l border-white/20 dark:border-[var(--border-strong)]">
+              <span className="text-4xl font-bold tracking-tight text-white">{stats.pending}</span>
+              <p className="text-sm font-semibold text-white/90 dark:text-muted mt-1 uppercase tracking-wider text-center">Pending<br/>Tasks</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-teal-500 dark:bg-[var(--bg-card)] p-6 rounded-2xl dark:border dark:border-[var(--border-subtle)] shadow-sm flex flex-col justify-between h-36 relative overflow-hidden transition-colors">
+          <div className="flex items-center justify-between z-10 text-white dark:text-[var(--text-main)] h-full">
+            <div className="flex items-center justify-center w-1/3">
+              <CheckCircle className="w-12 h-12 text-white dark:text-muted" strokeWidth={1.5} />
+            </div>
+            <div className="flex flex-col items-center justify-center w-2/3 h-full border-l border-white/20 dark:border-[var(--border-strong)]">
+              <span className="text-4xl font-bold tracking-tight text-white">{stats.completed}</span>
+              <p className="text-sm font-semibold text-white/90 dark:text-muted mt-1 uppercase tracking-wider text-center">Completed<br/>Tasks</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-red-500 dark:bg-[var(--bg-card)] p-6 rounded-2xl dark:border dark:border-[var(--border-subtle)] shadow-sm flex flex-col justify-between h-36 relative overflow-hidden transition-colors">
+          <div className="flex items-center justify-between z-10 text-white dark:text-[var(--text-main)] h-full">
+            <div className="flex items-center justify-center w-1/3">
+              <AlertCircle className="w-12 h-12 text-white dark:text-muted" strokeWidth={1.5} />
+            </div>
+            <div className="flex flex-col items-center justify-center w-2/3 h-full border-l border-white/20 dark:border-[var(--border-strong)]">
+              <span className="text-4xl font-bold tracking-tight text-white">{stats.overdue}</span>
+              <p className="text-sm font-semibold text-white/90 dark:text-muted mt-1 uppercase tracking-wider text-center">Overdue<br/>Tasks</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">

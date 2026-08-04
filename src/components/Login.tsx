@@ -280,7 +280,7 @@ export default function Login({ setRole }: { setRole: (role: string | null) => v
           </form>
           
           <div className="mt-8 text-center text-sm text-muted">
-            <p>Admin? Use <span className="font-mono bg-[var(--bg-app)] px-2 py-1 rounded text-[var(--text-main)]">REG-ADMIN-2026</span></p>
+            <p>Access restricted to authorized students.</p>
           </div>
         </div>
       </motion.div>
