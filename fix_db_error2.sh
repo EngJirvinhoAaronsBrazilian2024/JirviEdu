@@ -1,3 +1,7 @@
+#!/bin/bash
+file="src/lib/db.ts"
+
+cat << 'INNER_EOF' > src/lib/db.ts.tmp
 import { firestore } from './firebase';
 import { doc as fbDoc, setDoc as fbSetDoc, getDoc as fbGetDoc } from 'firebase/firestore';
 import { insforge } from './supabase'; // we'll rename insforge.ts to supabase.ts for standard naming
@@ -8,7 +12,7 @@ export function collection(dbInstance: any, path: string) {
   return { type: 'collection', path };
 }
 export function doc(dbInstance: any, path: string, id?: string) {
-  return { type: 'doc', path: id ? `${path}/${id}` : path };
+  return { type: 'doc', path: id ? \`\${path}/\${id}\` : path };
 }
 export function query(collectionRef: any, ...constraints: any[]) {
   return { ...collectionRef, constraints };
@@ -21,7 +25,7 @@ function camelToSnake(obj: any) {
   if (Array.isArray(obj)) return obj.map(camelToSnake);
   const newObj: any = {};
   for (const [key, value] of Object.entries(obj)) {
-    const snakeKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+    const snakeKey = key.replace(/[A-Z]/g, letter => \`_\${letter.toLowerCase()}\`);
     newObj[snakeKey] = camelToSnake(value);
   }
   return newObj;
@@ -51,7 +55,7 @@ function parsePath(path: string) {
     // modules/123/assignments/456/submissions
     conditions['assignment_id'] = parts[3];
   }
-  return { table: collectionName.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`), docId, conditions };
+  return { table: collectionName.replace(/[A-Z]/g, (letter) => \`_\${letter.toLowerCase()}\`), docId, conditions };
 }
 export async function getDoc(docRef: any) {
   const { table, docId, conditions } = parsePath(docRef.path);
@@ -98,7 +102,7 @@ export async function getDocs(queryRef: any) {
   if (queryRef.constraints) {
     for (const c of queryRef.constraints) {
       if (c.type === 'where') {
-        const field = c.field.replace(/[A-Z]/g, (letter: string) => `_${letter.toLowerCase()}`);
+        const field = c.field.replace(/[A-Z]/g, (letter: string) => \`_\${letter.toLowerCase()}\`);
         if (c.op === '==') {
           q = q.eq(field, c.val);
         }
@@ -290,3 +294,5 @@ export async function authenticateStudent(regNumber: string, passwordStr: string
     return null;
   }
 }
+INNER_EOF
+mv src/lib/db.ts.tmp src/lib/db.ts
