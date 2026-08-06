@@ -10,6 +10,7 @@ export interface Student {
   fullName: string;
   email: string;
   course: string;
+  year?: number;
   status: 'active' | 'inactive';
   photoUrl?: string;
   password?: string;

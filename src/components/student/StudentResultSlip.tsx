@@ -111,18 +111,24 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
           style={{ minHeight: '297mm', boxSizing: 'border-box', position: 'relative' }}
         >
           {/* Header */}
-          <div className="flex flex-col sm:flex-row justify-between items-center sm:items-start border-b-2 border-blue-600 pb-6 mb-8 text-center sm:text-left space-y-4 sm:space-y-0">
-            <div className="flex flex-col sm:flex-row items-center sm:space-x-4 space-y-2 sm:space-y-0">
-              <img src={logoImage} alt="Logo" className="w-16 h-16 object-contain" />
-              <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-blue-900 tracking-tight uppercase">Jirvinho Software World</h1>
-                <p className="text-xs sm:text-sm text-gray-500 font-medium tracking-wide">Excellence in Education Technology</p>
-              </div>
+          <div className="flex flex-col items-center border-b-4 border-blue-600 pb-8 mb-8 text-center space-y-4 relative">
+            <div className="absolute top-0 left-0 w-full h-32 bg-blue-50/50 -z-10 rounded-t-2xl"></div>
+            <img src={logoImage} alt="Logo" className="w-24 h-24 object-contain shadow-sm rounded-xl p-2 bg-white border border-slate-100 relative z-10" />
+            <div className="relative z-10">
+              <h1 className="text-3xl sm:text-4xl font-extrabold text-blue-900 tracking-tight uppercase">Jirvinho Software World</h1>
+              <p className="text-sm sm:text-base text-gray-500 font-bold tracking-widest uppercase mt-1">Excellence in Education Technology</p>
             </div>
-            <div className="sm:text-right">
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-800 mb-1">STUDENT RESULT SLIP</h2>
-              <p className="text-sm font-semibold text-gray-600">Academic Year: {new Date().getFullYear()}/{new Date().getFullYear() + 1}</p>
-              <p className="text-xs sm:text-sm text-gray-500 mt-1">Date Generated: {new Date().toLocaleDateString()}</p>
+            <div className="w-24 h-1 bg-blue-500 rounded-full my-4 relative z-10"></div>
+            <div className="relative z-10">
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-800 mb-4">OFFICIAL STUDENT RESULT SLIP</h2>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 text-sm font-semibold text-gray-600">
+                <span className="bg-blue-50 text-blue-800 px-4 py-1.5 rounded-full border border-blue-200 shadow-sm">
+                  Academic Year: {new Date().getFullYear()}/{new Date().getFullYear() + 1}
+                </span>
+                <span className="bg-slate-50 text-slate-700 px-4 py-1.5 rounded-full border border-slate-200 shadow-sm">
+                  Generated: {new Date().toLocaleDateString()}
+                </span>
+              </div>
             </div>
           </div>
 

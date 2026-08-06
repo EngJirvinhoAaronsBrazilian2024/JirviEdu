@@ -129,9 +129,9 @@ export default function Login({ setRole }: { setRole: (role: string | null) => v
         className="w-full max-w-[1000px] bg-[var(--bg-card)] rounded-3xl shadow-2xl flex flex-col md:flex-row overflow-hidden border border-[var(--border-subtle)] relative z-10"
       >
         {/* Left Side: Branding & Info */}
-        <div className="hidden md:flex md:w-1/2 bg-gradient-to-br from-blue-600 to-indigo-700 p-12 flex-col justify-between relative overflow-hidden text-white">
-          <div className="absolute inset-0 bg-cover bg-center opacity-20 mix-blend-luminosity" style={{ backgroundImage: `url(${loginCover})` }}></div>
-          <div className="absolute inset-0 bg-blue-600/30 backdrop-blur-[2px]"></div>
+        <div className="hidden md:flex md:w-1/2 p-12 flex-col justify-between relative overflow-hidden text-white bg-blue-900">
+          <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${loginCover})` }}></div>
+          <div className="absolute inset-0 bg-black/40"></div>
           
           <div className="relative z-10">
             <div className="flex items-center gap-3 mb-12">
