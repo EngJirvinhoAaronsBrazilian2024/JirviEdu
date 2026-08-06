@@ -4,6 +4,8 @@ import { Printer, Download, X } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import { motion } from 'motion/react';
+import { QRCodeSVG } from 'qrcode.react';
+import logoImage from '../../assets/images/modern_logo_1786033475396.jpg';
 
 interface ResultSlipProps {
   student: Student;
@@ -13,6 +15,23 @@ interface ResultSlipProps {
 
 export default function StudentResultSlip({ student, results, onClose }: ResultSlipProps) {
   const slipRef = useRef<HTMLDivElement>(null);
+  const [photoBase64, setPhotoBase64] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (student.photoUrl) {
+      fetch(student.photoUrl)
+        .then(res => res.blob())
+        .then(blob => {
+          const reader = new FileReader();
+          reader.onloadend = () => setPhotoBase64(reader.result as string);
+          reader.readAsDataURL(blob);
+        })
+        .catch(err => {
+          console.warn("Could not load student photo as base64 for PDF", err);
+          setPhotoBase64(student.photoUrl || null); // fallback
+        });
+    }
+  }, [student.photoUrl]);
 
   const totalCourses = results.length;
   const totalEarned = results.reduce((acc, curr) => acc + (Number(curr.sub.grade) || 0), 0);
@@ -94,7 +113,7 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
           {/* Header */}
           <div className="flex flex-col sm:flex-row justify-between items-center sm:items-start border-b-2 border-blue-600 pb-6 mb-8 text-center sm:text-left space-y-4 sm:space-y-0">
             <div className="flex flex-col sm:flex-row items-center sm:space-x-4 space-y-2 sm:space-y-0">
-              <img src="/icon.png" alt="Logo" className="w-16 h-16 object-contain" />
+              <img src={logoImage} alt="Logo" className="w-16 h-16 object-contain" />
               <div>
                 <h1 className="text-xl sm:text-2xl font-bold text-blue-900 tracking-tight uppercase">Jirvinho Software World</h1>
                 <p className="text-xs sm:text-sm text-gray-500 font-medium tracking-wide">Excellence in Education Technology</p>
@@ -103,7 +122,6 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
             <div className="sm:text-right">
               <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-800 mb-1">STUDENT RESULT SLIP</h2>
               <p className="text-sm font-semibold text-gray-600">Academic Year: {new Date().getFullYear()}/{new Date().getFullYear() + 1}</p>
-              <p className="text-sm font-semibold text-gray-600">Semester: II</p>
               <p className="text-xs sm:text-sm text-gray-500 mt-1">Date Generated: {new Date().toLocaleDateString()}</p>
             </div>
           </div>
@@ -111,8 +129,8 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
           {/* Student Information */}
           <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 sm:p-6 mb-8 flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-6 shadow-sm text-center sm:text-left">
             <div className="w-24 h-24 bg-blue-100 border-2 border-blue-200 rounded-lg flex items-center justify-center shrink-0 overflow-hidden">
-              {student.photoUrl ? (
-                <img src={student.photoUrl} alt={student.fullName} className="w-full h-full object-cover" />
+              {photoBase64 ? (
+                <img src={photoBase64} alt={student.fullName} className="w-full h-full object-cover" crossOrigin="anonymous" />
               ) : (
                 <span className="text-blue-500 font-bold text-xs p-2">No Photo<br/>Provided</span>
               )}
@@ -229,8 +247,7 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
             </div>
             <div className="flex flex-col items-center">
               <div className="w-20 h-20 bg-gray-100 border border-gray-300 rounded-lg flex items-center justify-center mb-2 shadow-inner">
-                 {/* QR Code Placeholder */}
-                 <div className="w-16 h-16 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjY2JjYmNiIiBzdHJva2Utd2lkdGg9IjIiPjxyZWN0IHg9IjMiIHk9IjMiIHdpZHRoPSI3IiBoZWlnaHQ9IjciIHJ4PSIxIi8+PHJlY3QgeD0iMTQiIHk9IjMiIHdpZHRoPSI3IiBoZWlnaHQ9IjciIHJ4PSIxIi8+PHJlY3QgeD0iMyIgeT0iMTQiIHdpZHRoPSI3IiBoZWlnaHQ9IjciIHJ4PSIxIi8+PHBhdGggZD0iTTE0IDE0aDcuNXY3LjVIMTR6Ii8+PHBhdGggZD0iTTcgN2guMDFNMTggN2guMDFNNyAxOGguMDFNMTEgMTR2M00xNCAxMXYzeiIvPjwvc3ZnPg==')] bg-contain bg-no-repeat bg-center opacity-40"></div>
+                 <QRCodeSVG value={`https://www.jirvinhosoftwareworld.com/verify/${student.regNumber}`} size={64} level={"M"} />
               </div>
               <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Scan to Verify</span>
             </div>

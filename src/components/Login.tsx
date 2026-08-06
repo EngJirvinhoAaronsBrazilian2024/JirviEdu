@@ -5,6 +5,7 @@ import { authenticateStudent } from '../lib/db';
 import ThemeToggle from './ThemeToggle';
 import { logActivity } from '../lib/activity-logger';
 import { motion, AnimatePresence } from 'motion/react';
+import loginCover from '../assets/images/login_cover_1786033509563.jpg';
 
 export default function Login({ setRole }: { setRole: (role: string | null) => void }) {
   const [regNumber, setRegNumber] = useState(localStorage.getItem('jirvi_saved_reg') || '');
@@ -129,7 +130,7 @@ export default function Login({ setRole }: { setRole: (role: string | null) => v
       >
         {/* Left Side: Branding & Info */}
         <div className="hidden md:flex md:w-1/2 bg-gradient-to-br from-blue-600 to-indigo-700 p-12 flex-col justify-between relative overflow-hidden text-white">
-          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-20 mix-blend-luminosity"></div>
+          <div className="absolute inset-0 bg-cover bg-center opacity-20 mix-blend-luminosity" style={{ backgroundImage: `url(${loginCover})` }}></div>
           <div className="absolute inset-0 bg-blue-600/30 backdrop-blur-[2px]"></div>
           
           <div className="relative z-10">
