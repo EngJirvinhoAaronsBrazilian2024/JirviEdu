@@ -107,8 +107,8 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
       <div className="w-full max-w-4xl my-auto print:m-0 mt-16 sm:mt-auto mb-16 sm:mb-auto">
         <div 
           ref={slipRef}
-          className="bg-white text-gray-900 shadow-2xl rounded-2xl overflow-hidden print:shadow-none print:rounded-none w-full mx-auto p-6 sm:p-10"
-          style={{ minHeight: '297mm', boxSizing: 'border-box', position: 'relative' }}
+          className="bg-white text-gray-900 shadow-2xl rounded-2xl overflow-hidden print:shadow-none print:rounded-none w-full mx-auto p-4 sm:p-10 flex flex-col"
+          style={{ minHeight: '297mm', boxSizing: 'border-box' }}
         >
           {/* Header */}
           <div className="flex flex-col items-center border-b-4 border-blue-600 pb-8 mb-8 text-center space-y-4 relative">
@@ -246,8 +246,8 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
           </div>
 
           {/* Verification */}
-          <div className="flex justify-between items-end mb-16 pt-6">
-            <div>
+          <div className="flex flex-col sm:flex-row justify-between items-center sm:items-end mb-8 sm:mb-16 pt-6 gap-6 sm:gap-0">
+            <div className="text-center sm:text-left">
               <p className="text-xs font-bold text-gray-500 uppercase mb-1">Verification Code</p>
               <p className="text-lg font-mono font-bold text-gray-800 tracking-wider">JRV-{Math.floor(Math.random() * 90000) + 10000}</p>
             </div>
@@ -269,7 +269,7 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
           </div>
 
           {/* Footer */}
-          <div className="absolute bottom-0 left-0 w-full px-6 sm:px-10 pb-6 sm:pb-8">
+          <div className="mt-auto pt-8 pb-4 w-full">
             <div className="border-t border-gray-200 pt-6 flex flex-col sm:flex-row justify-between items-center text-xs text-gray-500 font-medium space-y-4 sm:space-y-0">
               <div className="space-y-1 text-center sm:text-left">
                 <p className="font-bold text-gray-700">Jirvinho software world</p>
