@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { Student } from '../../types';
 import { Printer, Download, X } from 'lucide-react';
-import html2canvas from 'html2canvas';
+import { toJpeg } from 'html-to-image';
 import { jsPDF } from 'jspdf';
 import { motion } from 'motion/react';
 import { QRCodeCanvas } from 'qrcode.react';
@@ -44,42 +44,45 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
     try {
       const element = slipRef.current;
       
-      const canvas = await html2canvas(element, { 
-        scale: 2, 
-        useCORS: true,
-        logging: false,
+      const imgData = await toJpeg(element, { 
+        quality: 0.95,
         backgroundColor: '#ffffff',
-        windowWidth: 1024,
-        onclone: (document) => {
-          const el = document.getElementById('result-slip-content');
-          if (el) {
-            el.style.width = '1024px';
-            el.style.maxWidth = '1024px';
-          }
+        pixelRatio: 2,
+        style: {
+          width: '1024px',
+          maxWidth: '1024px'
         }
       });
       
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
         format: 'a4',
       });
       
-      let pdfWidth = pdf.internal.pageSize.getWidth();
-      let pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      const pdfWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
+      
+      // We need original dimensions to scale properly
+      const img = new Image();
+      img.src = imgData;
+      await new Promise((resolve) => {
+        img.onload = resolve;
+      });
+      
+      let pdfHeight = (img.height * pdfWidth) / img.width;
+      let finalPdfWidth = pdfWidth;
       
       if (pdfHeight > pageHeight) {
         // If it's too tall, scale down proportionally to fit page height
         pdfHeight = pageHeight;
-        pdfWidth = (canvas.width * pdfHeight) / canvas.height;
+        finalPdfWidth = (img.width * pdfHeight) / img.height;
       }
       
       // Center horizontally if scaled down by height
-      const xOffset = (pdf.internal.pageSize.getWidth() - pdfWidth) / 2;
+      const xOffset = (pdf.internal.pageSize.getWidth() - finalPdfWidth) / 2;
       
-      pdf.addImage(imgData, 'JPEG', xOffset, 0, pdfWidth, pdfHeight);
+      pdf.addImage(imgData, 'JPEG', xOffset, 0, finalPdfWidth, pdfHeight);
       
       // Try standard save, fallback to explicit link for mobile devices if blocked
       try {
