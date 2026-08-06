@@ -39,7 +39,7 @@ export default function AdminAssignments() {
     
     setUploading(true);
     try {
-      const id = crypto.randomUUID();
+      const id = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
       let fileUrl = '';
       if (file) {
         const fileRef = ref(storage, `assignments/${id}_${file.name}`);

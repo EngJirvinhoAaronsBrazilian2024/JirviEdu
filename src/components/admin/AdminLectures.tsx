@@ -61,7 +61,7 @@ export default function AdminLectures() {
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedModule) return;
-    const id = crypto.randomUUID();
+    const id = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
     const newLec = { title, meetLink, date, time, createdAt: Date.now() };
     await setDoc(doc(db, `modules/${selectedModule}/lectures`, id), newLec);
     setLectures(prev => [...prev, { id, ...newLec }]);

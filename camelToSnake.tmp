@@ -1,0 +1,14 @@
+function camelToSnake(obj: any) {
+  if (typeof obj !== 'object' || obj === null) return obj;
+  if (Array.isArray(obj)) return obj.map(camelToSnake);
+  const newObj: any = {};
+  for (const [key, value] of Object.entries(obj)) {
+    const snakeKey = key.replace(/[A-Z]/g, letter => \`_\${letter.toLowerCase()}\`);
+    if (typeof value === 'number' && (key.endsWith('At') || key === 'deadline')) {
+      newObj[snakeKey] = new Date(value).toISOString();
+    } else {
+      newObj[snakeKey] = camelToSnake(value);
+    }
+  }
+  return newObj;
+}

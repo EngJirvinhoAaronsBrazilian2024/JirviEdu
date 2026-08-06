@@ -22,7 +22,11 @@ function camelToSnake(obj: any) {
   const newObj: any = {};
   for (const [key, value] of Object.entries(obj)) {
     const snakeKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
-    newObj[snakeKey] = camelToSnake(value);
+    if (typeof value === 'number' && (key.endsWith('At') || key === 'deadline')) {
+      newObj[snakeKey] = new Date(value).toISOString();
+    } else {
+      newObj[snakeKey] = camelToSnake(value);
+    }
   }
   return newObj;
 }
@@ -32,26 +36,33 @@ function snakeToCamel(obj: any) {
   const newObj: any = {};
   for (const [key, value] of Object.entries(obj)) {
     const camelKey = key.replace(/_([a-z])/g, (g) => g[1].toUpperCase());
-    newObj[camelKey] = snakeToCamel(value);
+    if (typeof value === 'string' && value.match(/^\d{4}-\d{2}-\d{2}T/) && (camelKey.endsWith('At') || camelKey === 'deadline')) {
+      newObj[camelKey] = new Date(value).getTime();
+    } else {
+      newObj[camelKey] = snakeToCamel(value);
+    }
   }
   return newObj;
 }
 function parsePath(path: string) {
   const parts = path.split('/');
-  const collectionName = parts[0];
-  const docId = parts[1];
   const conditions: any = {};
+  
+  if (parts.length >= 5 && parts[4] === 'submissions') {
+    conditions['module_id'] = parts[1];
+    conditions['assignment_id'] = parts[3];
+    return { table: 'submissions', docId: parts[5], conditions };
+  }
+  
   if (parts.length >= 3) {
-    if (parts[2] === 'enrollments' || parts[2] === 'lectures' || parts[2] === 'assignments' || parts[2] === 'materials') {
-      conditions['module_id'] = docId;
-      return { table: parts[2], docId: parts[3], conditions };
+    if (parts[2] === 'enrollments' || parts[2] === 'lectures' || parts[2] === 'assignments' || parts[2] === 'materials' || parts[2] === 'learningMaterials') {
+      conditions['module_id'] = parts[1];
+      const tableRaw = parts[2].replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
+      return { table: tableRaw, docId: parts[3], conditions };
     }
   }
-  if (parts.length >= 5) {
-    // modules/123/assignments/456/submissions
-    conditions['assignment_id'] = parts[3];
-  }
-  return { table: collectionName.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`), docId, conditions };
+  
+  return { table: parts[0].replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`), docId: parts[1], conditions };
 }
 export async function getDoc(docRef: any) {
   const { table, docId, conditions } = parsePath(docRef.path);

@@ -23,7 +23,7 @@ export default function AdminModules() {
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
-    const id = crypto.randomUUID();
+    const id = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
     const newMod = { name, code, description: desc, createdAt: Date.now() };
     await setDoc(doc(db, 'modules', id), newMod);
     setModules(prev => [...prev, { id, ...newMod } as Module]);
