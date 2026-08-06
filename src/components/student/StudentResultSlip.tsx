@@ -4,7 +4,7 @@ import { Printer, Download, X } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import { motion } from 'motion/react';
-import { QRCodeSVG } from 'qrcode.react';
+import { QRCodeCanvas } from 'qrcode.react';
 import logoImage from '../../assets/images/modern_logo_1786033475396.jpg';
 
 interface ResultSlipProps {
@@ -48,10 +48,18 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
         scale: 2, 
         useCORS: true,
         logging: false,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        windowWidth: 1024,
+        onclone: (document) => {
+          const el = document.getElementById('result-slip-content');
+          if (el) {
+            el.style.width = '1024px';
+            el.style.maxWidth = '1024px';
+          }
+        }
       });
       
-      const imgData = canvas.toDataURL('image/png');
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
@@ -71,11 +79,24 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
       // Center horizontally if scaled down by height
       const xOffset = (pdf.internal.pageSize.getWidth() - pdfWidth) / 2;
       
-      pdf.addImage(imgData, 'PNG', xOffset, 0, pdfWidth, pdfHeight);
-      pdf.save(`${student.regNumber || 'Student'}_Result_Slip.pdf`);
-    } catch (error) {
+      pdf.addImage(imgData, 'JPEG', xOffset, 0, pdfWidth, pdfHeight);
+      
+      // Try standard save, fallback to explicit link for mobile devices if blocked
+      try {
+        pdf.save(`${student.regNumber || 'Student'}_Result_Slip.pdf`);
+      } catch (saveError) {
+        const pdfBlob = pdf.output('blob');
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+        const a = document.createElement('a');
+        a.href = pdfUrl;
+        a.download = `${student.regNumber || 'Student'}_Result_Slip.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    } catch (error: any) {
       console.error('Error generating PDF', error);
-      alert('Failed to generate PDF.');
+      alert(`Failed to generate PDF: ${error.message || 'Unknown error'}`);
     }
   };
 
@@ -106,6 +127,7 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
 
       <div className="w-full max-w-4xl my-auto print:m-0 mt-16 sm:mt-auto mb-16 sm:mb-auto">
         <div 
+          id="result-slip-content"
           ref={slipRef}
           className="bg-white text-gray-900 shadow-2xl rounded-2xl overflow-hidden print:shadow-none print:rounded-none w-full mx-auto p-4 sm:p-10 flex flex-col"
           style={{ minHeight: '297mm', boxSizing: 'border-box' }}
@@ -253,7 +275,7 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
             </div>
             <div className="flex flex-col items-center">
               <div className="w-20 h-20 bg-gray-100 border border-gray-300 rounded-lg flex items-center justify-center mb-2 shadow-inner">
-                 <QRCodeSVG value={`https://www.jirvinhosoftwareworld.com/verify/${student.regNumber}`} size={64} level={"M"} />
+                 <QRCodeCanvas value={`https://www.jirvinhosoftwareworld.com/verify/${student.regNumber}`} size={64} level={"M"} />
               </div>
               <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Scan to Verify</span>
             </div>
