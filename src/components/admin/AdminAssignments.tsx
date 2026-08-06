@@ -14,7 +14,7 @@ export default function AdminAssignments() {
   const [desc, setDesc] = useState('');
   const [startTime, setStartTime] = useState('');
   const [deadline, setDeadline] = useState('');
-  const [marks, setMarks] = useState('');
+  const [marks, setMarks] = useState('50');
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
@@ -169,7 +169,7 @@ export default function AdminAssignments() {
 
                       <div className="space-y-1.5">
                         <label className="block text-sm font-semibold text-[var(--text-main)]">Total Marks</label>
-                        <input required placeholder="e.g. 100" type="number" min="0" value={marks} onChange={e=>setMarks(e.target.value)} className="block w-full rounded-xl border border-[var(--border-strong)] px-4 py-2.5 placeholder:text-muted focus:border-green-500 focus:outline-none focus:ring-4 focus:ring-green-500/10 text-[var(--text-main)] bg-[var(--bg-app)] transition-all shadow-sm" />
+                        <input required placeholder="e.g. 50" type="number" min="0" max="50" value={marks} onChange={e=>setMarks(e.target.value)} className="block w-full rounded-xl border border-[var(--border-strong)] px-4 py-2.5 placeholder:text-muted focus:border-green-500 focus:outline-none focus:ring-4 focus:ring-green-500/10 text-[var(--text-main)] bg-[var(--bg-app)] transition-all shadow-sm" />
                       </div>
 
                       <div className="space-y-1.5">
@@ -425,6 +425,8 @@ function AssignmentSubmissions({ moduleId, assignment, onBack }: { moduleId: str
                         <div className="flex items-center space-x-2">
                           <input 
                             type="number" 
+                            min="0"
+                            max={assignment.marks}
                             className="w-24 px-3 py-1.5 border border-[var(--border-strong)] bg-[var(--bg-card)] rounded-lg text-sm font-bold text-[var(--text-main)] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" 
                             placeholder={`/ ${assignment.marks}`}
                             value={gradeInput}

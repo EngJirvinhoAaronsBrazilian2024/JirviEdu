@@ -23,16 +23,36 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
   const handleDownload = async () => {
     if (!slipRef.current) return;
     try {
-      const canvas = await html2canvas(slipRef.current, { scale: 2, useCORS: true });
+      const element = slipRef.current;
+      
+      const canvas = await html2canvas(element, { 
+        scale: 2, 
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+      });
+      
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
         format: 'a4',
       });
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      
+      let pdfWidth = pdf.internal.pageSize.getWidth();
+      let pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      
+      if (pdfHeight > pageHeight) {
+        // If it's too tall, scale down proportionally to fit page height
+        pdfHeight = pageHeight;
+        pdfWidth = (canvas.width * pdfHeight) / canvas.height;
+      }
+      
+      // Center horizontally if scaled down by height
+      const xOffset = (pdf.internal.pageSize.getWidth() - pdfWidth) / 2;
+      
+      pdf.addImage(imgData, 'PNG', xOffset, 0, pdfWidth, pdfHeight);
       pdf.save(`${student.regNumber || 'Student'}_Result_Slip.pdf`);
     } catch (error) {
       console.error('Error generating PDF', error);
