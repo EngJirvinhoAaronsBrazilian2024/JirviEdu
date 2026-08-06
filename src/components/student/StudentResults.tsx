@@ -5,10 +5,12 @@ import { Award, FileText, CheckCircle, Printer, Trophy } from 'lucide-react';
 import { Module, Student } from '../../types';
 import { motion, AnimatePresence } from 'motion/react';
 import clsx from 'clsx';
+import StudentResultSlip from './StudentResultSlip';
 
 export default function StudentResults({ student }: { student: Student | null }) {
   const [results, setResults] = useState<{mod: Module, asn: any, sub: any}[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showSlip, setShowSlip] = useState(false);
 
   useEffect(() => {
     if (!student?.id) return;
@@ -75,66 +77,8 @@ export default function StudentResults({ student }: { student: Student | null })
     };
   }, [student?.id]);
 
-  const handlePrint = async () => {
-    if (!student) return;
-    try {
-      const { jsPDF } = await import('jspdf');
-      const { default: autoTable } = await import('jspdf-autotable');
-      const doc = new jsPDF();
-    
-      // Try to load user logo
-      try {
-        const response = await fetch('/icon.png');
-        const blob = await response.blob();
-        const base64data = await new Promise<string>((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result as string);
-          reader.readAsDataURL(blob);
-        });
-        doc.addImage(base64data, 'PNG', 14, 15, 20, 20);
-      } catch (e) {
-        console.warn("Could not load icon", e);
-      }
-
-      // Title
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(14);
-      doc.text('ACADEMIC PORTAL STUDY INITIATIVE', 40, 25);
-      
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(14);
-      doc.text('Student Official Result Slip', 40, 33);
-      
-      // Details
-      doc.setFontSize(11);
-      doc.text(`Student Name: ${student.fullName || 'N/A'}`, 14, 50);
-      doc.text(`Registration No: ${student.regNumber || 'N/A'}`, 14, 56);
-      doc.text(`Date Issued: ${new Date().toLocaleDateString()}`, 14, 62);
-      
-      doc.text(`Course: ${student.course || 'N/A'}`, 120, 50);
-      const totalE = results.reduce((acc, curr) => acc + (Number(curr.sub.grade) || 0), 0);
-      const totalP = results.reduce((acc, curr) => acc + (Number(curr.asn.marks) || 0), 0);
-      const oP = totalP > 0 ? ((totalE / totalP) * 100).toFixed(1) : '0.0';
-      doc.text(`Overall Average: ${oP}%`, 120, 56);
-      doc.text(`Total Assignments Graded: ${results.length}`, 120, 62);
-
-      const tableBody = results.map(item => [
-        `${item.asn.title}\n${item.mod.code} - ${item.mod.name}`,
-        new Date(item.sub.submittedAt).toLocaleDateString(),
-        `${item.sub.grade} / ${item.asn.marks}`,
-        item.sub.feedback || 'No feedback provided'
-      ]);
-
-      autoTable(doc, {
-        startY: 70,
-        head: [['Module & Assignment', 'Submitted On', 'Grade', 'Feedback']],
-        body: tableBody,
-        styles: { fontSize: 10, cellPadding: 3 },
-        headStyles: { fillColor: [40, 40, 40] }
-      });
-
-      doc.save(`${student.regNumber || 'Student'}_Results.pdf`);
-    } catch (err) { console.error('PDF generation failed', err); alert('Failed to generate PDF') }
+  const handlePrint = () => {
+    setShowSlip(true);
   };
 
   // Calculate generic GPA or total percentage based on what we have
@@ -144,6 +88,16 @@ export default function StudentResults({ student }: { student: Student | null })
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto print:m-0 print:p-0 print:max-w-none">
+      <AnimatePresence>
+        {showSlip && student && (
+          <StudentResultSlip 
+            student={student} 
+            results={results} 
+            onClose={() => setShowSlip(false)} 
+          />
+        )}
+      </AnimatePresence>
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-[var(--text-main)] flex items-center">
@@ -157,7 +111,7 @@ export default function StudentResults({ student }: { student: Student | null })
           className="print:hidden flex items-center justify-center px-6 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all shadow-sm active:scale-95 font-bold text-sm"
         >
           <Printer className="w-4 h-4 mr-2" />
-          Download Transcript
+          View Official Result Slip
         </button>
       </div>
 
@@ -242,27 +196,7 @@ export default function StudentResults({ student }: { student: Student | null })
         </motion.div>
       </div>
 
-      {/* Print summary visible only in print mode */}
-      <div className="hidden print:block mb-8 pb-4 border-b print:border-black flex flex-col items-center text-center">
-        <div className="flex flex-col items-center justify-center gap-3 mb-4">
-           <h1 className="text-2xl font-bold print:text-black uppercase tracking-widest text-center">ACADEMIC PORTAL STUDY INITIATIVE</h1>
-        </div>
-        <h2 className="text-xl font-bold print:text-black mb-4 whitespace-nowrap">Student Official Result Slip</h2>
-        <div className="flex justify-between w-full text-sm print:text-black mt-4 text-left px-2">
-          <div>
-            <p className="mb-1"><strong>Student Name:</strong> {student?.fullName || 'N/A'}</p>
-            <p className="mb-1"><strong>Registration No:</strong> {student?.regNumber || 'N/A'}</p>
-            <p><strong>Date Issued:</strong> {new Date().toLocaleDateString()}</p>
-          </div>
-          <div className="text-right">
-            <p className="mb-1"><strong>Course:</strong> {student?.course || 'N/A'}</p>
-            <p className="mb-1"><strong>Overall Average:</strong> {overallPercentage}%</p>
-            <p><strong>Total Assignments Graded:</strong> {results.length}</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="premium-card print:bg-white rounded-2xl overflow-hidden shadow-sm">
+      <div className="premium-card rounded-2xl overflow-hidden shadow-sm">
         {loading ? (
           <div className="py-24 flex flex-col items-center justify-center">
             <div className="w-10 h-10 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mb-4" />
