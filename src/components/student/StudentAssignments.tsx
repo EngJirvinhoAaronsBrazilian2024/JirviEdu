@@ -573,7 +573,9 @@ export default function StudentAssignments({ studentId }: { studentId: string })
                         </div>
                         {item.sub.grade !== undefined && item.sub.grade !== null ? (
                           <>
-                            <p className="text-2xl font-bold text-[var(--text-main)] mt-1">{item.sub.grade} <span className="text-sm text-muted font-medium">/ {item.asn.marks}</span></p>
+                            <p className="text-2xl font-bold text-[var(--text-main)] mt-1">
+                              {Math.round((Number(item.sub.grade) / Number(item.asn.marks)) * 100) || 0}%
+                            </p>
                             {item.sub.feedback && (
                               <p className="text-sm font-medium text-muted mt-2 pt-2 border-t border-green-200 dark:border-green-500/20 italic">
                                 "{item.sub.feedback}"

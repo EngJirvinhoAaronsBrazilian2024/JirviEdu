@@ -45,12 +45,13 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
       const element = slipRef.current;
       
       const imgData = await toJpeg(element, { 
-        quality: 0.95,
+        quality: 1.0,
         backgroundColor: '#ffffff',
         pixelRatio: 2,
         style: {
-          width: '1024px',
-          maxWidth: '1024px'
+          transform: 'scale(1)',
+          transformOrigin: 'top left',
+          margin: '0',
         }
       });
       
@@ -63,28 +64,29 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
       
-      // We need original dimensions to scale properly
       const img = new Image();
       img.src = imgData;
       await new Promise((resolve) => {
         img.onload = resolve;
       });
       
-      let pdfHeight = (img.height * pdfWidth) / img.width;
-      let finalPdfWidth = pdfWidth;
+      // Calculate aspect ratio
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      
+      // If the content is taller than A4, we might need multiple pages or just scale it down.
+      // Scaling it down to fit one page is requested.
+      let finalHeight = pdfHeight;
+      let finalWidth = pdfWidth;
       
       if (pdfHeight > pageHeight) {
-        // If it's too tall, scale down proportionally to fit page height
-        pdfHeight = pageHeight;
-        finalPdfWidth = (img.width * pdfHeight) / img.height;
+        finalHeight = pageHeight;
+        finalWidth = (imgProps.width * pageHeight) / imgProps.height;
       }
       
-      // Center horizontally if scaled down by height
-      const xOffset = (pdf.internal.pageSize.getWidth() - finalPdfWidth) / 2;
+      const xOffset = (pdfWidth - finalWidth) / 2;
+      pdf.addImage(imgData, 'JPEG', xOffset, 0, finalWidth, finalHeight);
       
-      pdf.addImage(imgData, 'JPEG', xOffset, 0, finalPdfWidth, pdfHeight);
-      
-      // Try standard save, fallback to explicit link for mobile devices if blocked
       try {
         pdf.save(`${student.regNumber || 'Student'}_Result_Slip.pdf`);
       } catch (saveError) {
@@ -128,25 +130,25 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
         </button>
       </div>
 
-      <div className="w-full max-w-4xl my-auto print:m-0 mt-16 sm:mt-auto mb-16 sm:mb-auto">
+      <div className="w-full max-w-4xl my-auto print:m-0 mt-16 sm:mt-auto mb-16 sm:mb-auto overflow-x-auto">
         <div 
           id="result-slip-content"
           ref={slipRef}
-          className="bg-white text-gray-900 shadow-2xl rounded-2xl overflow-hidden print:shadow-none print:rounded-none w-full mx-auto p-4 sm:p-10 flex flex-col"
-          style={{ minHeight: '297mm', boxSizing: 'border-box' }}
+          className="bg-white text-gray-900 shadow-2xl rounded-2xl overflow-hidden print:shadow-none print:rounded-none w-full mx-auto p-10 flex flex-col"
+          style={{ minHeight: '297mm', minWidth: '794px', boxSizing: 'border-box' }}
         >
           {/* Header */}
           <div className="flex flex-col items-center border-b-4 border-blue-600 pb-8 mb-8 text-center space-y-4 relative">
             <div className="absolute top-0 left-0 w-full h-32 bg-blue-50/50 -z-10 rounded-t-2xl"></div>
             <img src={logoImage} alt="Logo" className="w-24 h-24 object-contain shadow-sm rounded-xl p-2 bg-white border border-slate-100 relative z-10" />
             <div className="relative z-10">
-              <h1 className="text-3xl sm:text-4xl font-extrabold text-blue-900 tracking-tight uppercase">Jirvinho Software World</h1>
-              <p className="text-sm sm:text-base text-gray-500 font-bold tracking-widest uppercase mt-1">Excellence in Education Technology</p>
+              <h1 className="text-4xl font-extrabold text-blue-900 tracking-tight uppercase">Jirvinho Software World</h1>
+              <p className="text-base text-gray-500 font-bold tracking-widest uppercase mt-1">Excellence in Education Technology</p>
             </div>
             <div className="w-24 h-1 bg-blue-500 rounded-full my-4 relative z-10"></div>
             <div className="relative z-10">
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-800 mb-4">OFFICIAL STUDENT RESULT SLIP</h2>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 text-sm font-semibold text-gray-600">
+              <h2 className="text-3xl font-extrabold text-gray-800 mb-4">OFFICIAL STUDENT RESULT SLIP</h2>
+              <div className="flex flex-row items-center justify-center gap-3 text-sm font-semibold text-gray-600">
                 <span className="bg-blue-50 text-blue-800 px-4 py-1.5 rounded-full border border-blue-200 shadow-sm">
                   Academic Year: {new Date().getFullYear()}/{new Date().getFullYear() + 1}
                 </span>
@@ -158,7 +160,7 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
           </div>
 
           {/* Student Information */}
-          <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 sm:p-6 mb-8 flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-6 shadow-sm text-center sm:text-left">
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 mb-8 flex flex-row items-start space-y-0 space-x-6 shadow-sm text-left">
             <div className="w-24 h-24 bg-blue-100 border-2 border-blue-200 rounded-lg flex items-center justify-center shrink-0 overflow-hidden">
               {photoBase64 ? (
                 <img src={photoBase64} alt={student.fullName} className="w-full h-full object-cover" crossOrigin="anonymous" />
@@ -166,7 +168,7 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
                 <span className="text-blue-500 font-bold text-xs p-2">No Photo<br/>Provided</span>
               )}
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-4 w-full">
+            <div className="grid grid-cols-2 gap-x-12 gap-y-4 w-full">
               <div>
                 <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Full Name</p>
                 <p className="text-lg font-bold text-gray-800">{student.fullName}</p>
@@ -215,7 +217,7 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
                     <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50'}>
                       <td className="py-3 px-4 text-sm font-bold text-gray-700">{res.mod.code}</td>
                       <td className="py-3 px-4 text-sm font-semibold text-gray-900">{res.mod.name}</td>
-                      <td className="py-3 px-4 text-sm font-bold text-gray-700">{marksEarned} <span className="text-gray-400 text-xs">/ {marksTotal}</span></td>
+                      <td className="py-3 px-4 text-sm font-bold text-gray-700">{Math.round(percent)}</td>
                       <td className="py-3 px-4">
                         <span className={`inline-flex items-center justify-center px-2.5 py-1 rounded-md text-xs font-bold border ${badgeColor}`}>
                           {gradeLetter}
@@ -237,7 +239,7 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
           </div>
 
           {/* Performance Summary */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+          <div className="grid grid-cols-2 gap-6 mb-8">
             <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 flex items-center justify-between shadow-sm">
               <div>
                 <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Total Courses</p>
@@ -271,8 +273,8 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
           </div>
 
           {/* Verification */}
-          <div className="flex flex-col sm:flex-row justify-between items-center sm:items-end mb-8 sm:mb-16 pt-6 gap-6 sm:gap-0">
-            <div className="text-center sm:text-left">
+          <div className="flex flex-row justify-between items-end mb-16 pt-6 gap-0">
+            <div className="text-left">
               <p className="text-xs font-bold text-gray-500 uppercase mb-1">Verification Code</p>
               <p className="text-lg font-mono font-bold text-gray-800 tracking-wider">JRV-{Math.floor(Math.random() * 90000) + 10000}</p>
             </div>
@@ -295,8 +297,8 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
 
           {/* Footer */}
           <div className="mt-auto pt-8 pb-4 w-full">
-            <div className="border-t border-gray-200 pt-6 flex flex-col sm:flex-row justify-between items-center text-xs text-gray-500 font-medium space-y-4 sm:space-y-0">
-              <div className="space-y-1 text-center sm:text-left">
+            <div className="border-t border-gray-200 pt-6 flex flex-row justify-between items-center text-xs text-gray-500 font-medium space-y-0">
+              <div className="space-y-1 text-left">
                 <p className="font-bold text-gray-700">Jirvinho software world</p>
                 <p>jirvinhosoftwareworld@gmail.com</p>
               </div>
@@ -304,7 +306,7 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
                 <p>Tel: 0700400063 / 0760289823</p>
                 <p>www.jirvinhosoftwareworld.com</p>
               </div>
-              <div className="space-y-1 text-center sm:text-right">
+              <div className="space-y-1 text-right">
                 <p>&copy; {new Date().getFullYear()} All rights reserved.</p>
                 <p>Ref: JSW-RSLIP-{new Date().getFullYear()}</p>
               </div>

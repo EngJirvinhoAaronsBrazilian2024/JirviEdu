@@ -236,8 +236,9 @@ export default function StudentResults({ student }: { student: Student | null })
                       </td>
                       <td className="px-6 py-5 whitespace-nowrap">
                         <div className="flex items-baseline">
-                          <span className="text-xl font-bold text-[var(--text-main)] print:text-black">{item.sub.grade}</span>
-                          <span className="text-sm text-muted print:text-black ml-1.5 font-bold">/ {item.asn.marks}</span>
+                          <span className="text-xl font-bold text-[var(--text-main)] print:text-black">
+                            {Math.round((Number(item.sub.grade) / Number(item.asn.marks)) * 100) || 0}%
+                          </span>
                         </div>
                       </td>
                       <td className="px-6 py-5">
@@ -286,8 +287,9 @@ export default function StudentResults({ student }: { student: Student | null })
                     </div>
                     <div className="flex flex-col items-end whitespace-nowrap ml-4">
                       <div className="flex items-baseline">
-                        <span className="text-xl font-bold text-[var(--text-main)]">{item.sub.grade}</span>
-                        <span className="text-xs text-muted font-bold ml-1">/ {item.asn.marks}</span>
+                        <span className="text-xl font-bold text-[var(--text-main)]">
+                          {Math.round((Number(item.sub.grade) / Number(item.asn.marks)) * 100) || 0}%
+                        </span>
                       </div>
                     </div>
                   </div>
