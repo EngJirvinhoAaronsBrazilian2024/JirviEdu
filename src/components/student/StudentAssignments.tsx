@@ -158,6 +158,7 @@ export default function StudentAssignments({ studentId }: { studentId: string })
   const [submitMenuOpen, setSubmitMenuOpen] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<{file: File, moduleId: string, assignmentId: string} | null>(null);
   const [previewFileUrl, setPreviewFileUrl] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     if (!studentId) return;
@@ -367,9 +368,25 @@ export default function StudentAssignments({ studentId }: { studentId: string })
         </div>
       </div>
 
+      <div className="mb-4">
+        <input 
+          type="text" 
+          placeholder="Search assignments by title or module..." 
+          value={searchQuery} 
+          onChange={e => setSearchQuery(e.target.value)}
+          className="w-full md:w-1/3 rounded-xl border border-[var(--border-strong)] px-4 py-2.5 placeholder:text-muted focus:border-green-500 focus:outline-none focus:ring-4 focus:ring-green-500/10 text-[var(--text-main)] bg-[var(--bg-app)] transition-all shadow-sm"
+        />
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         <AnimatePresence mode="popLayout">
-          {assignments.map((item, idx) => {
+          {assignments
+            .filter(item => 
+              item.asn.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              item.mod.code?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              item.mod.name?.toLowerCase().includes(searchQuery.toLowerCase())
+            )
+            .map((item, idx) => {
             const isWriting = activeSheet === item.asn.id;
             const isSubmitted = !!item.sub;
             

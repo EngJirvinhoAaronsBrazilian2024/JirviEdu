@@ -11,6 +11,7 @@ import { Student, Module } from '../types';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, startOfWeek, endOfWeek, isSameMonth, isSameDay, addDays, isToday } from 'date-fns';
 import { ResponsiveContainer, PieChart as RePieChart, Pie, Cell, Tooltip, LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
 import ThemeToggle from './ThemeToggle';
+import NotificationBell from './NotificationBell';
 import { motion, AnimatePresence } from 'motion/react';
 
 import StudentModules from './student/StudentModules';
@@ -201,10 +202,7 @@ export default function StudentPortal({ setRole }: { setRole: (role: string | nu
             <div className="flex items-center gap-3 sm:gap-5">
               <ThemeToggle />
               
-              <button className="p-2.5 rounded-full bg-[var(--bg-app)] border border-[var(--border-subtle)] text-muted hover:text-[var(--text-main)] hover:border-[var(--border-strong)] transition-all shadow-sm relative">
-                <Bell className="w-5 h-5" />
-                <span className="absolute top-0 right-0 block h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-[var(--bg-card)] translate-x-1/4 -translate-y-1/4"></span>
-              </button>
+              {student?.id && <NotificationBell userId={student.id} />}
 
               <div className="h-8 w-px bg-[var(--border-subtle)] hidden sm:block"></div>
 

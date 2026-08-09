@@ -41,6 +41,17 @@ export default function AdminMaterials() {
 
       const newMat = { title, fileUrl, createdAt: Date.now() };
       await setDoc(doc(db, `modules/${selectedModule}/learningMaterials`, id), newMat);
+
+      // Notify all students
+      const notifId = Date.now().toString() + Math.random().toString(36).substr(2, 5);
+      await setDoc(doc(db, 'notifications', notifId), {
+        userId: 'all',
+        title: 'New Material Uploaded',
+        message: `A new learning material "${title}" has been added for module ${modules.find(m => m.id === selectedModule)?.code}.`,
+        read: false,
+        createdAt: Date.now()
+      });
+
       setMaterials(prev => [...prev, { id, ...newMat }]);
       setTitle(''); setFile(null);
       setIsAdding(false);

@@ -1,17 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { hash, compare } from 'bcrypt-ts';
 import { db } from '../lib/db';
 import { collection, getDocs, doc, setDoc, deleteDoc, query, onSnapshot } from '../lib/db';
 import { 
   LayoutDashboard, Users, BookOpen, Video, FileText, 
-  Settings, LogOut, Menu, X, Calendar, FileDown, Plus, Activity, Search
+  Settings, LogOut, Menu, X, Calendar, FileDown, Plus, Activity, Search, Upload
 } from 'lucide-react';
 import clsx from 'clsx';
 import { handleFirestoreError, OperationType } from '../lib/error-handler';
 import { Student, Module } from '../types';
+import StudentPerformance from './admin/StudentPerformance';
 import { isStrongPassword } from '../lib/security';
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip } from 'recharts';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, PieChart, Pie, Cell, Legend } from 'recharts';
 import ThemeToggle from './ThemeToggle';
 import { motion, AnimatePresence } from 'motion/react';
 import { GraduationCap } from 'lucide-react';
@@ -20,6 +21,7 @@ import AdminModules from './admin/AdminModules';
 import AdminLectures from './admin/AdminLectures';
 import AdminAssignments from './admin/AdminAssignments';
 import AdminMaterials from './admin/AdminMaterials';
+import NotificationBell from './NotificationBell';
 import AdminActivityLogs from './admin/AdminActivityLogs';
 import Timetable from './Timetable';
 
@@ -181,6 +183,7 @@ export default function AdminPortal({ setRole }: { setRole: (role: string | null
 
             <div className="flex items-center gap-3 sm:gap-5">
               <ThemeToggle />
+              <NotificationBell userId="admin" />
             </div>
           </div>
         </header>
@@ -220,7 +223,10 @@ function AdminDashboard() {
     lectures: 0,
   });
   const [recentSubmissions, setRecentSubmissions] = useState<any[]>([]);
+  const [allSubmissions, setAllSubmissions] = useState<any[]>([]);
   const [studentsMap, setStudentsMap] = useState<Record<string, string>>({});
+  const [gradeData, setGradeData] = useState<{name: string, average: number}[]>([]);
+  const [submissionData, setSubmissionData] = useState<{name: string, count: number}[]>([]);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -229,6 +235,9 @@ function AdminDashboard() {
       let assignmentsCount = 0;
       let lecturesCount = 0;
       const allSubs: any[] = [];
+      const modGrades: Record<string, {total: number, count: number}> = {};
+      let onTimeCount = 0;
+      let lateCount = 0;
 
       try {
         const studentsSnap = await getDocs(collection(db, 'students'));
@@ -248,6 +257,7 @@ function AdminDashboard() {
         
         for (const modDoc of modulesSnap.docs) {
           const modData = modDoc.data() as any;
+          modGrades[modData.code] = { total: 0, count: 0 };
           
           try {
             const [assignmentsSnap, lecturesSnap] = await Promise.all([
@@ -262,12 +272,38 @@ function AdminDashboard() {
               const aData = aDoc.data() as any;
               try {
                 const subsSnap = await getDocs(collection(db, `modules/${modDoc.id}/assignments/${aDoc.id}/submissions`));
-                const mappedSubs = subsSnap.docs.map(subDoc => ({
-                  id: subDoc.id,
-                  assignmentTitle: aData.title,
-                  moduleCode: modData.code,
-                  ...subDoc.data()
-                }));
+                const mappedSubs = subsSnap.docs.map(subDoc => {
+                  const subData = subDoc.data() as any;
+                  
+                  // Grade calc
+                  if (subData.grade !== undefined && aData.marks) {
+                     const pct = (Number(subData.grade) / Number(aData.marks)) * 100;
+                     if (!isNaN(pct)) {
+                        modGrades[modData.code].total += pct;
+                        modGrades[modData.code].count += 1;
+                     }
+                  }
+
+                  // Late calc (simplified: check if submittedAt > aData.dueDate, assuming dueDate is timestamp)
+                  if (aData.dueDate) {
+                     const dueTime = new Date(aData.dueDate).getTime();
+                     if (subData.submittedAt > dueTime) {
+                        lateCount++;
+                     } else {
+                        onTimeCount++;
+                     }
+                  } else {
+                     onTimeCount++; // if no due date, it's on time
+                  }
+
+                  return {
+                    id: subDoc.id,
+                    assignmentTitle: aData.title,
+                    moduleCode: modData.code,
+                    totalMarks: aData.marks,
+                    ...subData
+                  };
+                });
                 allSubs.push(...mappedSubs);
               } catch (subErr) {
                 console.error("Failed fetching submissions for assignment", aDoc.id, subErr);
@@ -283,7 +319,19 @@ function AdminDashboard() {
 
       try {
         allSubs.sort((a,b) => (b.submittedAt || 0) - (a.submittedAt || 0));
+        setAllSubmissions(allSubs);
         setRecentSubmissions(allSubs.slice(0, 10)); // Top 10 most recent
+
+        const gd = Object.keys(modGrades).map(code => ({
+           name: code,
+           average: modGrades[code].count > 0 ? Math.round(modGrades[code].total / modGrades[code].count) : 0
+        })).filter(g => g.average > 0); // Only show modules with grades
+        setGradeData(gd);
+
+        setSubmissionData([
+           { name: 'On Time', count: onTimeCount },
+           { name: 'Late', count: lateCount }
+        ]);
 
         setStats({
           students: stCount,
@@ -307,6 +355,77 @@ function AdminDashboard() {
     });
   }, []);
 
+  const importCSVRef = useRef<HTMLInputElement>(null);
+
+  const handleImportCSV = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (evt) => {
+      const text = evt.target?.result as string;
+      const lines = text.split('\n').filter(line => line.trim() !== '');
+      if (lines.length <= 1) return; // Skip header
+
+      const students = lines.slice(1).map(line => {
+        const [regNumber, fullName, email, course] = line.split(',').map(s => s.trim().replace(/^"|"$/g, ''));
+        return {
+          id: Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
+          regNumber,
+          fullName,
+          email,
+          course,
+          status: 'active',
+          createdAt: Date.now()
+        };
+      });
+
+      let added = 0;
+      for (const student of students) {
+        if (!student.regNumber || !student.fullName) continue;
+        try {
+          await setDoc(doc(db, 'students', student.id), student);
+          added++;
+        } catch (err) {
+          console.error("Failed to add student from CSV", err);
+        }
+      }
+      alert(`Imported ${added} students successfully!`);
+      if (importCSVRef.current) importCSVRef.current.value = '';
+    };
+    reader.readAsText(file);
+  };
+
+  const exportGradesCSV = () => {
+    const csvRows = [
+      ['Student Name', 'Module Code', 'Assignment', 'Grade', 'Total Marks', 'Submitted At']
+    ];
+    
+    allSubmissions.forEach(sub => {
+      const stName = studentsMap[sub.studentId] || studentsMap[sub.id] || sub.studentId || sub.id || 'Unknown';
+      const grade = sub.grade !== undefined ? sub.grade : 'N/A';
+      const date = sub.submittedAt ? new Date(sub.submittedAt).toISOString() : 'N/A';
+      csvRows.push([
+        `"${stName}"`,
+        `"${sub.moduleCode || ''}"`,
+        `"${(sub.assignmentTitle || '').replace(/"/g, '""')}"`,
+        `"${grade}"`,
+        `"${sub.totalMarks || ''}"`,
+        `"${date}"`
+      ]);
+    });
+    
+    const csvContent = csvRows.map(e => e.join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `student_grades_export_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const attendanceData = [
     { name: 'Mon', attendance: 95 },
     { name: 'Tue', attendance: 88 },
@@ -315,11 +434,115 @@ function AdminDashboard() {
     { name: 'Fri', attendance: 90 },
   ];
 
+  const [announcementTitle, setAnnouncementTitle] = useState('');
+  const [announcementMessage, setAnnouncementMessage] = useState('');
+
+  const [isBroadcasting, setIsBroadcasting] = useState(false);
+
+  const handleBroadcast = async () => {
+    if (!announcementTitle || !announcementMessage) return;
+    setIsBroadcasting(true);
+    try {
+      let finalMessage = announcementMessage;
+      // Auto-summarize if it's long (>100 chars)
+      if (announcementMessage.length > 100) {
+        try {
+          const res = await fetch('/api/summarize', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: announcementMessage })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.summary) {
+              finalMessage = data.summary;
+            }
+          }
+        } catch (summaryErr) {
+          console.error("Summary error", summaryErr);
+        }
+      }
+
+      const notifId = Date.now().toString() + Math.random().toString(36).substr(2, 5);
+      await setDoc(doc(db, 'notifications', notifId), {
+        userId: 'all',
+        title: announcementTitle,
+        message: finalMessage,
+        read: false,
+        createdAt: Date.now()
+      });
+      setAnnouncementTitle('');
+      setAnnouncementMessage('');
+      alert('Announcement sent successfully!');
+    } catch (e) {
+      console.error(e);
+      alert('Failed to send announcement');
+    } finally {
+      setIsBroadcasting(false);
+    }
+  };
+
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-[var(--text-main)]">System Overview</h1>
-        <p className="mt-2 text-muted font-medium">Manage your educational institution effectively.</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-[var(--text-main)]">System Overview</h1>
+          <p className="mt-2 text-muted font-medium">Manage your educational institution effectively.</p>
+        </div>
+        <div className="flex gap-2">
+          <input 
+            type="file" 
+            accept=".csv" 
+            ref={importCSVRef}
+            onChange={handleImportCSV}
+            className="hidden"
+          />
+          <button 
+            onClick={() => importCSVRef.current?.click()}
+            className="flex items-center px-4 py-2 border border-[var(--border-strong)] rounded-xl shadow-sm text-sm font-bold text-[var(--text-main)] bg-[var(--bg-card)] hover:bg-[var(--bg-hover)] transition-colors"
+          >
+            <Upload className="w-4 h-4 mr-2" />
+            Import Students
+          </button>
+          <button 
+            onClick={exportGradesCSV}
+            className="flex items-center px-4 py-2 border border-[var(--border-strong)] rounded-xl shadow-sm text-sm font-bold text-[var(--text-main)] bg-[var(--bg-card)] hover:bg-[var(--bg-hover)] transition-colors"
+          >
+            <FileDown className="w-4 h-4 mr-2" />
+            Export All Grades
+          </button>
+        </div>
+      </div>
+      
+      {/* Quick Announcement */}
+      <div className="premium-card p-6 md:p-8">
+        <h2 className="text-xl font-bold text-[var(--text-main)] mb-6 flex items-center">
+          <Activity className="w-5 h-5 text-indigo-500 mr-3" />
+          Broadcast Announcement
+        </h2>
+        <div className="flex flex-col sm:flex-row gap-4">
+          <input 
+            type="text" 
+            placeholder="Announcement Title..." 
+            value={announcementTitle}
+            onChange={(e) => setAnnouncementTitle(e.target.value)}
+            className="flex-1 rounded-xl border border-[var(--border-strong)] px-4 py-2 bg-[var(--bg-app)] text-[var(--text-main)] focus:ring-2 focus:ring-indigo-500 outline-none text-sm"
+          />
+          <input 
+            type="text" 
+            placeholder="Message..." 
+            value={announcementMessage}
+            onChange={(e) => setAnnouncementMessage(e.target.value)}
+            className="flex-[2] rounded-xl border border-[var(--border-strong)] px-4 py-2 bg-[var(--bg-app)] text-[var(--text-main)] focus:ring-2 focus:ring-indigo-500 outline-none text-sm"
+          />
+          <button 
+            onClick={handleBroadcast}
+            disabled={!announcementTitle || !announcementMessage || isBroadcasting}
+            className="px-6 py-2 bg-indigo-600 text-white rounded-xl shadow-sm hover:bg-indigo-700 disabled:opacity-50 text-sm font-bold transition-colors"
+          >
+            {isBroadcasting ? 'Sending...' : 'Send'}
+          </button>
+        </div>
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -403,6 +626,60 @@ function AdminDashboard() {
         </div>
       </div>
 
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="premium-card p-6 md:p-8 flex flex-col">
+          <h2 className="text-xl font-bold text-[var(--text-main)] mb-6 flex items-center">
+            Average Grade by Module
+          </h2>
+          <div className="flex-1 w-full min-h-[300px] mt-2">
+            <ResponsiveContainer width="100%" height="100%">
+               <BarChart data={gradeData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="4 4" stroke="var(--border-subtle)" vertical={false} />
+                <XAxis dataKey="name" stroke="var(--text-muted)" fontSize={12} fontWeight={600} tickLine={false} axisLine={false} dy={10} />
+                <YAxis stroke="var(--text-muted)" fontSize={12} fontWeight={600} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}%`} dx={-10} domain={[0, 100]} />
+                <RechartsTooltip 
+                  cursor={{ fill: 'var(--border-subtle)' }}
+                  contentStyle={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-subtle)', borderRadius: '0.75rem', color: 'var(--text-main)', boxShadow: 'var(--shadow-md)' }}
+                  itemStyle={{ color: 'var(--text-main)', fontWeight: 'bold' }}
+                  formatter={(value: number) => [`${value}%`, 'Avg Grade']}
+                />
+                <Bar dataKey="average" fill="#8b5cf6" radius={[6, 6, 0, 0]} maxBarSize={40} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className="premium-card p-6 md:p-8 flex flex-col">
+          <h2 className="text-xl font-bold text-[var(--text-main)] mb-6 flex items-center">
+            Assignment Submission Rates
+          </h2>
+          <div className="flex-1 w-full min-h-[300px] mt-2">
+             <ResponsiveContainer width="100%" height="100%">
+               <PieChart>
+                 <Pie
+                   data={submissionData}
+                   cx="50%"
+                   cy="50%"
+                   innerRadius={60}
+                   outerRadius={100}
+                   paddingAngle={5}
+                   dataKey="count"
+                 >
+                   {submissionData.map((entry, index) => (
+                     <Cell key={`cell-${index}`} fill={index === 0 ? '#10b981' : '#ef4444'} />
+                   ))}
+                 </Pie>
+                 <RechartsTooltip 
+                   contentStyle={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-subtle)', borderRadius: '0.75rem', color: 'var(--text-main)', boxShadow: 'var(--shadow-md)' }}
+                   itemStyle={{ color: 'var(--text-main)', fontWeight: 'bold' }}
+                 />
+                 <Legend verticalAlign="bottom" height={36} wrapperStyle={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-main)' }} />
+               </PieChart>
+             </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
       {/* Submissions Section */}
       <div className="premium-card p-6 md:p-8 overflow-hidden">
         <div className="flex items-center justify-between mb-8">
@@ -480,6 +757,7 @@ function StudentManagement() {
   const [newPassword, setNewPassword] = useState('');
   const [creating, setCreating] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [viewingPerformance, setViewingPerformance] = useState<Student | null>(null);
 
   useEffect(() => {
     const q = query(collection(db, 'students'));
@@ -568,6 +846,12 @@ function StudentManagement() {
 
   return (
     <div className="space-y-6 relative">
+      {viewingPerformance && (
+        <StudentPerformance 
+          student={viewingPerformance} 
+          onClose={() => setViewingPerformance(null)} 
+        />
+      )}
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <motion.div 
@@ -686,6 +970,7 @@ function StudentManagement() {
                   </span>
                 </td>
                 <td className="px-6 py-5 whitespace-nowrap text-right text-sm font-medium space-x-3">
+                  <button onClick={() => setViewingPerformance(student)} className="text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 font-semibold px-3 py-1.5 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors">Performance</button>
                   <button onClick={() => openEditModal(student)} className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-semibold px-3 py-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors">Edit</button>
                   <button onClick={async () => {
                     if (confirm('Delete this student permanently?')) {

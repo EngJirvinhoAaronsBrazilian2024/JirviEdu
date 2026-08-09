@@ -6,6 +6,7 @@ import { Module, Student } from '../../types';
 import { motion, AnimatePresence } from 'motion/react';
 import clsx from 'clsx';
 import StudentResultSlip from './StudentResultSlip';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 export default function StudentResults({ student }: { student: Student | null }) {
   const [results, setResults] = useState<{mod: Module, asn: any, sub: any}[]>([]);
@@ -165,35 +166,64 @@ export default function StudentResults({ student }: { student: Student | null })
         </div>
       </div>
 
-      <div className="print:hidden grid grid-cols-1 md:grid-cols-2 gap-6">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="premium-card p-6 rounded-2xl flex flex-col justify-between h-36 relative overflow-hidden border-2 border-amber-500/20 bg-amber-50/30 dark:bg-amber-500/5 shadow-sm"
-        >
-          <div className="flex items-center justify-between z-10">
-            <div className="w-12 h-12 bg-amber-100 dark:bg-amber-500/20 rounded-xl shadow-sm border border-amber-200 dark:border-amber-500/30 flex items-center justify-center">
-              <Award className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+      <div className="print:hidden premium-card p-6 rounded-2xl shadow-sm mb-6">
+        <h3 className="text-lg font-bold text-[var(--text-main)] mb-6 flex items-center">
+          <Award className="w-5 h-5 mr-2 text-blue-500" />
+          Performance History
+        </h3>
+        <div className="h-72 w-full">
+          {results.length > 0 ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={[...results].reverse().map(r => ({
+                  name: r.asn.title,
+                  module: r.mod.code,
+                  percentage: Math.round((Number(r.sub.grade) / Number(r.asn.marks)) * 100) || 0
+                }))}
+                margin={{ top: 10, right: 10, left: -20, bottom: 20 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-subtle)" />
+                <XAxis 
+                  dataKey="name" 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{ fill: 'var(--text-muted)', fontSize: 12 }}
+                  dy={10}
+                />
+                <YAxis 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{ fill: 'var(--text-muted)', fontSize: 12 }}
+                  domain={[0, 100]}
+                />
+                <Tooltip 
+                  cursor={{ fill: 'var(--bg-hover)' }}
+                  contentStyle={{ 
+                    borderRadius: '0.75rem', 
+                    border: '1px solid var(--border-subtle)',
+                    backgroundColor: 'var(--bg-card)',
+                    color: 'var(--text-main)',
+                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                  }}
+                  formatter={(value: number) => [`${value}%`, 'Score']}
+                  labelStyle={{ color: 'var(--text-muted)', marginBottom: '0.25rem' }}
+                />
+                <Bar 
+                  dataKey="percentage" 
+                  fill="#3b82f6" 
+                  radius={[4, 4, 0, 0]}
+                  barSize={40}
+                  animationDuration={1500}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="w-full h-full flex flex-col items-center justify-center text-[var(--text-muted)]">
+              <FileText className="w-10 h-10 mb-2 opacity-50" />
+              <p>No graded assignments to visualize.</p>
             </div>
-            <span className="text-4xl font-bold text-[var(--text-main)] tracking-tight">{overallPercentage}%</span>
-          </div>
-          <p className="text-sm font-bold text-muted uppercase tracking-wider z-10">Overall Grade Average</p>
-        </motion.div>
-
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="premium-card p-6 rounded-2xl flex flex-col justify-between h-36 relative overflow-hidden border-2 border-emerald-500/20 bg-emerald-50/30 dark:bg-emerald-500/5 shadow-sm"
-        >
-          <div className="flex items-center justify-between z-10">
-            <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-500/20 rounded-xl shadow-sm border border-emerald-200 dark:border-emerald-500/30 flex items-center justify-center">
-              <CheckCircle className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
-            </div>
-            <span className="text-4xl font-bold text-[var(--text-main)] tracking-tight">{results.length}</span>
-          </div>
-          <p className="text-sm font-bold text-muted uppercase tracking-wider z-10">Graded Assignments</p>
-        </motion.div>
+          )}
+        </div>
       </div>
 
       <div className="premium-card rounded-2xl overflow-hidden shadow-sm">

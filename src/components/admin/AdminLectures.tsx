@@ -64,6 +64,17 @@ export default function AdminLectures() {
     const id = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
     const newLec = { title, meetLink, date, time, createdAt: Date.now() };
     await setDoc(doc(db, `modules/${selectedModule}/lectures`, id), newLec);
+
+    // Notify all students
+    const notifId = Date.now().toString() + Math.random().toString(36).substr(2, 5);
+    await setDoc(doc(db, 'notifications', notifId), {
+      userId: 'all',
+      title: 'New Lecture Scheduled',
+      message: `A new lecture "${title}" has been scheduled for module ${modules.find(m => m.id === selectedModule)?.code} on ${date} at ${time}.`,
+      read: false,
+      createdAt: Date.now()
+    });
+
     setLectures(prev => [...prev, { id, ...newLec }]);
     setTitle(''); setMeetLink(''); setDate(''); setTime('');
     setIsAdding(false);

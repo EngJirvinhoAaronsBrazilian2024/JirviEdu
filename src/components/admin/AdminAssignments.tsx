@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db, collection, query, onSnapshot, doc, setDoc, deleteDoc, updateDoc, getDocs, storage, ref, uploadBytes, getDownloadURL } from '../../lib/db';
-import { Plus, Trash2, FileText, Loader2, Users, CheckCircle, ChevronLeft, X, BookOpen, Calendar, Clock, Upload, ArrowRight, Save } from 'lucide-react';
+import { Plus, Trash2, FileText, Loader2, Users, CheckCircle, ChevronLeft, X, BookOpen, Calendar, Clock, Upload, ArrowRight, Save, Sparkles } from 'lucide-react';
 import { Module } from '../../types';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -8,6 +8,7 @@ export default function AdminAssignments() {
   const [modules, setModules] = useState<Module[]>([]);
   const [selectedModule, setSelectedModule] = useState('');
   const [assignments, setAssignments] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedAssignment, setSelectedAssignment] = useState<any | null>(null);
 
   const [title, setTitle] = useState('');
@@ -54,6 +55,16 @@ export default function AdminAssignments() {
       };
       await setDoc(doc(db, `modules/${selectedModule}/assignments`, id), newAssignment);
       
+      // Notify all students
+      const notifId = Date.now().toString() + Math.random().toString(36).substr(2, 5);
+      await setDoc(doc(db, 'notifications', notifId), {
+        userId: 'all',
+        title: 'New Assignment Posted',
+        message: `A new assignment "${title}" has been posted for module ${modules.find(m => m.id === selectedModule)?.code}.`,
+        read: false,
+        createdAt: Date.now()
+      });
+
       setAssignments(prev => [...prev, { id, ...newAssignment }]);
 
       setTitle(''); setDesc(''); setStartTime(''); setDeadline(''); setMarks(''); setFile(null);
@@ -203,6 +214,16 @@ export default function AdminAssignments() {
               )}
             </AnimatePresence>
 
+            <div className="mb-4">
+              <input 
+                type="text" 
+                placeholder="Search assignments by title..." 
+                value={searchQuery} 
+                onChange={e => setSearchQuery(e.target.value)}
+                className="w-full md:w-1/3 rounded-xl border border-[var(--border-strong)] px-4 py-2.5 placeholder:text-muted focus:border-green-500 focus:outline-none focus:ring-4 focus:ring-green-500/10 text-[var(--text-main)] bg-[var(--bg-app)] transition-all shadow-sm"
+              />
+            </div>
+
             <div className="premium-card overflow-hidden">
               {assignments.length === 0 ? (
                 <div className="py-16 text-center flex flex-col items-center">
@@ -224,7 +245,9 @@ export default function AdminAssignments() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[var(--border-subtle)] bg-[var(--bg-card)]">
-                      {assignments.map(ast => {
+                      {assignments
+                        .filter(ast => ast.title?.toLowerCase().includes(searchQuery.toLowerCase()))
+                        .map(ast => {
                         const isJson = typeof ast.description === 'string' && ast.description.startsWith('{');
                         const data = isJson ? JSON.parse(ast.description) : { text: ast.description, start: ast.createdAt || Date.now() };
                         return (
@@ -334,10 +357,38 @@ function AssignmentSubmissions({ moduleId, assignment, onBack }: { moduleId: str
     return () => { unsubS(); unsub(); };
   }, [moduleId, assignment.id]);
 
+  const [isGeneratingFeedback, setIsGeneratingFeedback] = useState<string | null>(null);
+
   const startGrading = (sub: any) => {
     setGradingId(sub.id);
     setGradeInput(sub.grade?.toString() || '');
     setFeedbackInput(sub.feedback || '');
+  };
+
+  const generateFeedback = async (sub: any) => {
+    setIsGeneratingFeedback(sub.id);
+    try {
+      const studentSubmission = sub.type === 'text' ? sub.content : 'Document submission (URL: ' + sub.fileUrl + ')';
+      const res = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          assignmentTitle: assignment.title,
+          studentSubmission
+        })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.feedback) {
+          setFeedbackInput(data.feedback);
+        }
+      }
+    } catch (err) {
+      console.error("Feedback error", err);
+      alert("Failed to generate AI feedback.");
+    } finally {
+      setIsGeneratingFeedback(null);
+    }
   };
 
   const saveGrade = async (studentId: string) => {
@@ -346,6 +397,17 @@ function AssignmentSubmissions({ moduleId, assignment, onBack }: { moduleId: str
         grade: Number(gradeInput) || 0,
         feedback: feedbackInput
       });
+
+      // Notify the specific student
+      const notifId = Date.now().toString() + Math.random().toString(36).substr(2, 5);
+      await setDoc(doc(db, 'notifications', notifId), {
+        userId: studentId,
+        title: 'Assignment Graded',
+        message: `Your submission for "${assignment.title}" has been graded: ${gradeInput}/${assignment.marks}.`,
+        read: false,
+        createdAt: Date.now()
+      });
+
       setGradingId(null);
     } catch (e: any) {
       alert("Failed to update grade.");
@@ -435,13 +497,23 @@ function AssignmentSubmissions({ moduleId, assignment, onBack }: { moduleId: str
                           />
                           <span className="text-sm font-bold text-muted">/ {assignment.marks}</span>
                         </div>
-                        <textarea 
-                          className="w-full px-3 py-2 border border-[var(--border-strong)] bg-[var(--bg-card)] rounded-lg text-sm text-[var(--text-main)] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none" 
-                          placeholder="Add feedback for the student..."
-                          value={feedbackInput}
-                          onChange={e => setFeedbackInput(e.target.value)}
-                          rows={2}
-                        />
+                        <div className="relative">
+                          <textarea 
+                            className="w-full px-3 py-2 border border-[var(--border-strong)] bg-[var(--bg-card)] rounded-lg text-sm text-[var(--text-main)] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none" 
+                            placeholder="Add feedback for the student..."
+                            value={feedbackInput}
+                            onChange={e => setFeedbackInput(e.target.value)}
+                            rows={3}
+                          />
+                          <button
+                            onClick={() => generateFeedback(sub)}
+                            disabled={isGeneratingFeedback === sub.id}
+                            title="Generate AI Feedback"
+                            className="absolute bottom-2 right-2 p-1.5 bg-indigo-100 text-indigo-600 hover:bg-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-800/50 rounded-md transition-colors disabled:opacity-50"
+                          >
+                            <Sparkles className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
                     ) : (
                       sub.grade !== undefined ? (

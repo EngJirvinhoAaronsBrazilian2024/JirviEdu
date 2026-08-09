@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../lib/db';
 import { collection, query, getDocs, doc, getDoc, mutationEmitter } from '../../lib/db';
-import { FileDown, BookOpen, Download, FolderArchive } from 'lucide-react';
+import { FileDown, BookOpen, Download, FolderArchive, X, Eye } from 'lucide-react';
 import { Module } from '../../types';
 import { logActivity } from '../../lib/activity-logger';
 import { motion, AnimatePresence } from 'motion/react';
@@ -12,6 +12,7 @@ export default function StudentMaterials({ studentId }: { studentId: string }) {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedModuleFilter, setSelectedModuleFilter] = useState<string>('all');
+  const [viewingFileUrl, setViewingFileUrl] = useState<{name: string, url: string} | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -179,7 +180,16 @@ export default function StudentMaterials({ studentId }: { studentId: string }) {
                     <td className="px-6 py-5 whitespace-nowrap text-sm text-muted font-medium hidden md:table-cell">
                       {item.mat.createdAt ? new Date(item.mat.createdAt).toLocaleDateString([], { year: 'numeric', month: 'short', day: 'numeric' }) : 'N/A'}
                     </td>
-                    <td className="px-6 py-5 whitespace-nowrap text-right">
+                    <td className="px-6 py-5 whitespace-nowrap text-right space-x-2">
+                      <button
+                        onClick={() => {
+                          logActivity('Material Viewed', `Viewed ${item.mat.title} for ${item.mod.code}`, studentId, 'student');
+                          setViewingFileUrl({ name: item.mat.title, url: item.mat.fileUrl });
+                        }}
+                        className="inline-flex items-center px-4 py-2 border border-[var(--border-strong)] bg-[var(--bg-card)] text-[var(--text-main)] text-sm font-bold rounded-xl shadow-sm hover:bg-[var(--bg-app)] hover:border-purple-500/50 hover:text-purple-500 transition-all active:scale-95"
+                      >
+                        <Eye className="w-4 h-4 mr-2" /> View
+                      </button>
                       <a 
                         href={item.mat.fileUrl} 
                         target="_blank" 
@@ -221,6 +231,52 @@ export default function StudentMaterials({ studentId }: { studentId: string }) {
           </div>
         )}
       </div>
+      
+      <AnimatePresence>
+        {viewingFileUrl && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 z-50"
+            onClick={() => setViewingFileUrl(null)}
+          >
+            <motion.div 
+              initial={{ scale: 0.98, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.98, opacity: 0 }}
+              onClick={e => e.stopPropagation()}
+              className="bg-[var(--bg-card)] rounded-2xl shadow-2xl max-w-6xl w-full h-[90vh] flex flex-col border border-[var(--border-strong)] overflow-hidden"
+            >
+              <div className="p-4 border-b border-[var(--border-subtle)] flex justify-between items-center bg-[var(--bg-app)]">
+                <div className="flex items-center">
+                  <BookOpen className="w-5 h-5 mr-3 text-purple-500" />
+                  <div>
+                    <h3 className="font-bold text-[var(--text-main)]">Document Viewer</h3>
+                    <p className="text-xs text-muted font-medium">{viewingFileUrl.name}</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <a href={viewingFileUrl.url} target="_blank" rel="noreferrer" className="text-sm px-4 py-2 bg-purple-600 text-white font-bold hover:bg-purple-700 rounded-xl shadow-sm transition-colors flex items-center">
+                    <Download className="w-4 h-4 mr-2" />
+                    Download Original
+                  </a>
+                  <button onClick={() => setViewingFileUrl(null)} className="p-2 text-muted hover:text-[var(--text-main)] hover:bg-[var(--border-subtle)] rounded-xl transition-colors">
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+              </div>
+              <div className="flex-1 w-full bg-[#f8f9fa] dark:bg-neutral-900 flex items-center justify-center overflow-hidden">
+                <iframe 
+                  src={`https://docs.google.com/viewer?url=${encodeURIComponent(viewingFileUrl.url)}&embedded=true`} 
+                  className="w-full h-full border-0" 
+                  title="Document Preview" 
+                />
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
