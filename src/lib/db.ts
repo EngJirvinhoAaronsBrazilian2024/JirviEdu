@@ -1,7 +1,4 @@
-import { firestore } from './firebase';
-import { doc as fbDoc, setDoc as fbSetDoc, getDoc as fbGetDoc } from 'firebase/firestore';
-import { insforge } from './supabase'; // we'll rename insforge.ts to supabase.ts for standard naming
-// MOCK FIREBASE API over InsForge
+import { insforge } from "./supabase";
 export const db = {};
 export const storage = {};
 export function collection(dbInstance: any, path: string) {
@@ -84,23 +81,7 @@ export async function getDoc(docRef: any) {
 }
 export async function getDocs(queryRef: any) {
   const { table, conditions } = parsePath(queryRef.path);
-  if (table === 'activity_logs') {
-    let data = JSON.parse(localStorage.getItem('activity_logs') || '[]');
-    if (data.length === 0) {
-      data = [
-        { id: '1', action: 'System Init', details: 'Activity logging subsystem initialized.', userId: 'system', userType: 'system', createdAt: Date.now() - 3600000 },
-        { id: '2', action: 'Admin Action', details: 'System checks completed.', userId: 'admin', userType: 'admin', createdAt: Date.now() - 1800000 }
-      ];
-      localStorage.setItem('activity_logs', JSON.stringify(data));
-    }
-    return {
-      empty: data.length === 0,
-      docs: data.map((d: any) => ({
-        id: d.id,
-        data: () => d
-      }))
-    };
-  }
+  
   let q: any = insforge.database.from(table).select('*');
   for (const [k, v] of Object.entries(conditions)) {
     if (table === 'submissions' && k === 'module_id') continue;
@@ -118,15 +99,17 @@ export async function getDocs(queryRef: any) {
   }
   const { data, error } = await q;
   if (error) throw error;
+  const docs = data.map((d: any) => {
+    let resultData = snakeToCamel(d);
+    return {
+      id: d.id || d.student_id, // fallback for enrollments/submissions
+      data: () => resultData
+    };
+  });
   return {
-    empty: data.length === 0,
-    docs: data.map((d: any) => {
-      let resultData = snakeToCamel(d);
-      return {
-        id: d.id || d.student_id, // fallback for enrollments/submissions
-        data: () => resultData
-      };
-    })
+    empty: docs.length === 0,
+    docs,
+    forEach: (cb: any) => docs.forEach(cb)
   };
 }
 class LocalEmitter {
@@ -143,10 +126,11 @@ export const mutationEmitter = new LocalEmitter();
 export async function setDoc(docRef: any, data: any, options: { merge?: boolean } = {}) {
   const { table, docId, conditions } = parsePath(docRef.path);
   let d = { ...data };
-  if (table === 'students') {
+  if (table === 'students' || table === 'teachers') {
     if ('password' in d) {
       if (d.password) {
-        try { await fbSetDoc(fbDoc(firestore, 'student_passwords', docId), { passwordHash: d.password }); } catch (e) { console.warn('fb offline', e); }
+        const passTable = table === 'students' ? 'student_passwords' : 'teacher_passwords';
+        try { await insforge.database.from(passTable).upsert({ id: docId, password_hash: d.password }); } catch (e) { console.warn('password update failed', e); }
       }
       delete d.password;
     }
@@ -178,10 +162,11 @@ export async function setDoc(docRef: any, data: any, options: { merge?: boolean 
 export async function updateDoc(docRef: any, data: any) {
   const { table, docId, conditions } = parsePath(docRef.path);
   let d = { ...data };
-  if (table === 'students') {
+  if (table === 'students' || table === 'teachers') {
     if ('password' in d) {
       if (d.password) {
-        try { await fbSetDoc(fbDoc(firestore, 'student_passwords', docId), { passwordHash: d.password }); } catch (e) { console.warn('fb offline', e); }
+        const passTable = table === 'students' ? 'student_passwords' : 'teacher_passwords';
+        try { await insforge.database.from(passTable).upsert({ id: docId, password_hash: d.password }); } catch (e) { console.warn('password update failed', e); }
       }
       delete d.password;
     }
@@ -220,14 +205,7 @@ export async function addDoc(collectionRef: any, data: any) {
   const { table } = parsePath(collectionRef.path);
   const id = Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
   const payload = camelToSnake({ id, ...data });
-  if (table === 'activity_logs') {
-    const logs = JSON.parse(localStorage.getItem('activity_logs') || '[]');
-    logs.push(data); // store raw object in localstorage
-    data.id = id;
-    localStorage.setItem('activity_logs', JSON.stringify(logs));
-    mutationEmitter.emit();
-    return { id };
-  }
+  
   const { error } = await insforge.database.from(table).insert([payload]);
   if (error) throw error;
   mutationEmitter.emit();
@@ -278,15 +256,40 @@ export async function getDownloadURL(storageRef: any) {
   return data.publicUrl;
 }
 import { hash, compare } from 'bcrypt-ts';
+export async function authenticateTeacher(regNumber: string, passwordStr: string) {
+  try {
+    let q: any = insforge.database.from('teachers').select('*').eq('reg_number', regNumber);
+    const { data } = await q.single();
+    if (!data) return null;
+    let resultData = snakeToCamel(data);
+    
+    const { data: passData } = await insforge.database.from('teacher_passwords').select('*').eq('id', data.id).single();
+    if (!passData) return null;
+    const hashStr = passData.password_hash;
+    if (!hashStr) return null;
+    let isValid = false;
+    if (hashStr.startsWith('$2')) {
+      isValid = await compare(passwordStr, hashStr);
+    } else {
+      isValid = hashStr === passwordStr;
+    }
+    if (!isValid) return null;
+    return { id: data.id, data: () => resultData };
+  } catch (error) {
+    console.error("Teacher auth failed:", error);
+    return null;
+  }
+}
+
 export async function authenticateStudent(regNumber: string, passwordStr: string) {
   let q: any = insforge.database.from('students').select('*').eq('reg_number', regNumber);
   const { data } = await q.single();
   if (!data) return null;
   let resultData = snakeToCamel(data);
   try {
-    const snap = await fbGetDoc(fbDoc(firestore, 'student_passwords', data.id));
-    if (!snap.exists()) return null;
-    const hashStr = snap.data()?.passwordHash;
+    const { data: passData } = await insforge.database.from('student_passwords').select('*').eq('id', data.id).single();
+    if (!passData) return null;
+    const hashStr = passData.password_hash;
     if (!hashStr) return null;
     let isValid = false;
     if (hashStr.startsWith('$2')) {

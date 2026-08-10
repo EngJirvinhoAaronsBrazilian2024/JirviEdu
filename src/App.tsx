@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import Login from './components/Login';
 import AdminPortal from './components/AdminPortal';
 import StudentPortal from './components/StudentPortal';
+import TeacherPortal from './components/TeacherPortal';
 import InstallPrompt from './components/InstallPrompt';
 
 export default function App() {
@@ -53,8 +54,9 @@ export default function App() {
     <Router>
       <InstallPrompt />
       <Routes>
-        <Route path="/" element={role ? <Navigate to={role === 'admin' ? "/admin" : "/student"} /> : <Login setRole={setRole} />} />
+        <Route path="/" element={role ? <Navigate to={role === 'admin' ? "/admin" : role === 'teacher' ? "/teacher" : "/student"} /> : <Login setRole={setRole} />} />
         <Route path="/admin/*" element={role === 'admin' ? <AdminPortal setRole={setRole} /> : <Navigate to="/" />} />
+        <Route path="/teacher/*" element={role === 'teacher' ? <TeacherPortal setRole={setRole} /> : <Navigate to="/" />} />
         <Route path="/student/*" element={role === 'student' ? <StudentPortal setRole={setRole} /> : <Navigate to="/" />} />
       </Routes>
     </Router>

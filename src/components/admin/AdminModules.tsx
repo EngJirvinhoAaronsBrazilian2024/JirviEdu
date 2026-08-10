@@ -5,7 +5,7 @@ import { Plus, Trash2, BookOpen, LayoutGrid, Search } from 'lucide-react';
 import { Module } from '../../types';
 import { motion, AnimatePresence } from 'motion/react';
 
-export default function AdminModules() {
+export default function AdminModules({ assignedModules }: { assignedModules?: string[] }) {
   const [modules, setModules] = useState<Module[]>([]);
   const [name, setName] = useState('');
   const [code, setCode] = useState('');
@@ -38,10 +38,11 @@ export default function AdminModules() {
     }
   };
 
-  const filteredModules = modules.filter(m => 
-    m.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    m.code.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredModules = modules.filter(m => {
+    if (assignedModules && !assignedModules.includes(m.id)) return false;
+    return m.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+           m.code.toLowerCase().includes(searchTerm.toLowerCase());
+  });
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
@@ -61,13 +62,15 @@ export default function AdminModules() {
               className="pl-9 pr-4 py-2 border border-[var(--border-strong)] rounded-xl text-sm bg-[var(--bg-app)] text-[var(--text-main)] placeholder-muted focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none w-64 shadow-inner transition-all"
             />
           </div>
-          <button 
-            onClick={() => setIsAdding(!isAdding)} 
-            className="flex items-center px-4 py-2 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-all active:scale-95"
-          >
-            <Plus className="w-4 h-4 mr-2" /> 
-            {isAdding ? 'Cancel' : 'Add Module'}
-          </button>
+          {!assignedModules && (
+            <button 
+              onClick={() => setIsAdding(!isAdding)} 
+              className="flex items-center px-4 py-2 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-all active:scale-95"
+            >
+              <Plus className="w-4 h-4 mr-2" /> 
+              {isAdding ? 'Cancel' : 'Add Module'}
+            </button>
+          )}
         </div>
       </div>
 
@@ -126,7 +129,9 @@ export default function AdminModules() {
                   <th className="px-6 py-4 text-left text-xs font-bold text-muted uppercase tracking-wider">Module Code</th>
                   <th className="px-6 py-4 text-left text-xs font-bold text-muted uppercase tracking-wider">Name</th>
                   <th className="px-6 py-4 text-left text-xs font-bold text-muted uppercase tracking-wider hidden md:table-cell">Description</th>
-                  <th className="px-6 py-4 text-right text-xs font-bold text-muted uppercase tracking-wider">Actions</th>
+                  {!assignedModules && (
+                    <th className="px-6 py-4 text-right text-xs font-bold text-muted uppercase tracking-wider">Actions</th>
+                  )}
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--border-subtle)] bg-[var(--bg-card)]">
@@ -137,11 +142,13 @@ export default function AdminModules() {
                     </td>
                     <td className="px-6 py-5 whitespace-nowrap text-sm font-semibold text-[var(--text-main)]">{mod.name}</td>
                     <td className="px-6 py-5 text-sm text-muted font-medium hidden md:table-cell max-w-md truncate">{mod.description}</td>
+                  {!assignedModules && (
                     <td className="px-6 py-5 whitespace-nowrap text-right text-sm font-medium">
                       <button onClick={() => handleDelete(mod.id)} className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-500/10 p-2 rounded-lg transition-colors">
                         <Trash2 className="w-5 h-5"/>
                       </button>
                     </td>
+                  )}
                   </tr>
                 ))}
               </tbody>

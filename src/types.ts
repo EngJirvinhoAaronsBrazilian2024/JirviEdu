@@ -4,6 +4,18 @@ export interface Admin {
   createdAt: number;
 }
 
+export interface Teacher {
+  id: string;
+  regNumber: string;
+  fullName: string;
+  email: string;
+  assignedModules: string[];
+  status: 'active' | 'inactive';
+  photoUrl?: string;
+  password?: string;
+  createdAt: number;
+}
+
 export interface Student {
   id: string;
   regNumber: string;

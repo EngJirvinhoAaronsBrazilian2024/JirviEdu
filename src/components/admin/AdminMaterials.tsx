@@ -4,7 +4,7 @@ import { Plus, Trash2, FileDown, Loader2, BookOpen, Upload, FileText, ArrowDownT
 import { Module } from '../../types';
 import { motion, AnimatePresence } from 'motion/react';
 
-export default function AdminMaterials() {
+export default function AdminMaterials({ assignedModules }: { assignedModules?: string[] }) {
   const [modules, setModules] = useState<Module[]>([]);
   const [selectedModule, setSelectedModule] = useState('');
   const [materials, setMaterials] = useState<any[]>([]);
@@ -16,8 +16,14 @@ export default function AdminMaterials() {
 
   useEffect(() => {
     const q = query(collection(db, 'modules'));
-    return onSnapshot(q, snap => setModules(snap.docs.map(d => ({ id: d.id, ...d.data() } as Module))));
-  }, []);
+    return onSnapshot(q, snap => {
+      let mods = snap.docs.map(d => ({ id: d.id, ...d.data() } as Module));
+      if (assignedModules) {
+        mods = mods.filter(m => assignedModules.includes(m.id));
+      }
+      setModules(mods);
+    });
+  }, [assignedModules]);
 
   useEffect(() => {
     if (!selectedModule) {

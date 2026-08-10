@@ -23,6 +23,7 @@ import AdminAssignments from './admin/AdminAssignments';
 import AdminMaterials from './admin/AdminMaterials';
 import NotificationBell from './NotificationBell';
 import AdminActivityLogs from './admin/AdminActivityLogs';
+import TeacherManagement from './admin/TeacherManagement';
 import Timetable from './Timetable';
 
 export default function AdminPortal({ setRole }: { setRole: (role: string | null) => void }) {
@@ -42,6 +43,7 @@ export default function AdminPortal({ setRole }: { setRole: (role: string | null
   const navigation = [
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
     { name: 'Students', href: '/admin/students', icon: Users },
+    { name: 'Teachers', href: '/admin/teachers', icon: GraduationCap },
     { name: 'Modules', href: '/admin/modules', icon: BookOpen },
     { name: 'Lectures', href: '/admin/lectures', icon: Video },
     { name: 'Assignments', href: '/admin/assignments', icon: FileText },
@@ -200,6 +202,7 @@ export default function AdminPortal({ setRole }: { setRole: (role: string | null
               <Routes>
                 <Route path="/" element={<AdminDashboard />} />
                 <Route path="/students" element={<StudentManagement />} />
+                <Route path="/teachers" element={<TeacherManagement />} />
                 <Route path="/modules" element={<AdminModules />} />
                 <Route path="/lectures" element={<AdminLectures />} />
                 <Route path="/assignments" element={<AdminAssignments />} />

@@ -5,7 +5,7 @@ import { Plus, Trash2, Video, Calendar as CalendarIcon, Clock, Link as LinkIcon,
 import { Module } from '../../types';
 import { motion, AnimatePresence } from 'motion/react';
 
-export default function AdminLectures() {
+export default function AdminLectures({ assignedModules }: { assignedModules?: string[] }) {
   const [modules, setModules] = useState<Module[]>([]);
   const [selectedModule, setSelectedModule] = useState('');
   const [lectures, setLectures] = useState<any[]>([]);
@@ -18,8 +18,14 @@ export default function AdminLectures() {
 
   useEffect(() => {
     const q = query(collection(db, 'modules'));
-    return onSnapshot(q, snap => setModules(snap.docs.map(d => ({ id: d.id, ...d.data() } as Module))));
-  }, []);
+    return onSnapshot(q, snap => {
+      let mods = snap.docs.map(d => ({ id: d.id, ...d.data() } as Module));
+      if (assignedModules) {
+        mods = mods.filter(m => assignedModules.includes(m.id));
+      }
+      setModules(mods);
+    });
+  }, [assignedModules]);
 
   useEffect(() => {
     if (!selectedModule) {

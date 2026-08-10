@@ -4,7 +4,7 @@ import { format, startOfWeek, endOfWeek, isSameDay, startOfMonth, endOfMonth, ea
 import { Video, Calendar, ChevronLeft, ChevronRight, BookOpen } from 'lucide-react';
 import { Module } from '../types';
 
-export default function Timetable({ studentId }: { studentId?: string }) {
+export default function Timetable({ studentId, assignedModules }: { studentId?: string, assignedModules?: string[] }) {
   const [lectures, setLectures] = useState<{mod: Module, lec: any}[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -33,10 +33,16 @@ export default function Timetable({ studentId }: { studentId?: string }) {
               enrolledMods.push(m);
             }
           }
+        } else if (assignedModules) {
+          for (const m of mods) {
+            if (assignedModules.includes(m.id)) {
+              enrolledMods.push(m);
+            }
+          }
         }
 
         const allLecs: {mod: Module, lec: any}[] = [];
-        for (const m of studentId ? enrolledMods : mods) {
+        for (const m of (studentId || assignedModules) ? enrolledMods : mods) {
           const lecsSnap = await getDocs(collection(db, `modules/${m.id}/lectures`));
           lecsSnap.docs.forEach(d => {
             allLecs.push({ mod: m, lec: { id: d.id, ...d.data() } });

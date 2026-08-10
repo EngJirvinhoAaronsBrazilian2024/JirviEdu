@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { BookOpen, AlertCircle, ArrowRight, Loader2, Eye, EyeOff, GraduationCap } from 'lucide-react';
 import { hash, compare } from 'bcrypt-ts';
-import { authenticateStudent } from '../lib/db';
+import { authenticateStudent, authenticateTeacher } from '../lib/db';
 import ThemeToggle from './ThemeToggle';
 import { logActivity } from '../lib/activity-logger';
 import { motion, AnimatePresence } from 'motion/react';
@@ -65,7 +65,15 @@ export default function Login({ setRole }: { setRole: (role: string | null) => v
 
     setLoading(true);
     try {
-      const docSnap = await authenticateStudent(regNumber, password);
+      let docSnap = null;
+      let roleToSet = 'student';
+      
+      if (regNumber.startsWith('TEA-')) {
+        docSnap = await authenticateTeacher(regNumber, password);
+        roleToSet = 'teacher';
+      } else {
+        docSnap = await authenticateStudent(regNumber, password);
+      }
       
       if (!docSnap) {
         const attempts = parseInt(localStorage.getItem(attemptsKey) || '0') + 1;
@@ -80,26 +88,25 @@ export default function Login({ setRole }: { setRole: (role: string | null) => v
         setLoading(false);
         return;
       } else {
-        const studentData = docSnap.data();
-
+        const userData = docSnap.data();
         sessionStorage.clear();
         sessionStorage.setItem('jirvi_student_reg', regNumber);
         sessionStorage.setItem('jirvi_student_id', docSnap.id);
-        sessionStorage.setItem('jirvi_role', 'student');
+        sessionStorage.setItem('jirvi_role', roleToSet);
         localStorage.removeItem(attemptsKey);
         localStorage.removeItem(lockoutKey);
         
         if (rememberMe) {
           localStorage.setItem('jirvi_student_reg', regNumber);
           localStorage.setItem('jirvi_student_id', docSnap.id);
-          localStorage.setItem('jirvi_role', 'student');
+          localStorage.setItem('jirvi_role', roleToSet);
         } else {
           localStorage.removeItem('jirvi_student_reg');
           localStorage.removeItem('jirvi_student_id');
           localStorage.removeItem('jirvi_role');
         }
-        logActivity('Login', `Student ${studentData.fullName} logged in.`, regNumber, 'student');
-        setRole('student');
+        logActivity('Login', `${roleToSet === 'teacher' ? 'Teacher' : 'Student'} ${userData.fullName} logged in.`, regNumber, roleToSet);
+        setRole(roleToSet);
       }
     } catch (err: any) {
       console.error(err);

@@ -4,7 +4,7 @@ import { Plus, Trash2, FileText, Loader2, Users, CheckCircle, ChevronLeft, X, Bo
 import { Module } from '../../types';
 import { motion, AnimatePresence } from 'motion/react';
 
-export default function AdminAssignments() {
+export default function AdminAssignments({ assignedModules }: { assignedModules?: string[] }) {
   const [modules, setModules] = useState<Module[]>([]);
   const [selectedModule, setSelectedModule] = useState('');
   const [assignments, setAssignments] = useState<any[]>([]);
@@ -22,8 +22,14 @@ export default function AdminAssignments() {
 
   useEffect(() => {
     const q = query(collection(db, 'modules'));
-    return onSnapshot(q, snap => setModules(snap.docs.map(d => ({ id: d.id, ...d.data() } as Module))));
-  }, []);
+    return onSnapshot(q, snap => {
+      let mods = snap.docs.map(d => ({ id: d.id, ...d.data() } as Module));
+      if (assignedModules) {
+        mods = mods.filter(m => assignedModules.includes(m.id));
+      }
+      setModules(mods);
+    });
+  }, [assignedModules]);
 
   useEffect(() => {
     if (!selectedModule) {
