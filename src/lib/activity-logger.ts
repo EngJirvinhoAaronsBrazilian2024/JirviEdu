@@ -8,8 +8,7 @@ export const logActivity = async (action: string, details: string, userId: strin
       action,
       details,
       userId,
-      userType,
-      createdAt: Date.now()
+      userType
     });
   } catch(e) {
     console.error('Failed to log activity:', e);

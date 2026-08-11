@@ -140,13 +140,7 @@ export default function Login({ setRole }: { setRole: (role: string | null) => v
           <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${loginCover})` }}></div>
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
           
-          <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-12">
-              <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center shadow-inner">
-                <GraduationCap className="w-6 h-6 text-white" />
-              </div>
-              <span className="text-2xl font-bold tracking-tight">JIRVI EDU</span>
-            </div>
+          <div className="relative z-10 pt-12">
             
             <h1 className="text-4xl lg:text-5xl font-bold leading-tight mb-6">
               Unlock Your <br/>
@@ -170,14 +164,9 @@ export default function Login({ setRole }: { setRole: (role: string | null) => v
 
         {/* Right Side: Login Form */}
         <div className="w-full md:w-1/2 p-8 sm:p-12 lg:p-16 flex flex-col justify-center bg-[var(--bg-card)]">
-          <div className="md:hidden flex items-center gap-3 mb-8">
-            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-              <GraduationCap className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-2xl font-bold tracking-tight text-[var(--text-main)]">JIRVI EDU</span>
-          </div>
-
-          <div className="mb-8">
+          <div className="flex flex-col items-center justify-center mb-10 text-center">
+            <img src="/icon.png" alt="JIRVI EDU Logo" className="w-16 h-16 object-contain drop-shadow-md mb-4" />
+            <span className="text-2xl font-bold tracking-tight text-[var(--text-main)] mb-6">JIRVI EDU</span>
             <h2 className="text-3xl font-bold text-[var(--text-main)] mb-2">Welcome Back</h2>
             <p className="text-muted">Please sign in to your account</p>
           </div>
