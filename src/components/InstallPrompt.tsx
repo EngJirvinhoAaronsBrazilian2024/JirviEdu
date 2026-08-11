@@ -52,9 +52,9 @@ export default function InstallPrompt() {
         </div>
       </div>
       <div className="flex items-center space-x-2">
-        <button onClick={handleDismiss} className="text-neutral-400 hover:text-neutral-50 p-2">✕</button>
-        <button onClick={handleInstall} className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full shadow-md">
-          <Download className="w-4 h-4" />
+        <button onClick={handleDismiss} className="text-neutral-400 hover:text-neutral-50 p-2 text-lg font-bold">✕</button>
+        <button onClick={handleInstall} className="flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl shadow-md font-bold text-sm transition-colors">
+          <Download className="w-4 h-4 mr-2" /> Install
         </button>
       </div>
     </div>

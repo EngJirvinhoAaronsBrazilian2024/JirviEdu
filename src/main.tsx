@@ -4,10 +4,15 @@ import App from './App.tsx';
 import './index.css';
 
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.getRegistrations().then(function(registrations) {
-    for(let registration of registrations) {
-      registration.unregister();
-    }
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').then(
+      (registration) => {
+        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+      },
+      (err) => {
+        console.log('ServiceWorker registration failed: ', err);
+      }
+    );
   });
 }
 

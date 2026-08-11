@@ -11,6 +11,7 @@ import AdminLectures from './admin/AdminLectures';
 import AdminAssignments from './admin/AdminAssignments';
 import AdminMaterials from './admin/AdminMaterials';
 import Timetable from './Timetable';
+import TeacherDashboard from './teacher/TeacherDashboard';
 import { db, doc, getDoc } from '../lib/db';
 import { Teacher } from '../types';
 
@@ -206,7 +207,7 @@ export default function TeacherPortal({ setRole }: { setRole: (role: string | nu
               transition={{ duration: 0.2 }}
             >
               <Routes>
-                <Route path="/" element={<div className="p-8 text-center text-muted font-bold">Welcome to Teacher Portal. Select a module to manage.</div>} />
+                <Route path="/" element={<TeacherDashboard teacher={teacher} />} />
                 <Route path="/modules" element={<AdminModules assignedModules={teacher?.assignedModules} />} />
                 <Route path="/lectures" element={<AdminLectures assignedModules={teacher?.assignedModules} />} />
                 <Route path="/assignments" element={<AdminAssignments assignedModules={teacher?.assignedModules} />} />
