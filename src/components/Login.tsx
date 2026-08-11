@@ -6,7 +6,7 @@ import ThemeToggle from './ThemeToggle';
 import { logActivity } from '../lib/activity-logger';
 import { motion, AnimatePresence } from 'motion/react';
 import loginCover from '../assets/images/login_cover_1786033509563.jpg';
-import appIcon from '../../public/icon.png';
+import appIcon from '../assets/logo.png';
 
 export default function Login({ setRole }: { setRole: (role: string | null) => void }) {
   const [regNumber, setRegNumber] = useState(localStorage.getItem('jirvi_saved_reg') || '');

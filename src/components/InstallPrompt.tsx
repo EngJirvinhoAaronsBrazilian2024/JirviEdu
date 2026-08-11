@@ -1,31 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { Download } from 'lucide-react';
-import clsx from 'clsx';
-import appIcon from '../../public/icon.png';
+import appIcon from '../assets/logo.png';
 
 export default function InstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showPrompt, setShowPrompt] = useState(false);
 
   useEffect(() => {
-    // Show prompt if not dismissed, even if beforeinstallprompt hasn't fired
-    // This allows testing the UI in preview modes or iOS where it doesn't fire
-    if (!sessionStorage.getItem('pwa_prompt_dismissed')) {
-      const timer = setTimeout(() => {
-        setShowPrompt(true);
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, []);
-
-  useEffect(() => {
     const handler = (e: any) => {
+      // Prevent the mini-infobar from appearing on mobile
       e.preventDefault();
+      // Stash the event so it can be triggered later.
       setDeferredPrompt(e);
+      // Update UI notify the user they can install the PWA
       if (!sessionStorage.getItem('pwa_prompt_dismissed')) {
         setShowPrompt(true);
       }
     };
+    
     window.addEventListener('beforeinstallprompt', handler);
     return () => {
       window.removeEventListener('beforeinstallprompt', handler);
@@ -33,20 +25,22 @@ export default function InstallPrompt() {
   }, []);
 
   const handleInstall = async () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') {
-        console.log('User accepted the install prompt');
-      } else {
-        console.log('User dismissed the install prompt');
-      }
-      setDeferredPrompt(null);
-      setShowPrompt(false);
+    if (!deferredPrompt) return;
+    
+    // Show the install prompt
+    deferredPrompt.prompt();
+    
+    // Wait for the user to respond to the prompt
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      console.log('User accepted the install prompt');
     } else {
-      // Fallback for iOS or in-app browsers
-      alert("To install this app, tap the Share button in your browser and select 'Add to Home Screen'.");
+      console.log('User dismissed the install prompt');
     }
+    
+    // We've used the prompt, and can't use it again, throw it away
+    setDeferredPrompt(null);
+    setShowPrompt(false);
   };
 
   const handleDismiss = () => {
@@ -57,11 +51,11 @@ export default function InstallPrompt() {
   if (!showPrompt) return null;
 
   return (
-    <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-sm bg-neutral-800 border border-neutral-700 rounded-2xl shadow-2xl p-4 z-50 flex items-center justify-between pointer-events-auto">
+    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-sm bg-neutral-800 border border-neutral-700 rounded-2xl shadow-2xl p-4 z-50 flex items-center justify-between pointer-events-auto">
       <div className="flex items-center space-x-3">
         <img src={appIcon} alt="App Icon" className="w-12 h-12 rounded-xl" />
         <div>
-          <h3 className="text-neutral-50 font-medium">Install Jirvi</h3>
+          <h3 className="text-neutral-50 font-medium">Install Jirvi EDU</h3>
           <p className="text-neutral-400 text-xs">Add to your home screen.</p>
         </div>
       </div>

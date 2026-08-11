@@ -14,7 +14,7 @@ import Timetable from './Timetable';
 import TeacherDashboard from './teacher/TeacherDashboard';
 import { db, doc, getDoc } from '../lib/db';
 import { Teacher } from '../types';
-import appIcon from '../../public/icon.png';
+import appIcon from '../assets/logo.png';
 
 export default function TeacherPortal({ setRole }: { setRole: (role: string | null) => void }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);

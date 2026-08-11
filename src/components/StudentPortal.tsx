@@ -22,7 +22,7 @@ import StudentResults from './student/StudentResults';
 import StudentSettings from './student/StudentSettings';
 import Timetable from './Timetable';
 import { Award, GraduationCap } from 'lucide-react';
-import appIcon from '../../public/icon.png';
+import appIcon from '../assets/logo.png';
 
 export default function StudentPortal({ setRole }: { setRole: (role: string | null) => void }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
