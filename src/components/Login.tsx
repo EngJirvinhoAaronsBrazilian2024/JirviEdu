@@ -165,7 +165,7 @@ export default function Login({ setRole }: { setRole: (role: string | null) => v
         {/* Right Side: Login Form */}
         <div className="w-full md:w-1/2 p-8 sm:p-12 lg:p-16 flex flex-col justify-center bg-[var(--bg-card)]">
           <div className="flex flex-col items-center justify-center mb-10 text-center">
-            <img src="/icon.png" alt="JIRVI EDU Logo" className="w-16 h-16 object-contain drop-shadow-md mb-4" />
+            <img src="/icon.png?v=2" alt="JIRVI EDU Logo" className="w-16 h-16 object-contain drop-shadow-md mb-4" />
             <span className="text-2xl font-bold tracking-tight text-[var(--text-main)] mb-6">JIRVI EDU</span>
             <h2 className="text-3xl font-bold text-[var(--text-main)] mb-2">Welcome Back</h2>
             <p className="text-muted">Please sign in to your account</p>

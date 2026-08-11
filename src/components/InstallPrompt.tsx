@@ -45,7 +45,7 @@ export default function InstallPrompt() {
   return (
     <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-sm bg-neutral-800 border border-neutral-700 rounded-2xl shadow-2xl p-4 z-50 flex items-center justify-between pointer-events-auto">
       <div className="flex items-center space-x-3">
-        <img src="/icon.png" alt="App Icon" className="w-12 h-12 rounded-xl" />
+        <img src="/icon.png?v=2" alt="App Icon" className="w-12 h-12 rounded-xl" />
         <div>
           <h3 className="text-neutral-50 font-medium">Install Jirvi</h3>
           <p className="text-neutral-400 text-xs">Add to your home screen for quick access.</p>
