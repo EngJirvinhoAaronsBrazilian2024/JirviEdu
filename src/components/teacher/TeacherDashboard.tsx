@@ -78,27 +78,27 @@ export default function TeacherDashboard({ teacher }: { teacher: Teacher | null 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <motion.div 
           initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-          className="bg-[var(--bg-card)] border border-[var(--border-strong)] rounded-2xl p-6 shadow-sm flex items-center"
+          className="bg-[var(--bg-card)] p-5 rounded-2xl border border-[var(--border-subtle)] shadow-sm flex items-center gap-4 relative overflow-hidden group hover:shadow-md transition-all"
         >
-          <div className="w-14 h-14 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-xl flex items-center justify-center mr-4">
-            <BookOpen className="w-7 h-7" />
+          <div className="p-3 rounded-xl shrink-0 bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400">
+            <BookOpen className="w-6 h-6" strokeWidth={2} />
           </div>
           <div>
-            <p className="text-sm font-bold text-muted uppercase tracking-wider">Assigned Modules</p>
-            <p className="text-3xl font-bold text-[var(--text-main)]">{modules.length}</p>
+            <p className="text-xs font-semibold text-muted uppercase tracking-wider">Assigned Modules</p>
+            <p className="text-2xl font-bold text-[var(--text-main)] mt-0.5">{modules.length}</p>
           </div>
         </motion.div>
 
         <motion.div 
           initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-          className="bg-[var(--bg-card)] border border-[var(--border-strong)] rounded-2xl p-6 shadow-sm flex items-center"
+          className="bg-[var(--bg-card)] p-5 rounded-2xl border border-[var(--border-subtle)] shadow-sm flex items-center gap-4 relative overflow-hidden group hover:shadow-md transition-all"
         >
-          <div className="w-14 h-14 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-xl flex items-center justify-center mr-4">
-            <Video className="w-7 h-7" />
+          <div className="p-3 rounded-xl shrink-0 bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400">
+            <Video className="w-6 h-6" strokeWidth={2} />
           </div>
           <div>
-            <p className="text-sm font-bold text-muted uppercase tracking-wider">Upcoming Lectures</p>
-            <p className="text-3xl font-bold text-[var(--text-main)]">{upcomingLectures.length}</p>
+            <p className="text-xs font-semibold text-muted uppercase tracking-wider">Upcoming Lectures</p>
+            <p className="text-2xl font-bold text-[var(--text-main)] mt-0.5">{upcomingLectures.length}</p>
           </div>
         </motion.div>
       </div>

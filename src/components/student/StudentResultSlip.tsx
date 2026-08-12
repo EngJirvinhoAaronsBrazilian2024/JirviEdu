@@ -15,6 +15,7 @@ interface ResultSlipProps {
 
 export default function StudentResultSlip({ student, results, onClose }: ResultSlipProps) {
   const slipRef = useRef<HTMLDivElement>(null);
+  const [isDownloading, setIsDownloading] = React.useState(false);
   const [photoBase64, setPhotoBase64] = React.useState<string | null>(null);
 
   React.useEffect(() => {
@@ -41,6 +42,9 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
 
   const handleDownload = async () => {
     if (!slipRef.current) return;
+    setIsDownloading(true);
+    // Wait for state to apply before capturing
+    await new Promise(r => setTimeout(r, 100));
     try {
       const element = slipRef.current;
       
@@ -102,6 +106,8 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
     } catch (error: any) {
       console.error('Error generating PDF', error);
       alert(`Failed to generate PDF: ${error.message || 'Unknown error'}`);
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -134,11 +140,11 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
         <div 
           id="result-slip-content"
           ref={slipRef}
-          className="bg-white text-gray-900 shadow-2xl rounded-2xl overflow-hidden print:shadow-none print:rounded-none w-full mx-auto p-10 flex flex-col"
-          style={{ minHeight: '297mm', minWidth: '794px', boxSizing: 'border-box' }}
+          className={`bg-white text-gray-900 shadow-2xl sm:rounded-2xl overflow-hidden print:shadow-none print:rounded-none mx-auto p-6 sm:p-10 flex flex-col ${isDownloading ? 'w-[794px] min-h-[1123px]' : 'w-full'}`}
+          style={isDownloading ? { boxSizing: 'border-box' } : {}}
         >
           {/* Header */}
-          <div className="flex flex-col items-center border-b-4 border-blue-600 pb-8 mb-8 text-center space-y-4 relative">
+          <div className={`flex flex-col items-center border-b-4 border-blue-600 pb-8 mb-8 text-center space-y-4 relative ${isDownloading ? 'grayscale print:grayscale' : 'print:grayscale'}`}>
             <div className="absolute top-0 left-0 w-full h-32 bg-blue-50/50 -z-10 rounded-t-2xl"></div>
             <img src={logoImage} alt="Logo" className="w-24 h-24 object-contain shadow-sm rounded-xl p-2 bg-white border border-slate-100 relative z-10" />
             <div className="relative z-10">
@@ -148,7 +154,7 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
             <div className="w-24 h-1 bg-blue-500 rounded-full my-4 relative z-10"></div>
             <div className="relative z-10">
               <h2 className="text-3xl font-extrabold text-gray-800 mb-4">OFFICIAL STUDENT RESULT SLIP</h2>
-              <div className="flex flex-row items-center justify-center gap-3 text-sm font-semibold text-gray-600">
+              <div className={`flex items-center justify-center gap-3 text-sm font-semibold text-gray-600 ${isDownloading ? 'flex-row' : 'flex-col sm:flex-row'}`}>
                 <span className="bg-blue-50 text-blue-800 px-4 py-1.5 rounded-full border border-blue-200 shadow-sm">
                   Academic Year: {new Date().getFullYear()}/{new Date().getFullYear() + 1}
                 </span>
@@ -160,15 +166,15 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
           </div>
 
           {/* Student Information */}
-          <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 mb-8 flex flex-row items-start space-y-0 space-x-6 shadow-sm text-left">
-            <div className="w-24 h-24 bg-blue-100 border-2 border-blue-200 rounded-lg flex items-center justify-center shrink-0 overflow-hidden">
+          <div className={`bg-slate-50 border border-slate-200 rounded-xl mb-8 flex shadow-sm ${isDownloading ? 'p-6 flex-row items-start space-y-0 space-x-6 text-left' : 'p-4 sm:p-6 flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-6 text-center sm:text-left'}`}>
+            <div className="w-24 h-24 bg-blue-100 border-2 border-blue-200 rounded-lg flex items-center justify-center shrink-0 overflow-hidden relative z-10 student-photo">
               {photoBase64 ? (
                 <img src={photoBase64} alt={student.fullName} className="w-full h-full object-cover" crossOrigin="anonymous" />
               ) : (
                 <span className="text-blue-500 font-bold text-xs p-2">No Photo<br/>Provided</span>
               )}
             </div>
-            <div className="grid grid-cols-2 gap-x-12 gap-y-4 w-full">
+            <div className={`grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-4 w-full ${isDownloading ? 'grayscale print:grayscale' : 'print:grayscale'}`}>
               <div>
                 <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Full Name</p>
                 <p className="text-lg font-bold text-gray-800">{student.fullName}</p>
@@ -189,7 +195,7 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
           </div>
 
           {/* Results Table */}
-          <div className="mb-8 overflow-hidden rounded-xl border border-gray-200 shadow-sm">
+          <div className={`mb-8 overflow-x-auto overflow-y-hidden rounded-xl border border-gray-200 shadow-sm ${isDownloading ? 'grayscale print:grayscale' : 'print:grayscale'}`}>
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-blue-600 text-white">
@@ -239,7 +245,7 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
           </div>
 
           {/* Performance Summary */}
-          <div className="grid grid-cols-2 gap-6 mb-8">
+          <div className={`grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8 ${isDownloading ? 'grayscale print:grayscale' : 'print:grayscale'}`}>
             <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 flex items-center justify-between shadow-sm">
               <div>
                 <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Total Courses</p>
@@ -265,7 +271,7 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
           </div>
 
           {/* Lecturer's Comment */}
-          <div className="mb-8">
+          <div className={`mb-8 ${isDownloading ? 'grayscale print:grayscale' : 'print:grayscale'}`}>
             <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider mb-2">Lecturer's Comment</h3>
             <div className="w-full h-20 border-b-2 border-dashed border-gray-300 relative">
               <span className="absolute bottom-1 left-0 text-gray-400 italic text-sm">Excellent performance, keep it up!</span>
@@ -273,7 +279,7 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
           </div>
 
           {/* Verification */}
-          <div className="flex flex-row justify-between items-end mb-16 pt-6 gap-0">
+          <div className={`flex flex-row justify-between items-end mb-16 pt-6 gap-2 ${isDownloading ? 'grayscale print:grayscale' : 'print:grayscale'}`}>
             <div className="text-left">
               <p className="text-xs font-bold text-gray-500 uppercase mb-1">Verification Code</p>
               <p className="text-lg font-mono font-bold text-gray-800 tracking-wider">JRV-{Math.floor(Math.random() * 90000) + 10000}</p>
@@ -296,17 +302,17 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
           </div>
 
           {/* Footer */}
-          <div className="mt-auto pt-8 pb-4 w-full">
-            <div className="border-t border-gray-200 pt-6 flex flex-row justify-between items-center text-xs text-gray-500 font-medium space-y-0">
-              <div className="space-y-1 text-left">
+          <div className={`mt-auto pt-8 pb-4 w-full ${isDownloading ? 'grayscale print:grayscale' : 'print:grayscale'}`}>
+            <div className={`border-t border-gray-200 pt-6 flex text-xs text-gray-500 font-medium ${isDownloading ? 'flex-row justify-between items-center space-y-0' : 'flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0'}`}>
+              <div className={`space-y-1 ${isDownloading ? 'text-left' : 'text-center sm:text-left'}`}>
                 <p className="font-bold text-gray-700">Jirvinho software world</p>
                 <p>jirvinhosoftwareworld@gmail.com</p>
               </div>
-              <div className="space-y-1 text-center">
+              <div className={`space-y-1 ${isDownloading ? 'text-center' : 'text-center sm:text-left'}`}>
                 <p>Tel: 0700400063 / 0760289823</p>
                 <p>www.jirvinhosoftwareworld.com</p>
               </div>
-              <div className="space-y-1 text-right">
+              <div className={`space-y-1 ${isDownloading ? 'text-right' : 'text-center sm:text-right'}`}>
                 <p>&copy; {new Date().getFullYear()} All rights reserved.</p>
                 <p>Ref: JSW-RSLIP-{new Date().getFullYear()}</p>
               </div>

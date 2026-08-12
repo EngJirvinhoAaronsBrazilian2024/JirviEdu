@@ -319,51 +319,43 @@ export default function StudentAssignments({ studentId }: { studentId: string })
       </div>
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="bg-pink-500 dark:bg-[var(--bg-card)] p-6 rounded-2xl dark:border dark:border-[var(--border-subtle)] shadow-sm flex flex-col justify-between h-36 relative overflow-hidden transition-colors">
-          <div className="flex items-center justify-between z-10 text-white dark:text-[var(--text-main)] h-full">
-            <div className="flex items-center justify-center w-1/3">
-              <FileText className="w-12 h-12 text-white dark:text-muted" strokeWidth={1.5} />
-            </div>
-            <div className="flex flex-col items-center justify-center w-2/3 h-full border-l border-white/20 dark:border-[var(--border-strong)]">
-              <span className="text-4xl font-bold tracking-tight text-white">{stats.total}</span>
-              <p className="text-sm font-semibold text-white/90 dark:text-muted mt-1 uppercase tracking-wider text-center">Total<br/>Assignments</p>
-            </div>
+        <div className="bg-[var(--bg-card)] p-5 rounded-2xl border border-[var(--border-subtle)] shadow-sm flex items-center gap-4 relative overflow-hidden group hover:shadow-md transition-all">
+          <div className="p-3 rounded-xl shrink-0 bg-pink-50 text-pink-600 dark:bg-pink-500/10 dark:text-pink-400">
+            <FileText className="w-6 h-6" strokeWidth={2} />
+          </div>
+          <div className="flex flex-col">
+            <p className="text-xs font-semibold text-muted uppercase tracking-wider">Total Assignments</p>
+            <span className="text-2xl font-bold text-[var(--text-main)] mt-0.5">{stats.total}</span>
           </div>
         </div>
 
-        <div className="bg-amber-400 dark:bg-[var(--bg-card)] p-6 rounded-2xl dark:border dark:border-[var(--border-subtle)] shadow-sm flex flex-col justify-between h-36 relative overflow-hidden transition-colors">
-          <div className="flex items-center justify-between z-10 text-white dark:text-[var(--text-main)] h-full">
-            <div className="flex items-center justify-center w-1/3">
-              <Clock className="w-12 h-12 text-white dark:text-muted" strokeWidth={1.5} />
-            </div>
-            <div className="flex flex-col items-center justify-center w-2/3 h-full border-l border-white/20 dark:border-[var(--border-strong)]">
-              <span className="text-4xl font-bold tracking-tight text-white">{stats.pending}</span>
-              <p className="text-sm font-semibold text-white/90 dark:text-muted mt-1 uppercase tracking-wider text-center">Pending<br/>Tasks</p>
-            </div>
+        <div className="bg-[var(--bg-card)] p-5 rounded-2xl border border-[var(--border-subtle)] shadow-sm flex items-center gap-4 relative overflow-hidden group hover:shadow-md transition-all">
+          <div className="p-3 rounded-xl shrink-0 bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400">
+            <Clock className="w-6 h-6" strokeWidth={2} />
+          </div>
+          <div className="flex flex-col">
+            <p className="text-xs font-semibold text-muted uppercase tracking-wider">Pending Tasks</p>
+            <span className="text-2xl font-bold text-[var(--text-main)] mt-0.5">{stats.pending}</span>
           </div>
         </div>
 
-        <div className="bg-teal-500 dark:bg-[var(--bg-card)] p-6 rounded-2xl dark:border dark:border-[var(--border-subtle)] shadow-sm flex flex-col justify-between h-36 relative overflow-hidden transition-colors">
-          <div className="flex items-center justify-between z-10 text-white dark:text-[var(--text-main)] h-full">
-            <div className="flex items-center justify-center w-1/3">
-              <CheckCircle className="w-12 h-12 text-white dark:text-muted" strokeWidth={1.5} />
-            </div>
-            <div className="flex flex-col items-center justify-center w-2/3 h-full border-l border-white/20 dark:border-[var(--border-strong)]">
-              <span className="text-4xl font-bold tracking-tight text-white">{stats.completed}</span>
-              <p className="text-sm font-semibold text-white/90 dark:text-muted mt-1 uppercase tracking-wider text-center">Completed<br/>Tasks</p>
-            </div>
+        <div className="bg-[var(--bg-card)] p-5 rounded-2xl border border-[var(--border-subtle)] shadow-sm flex items-center gap-4 relative overflow-hidden group hover:shadow-md transition-all">
+          <div className="p-3 rounded-xl shrink-0 bg-teal-50 text-teal-600 dark:bg-teal-500/10 dark:text-teal-400">
+            <CheckCircle className="w-6 h-6" strokeWidth={2} />
+          </div>
+          <div className="flex flex-col">
+            <p className="text-xs font-semibold text-muted uppercase tracking-wider">Completed Tasks</p>
+            <span className="text-2xl font-bold text-[var(--text-main)] mt-0.5">{stats.completed}</span>
           </div>
         </div>
 
-        <div className="bg-red-500 dark:bg-[var(--bg-card)] p-6 rounded-2xl dark:border dark:border-[var(--border-subtle)] shadow-sm flex flex-col justify-between h-36 relative overflow-hidden transition-colors">
-          <div className="flex items-center justify-between z-10 text-white dark:text-[var(--text-main)] h-full">
-            <div className="flex items-center justify-center w-1/3">
-              <AlertCircle className="w-12 h-12 text-white dark:text-muted" strokeWidth={1.5} />
-            </div>
-            <div className="flex flex-col items-center justify-center w-2/3 h-full border-l border-white/20 dark:border-[var(--border-strong)]">
-              <span className="text-4xl font-bold tracking-tight text-white">{stats.overdue}</span>
-              <p className="text-sm font-semibold text-white/90 dark:text-muted mt-1 uppercase tracking-wider text-center">Overdue<br/>Tasks</p>
-            </div>
+        <div className="bg-[var(--bg-card)] p-5 rounded-2xl border border-[var(--border-subtle)] shadow-sm flex items-center gap-4 relative overflow-hidden group hover:shadow-md transition-all">
+          <div className="p-3 rounded-xl shrink-0 bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400">
+            <AlertCircle className="w-6 h-6" strokeWidth={2} />
+          </div>
+          <div className="flex flex-col">
+            <p className="text-xs font-semibold text-muted uppercase tracking-wider">Overdue Tasks</p>
+            <span className="text-2xl font-bold text-[var(--text-main)] mt-0.5">{stats.overdue}</span>
           </div>
         </div>
       </div>
