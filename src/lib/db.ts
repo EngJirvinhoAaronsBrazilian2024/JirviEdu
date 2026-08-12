@@ -93,6 +93,8 @@ export async function getDocs(queryRef: any) {
         const field = c.field.replace(/[A-Z]/g, (letter: string) => `_${letter.toLowerCase()}`);
         if (c.op === '==') {
           q = q.eq(field, c.val);
+        } else if (c.op === 'in') {
+          q = q.in(field, c.val);
         }
       }
     }
@@ -214,7 +216,12 @@ export async function addDoc(collectionRef: any, data: any) {
 export function onSnapshot(ref: any, callback: Function, errorCb?: Function) {
   let isMounted = true;
   let lastData = '';
+  let isFetching = false;
+  let timeoutId: any;
+
   const fetchData = async () => {
+    if (isFetching || !isMounted) return;
+    isFetching = true;
     try {
       let snap;
       if (ref.type === 'doc') {
@@ -231,14 +238,25 @@ export function onSnapshot(ref: any, callback: Function, errorCb?: Function) {
       }
     } catch (err) {
       if (isMounted && errorCb) errorCb(err);
+    } finally {
+      isFetching = false;
+      if (isMounted) {
+        timeoutId = setTimeout(fetchData, 7500); // Wait 7.5s before polling again to reduce load
+      }
     }
   };
+
   fetchData();
-  const intervalId = setInterval(fetchData, 3000);
-  const unsubMutation = mutationEmitter.subscribe(fetchData);
+  const unsubMutation = mutationEmitter.subscribe(() => {
+    if (!isFetching) {
+      clearTimeout(timeoutId);
+      fetchData();
+    }
+  });
+
   return () => {
     isMounted = false;
-    clearInterval(intervalId);
+    clearTimeout(timeoutId);
     unsubMutation();
   };
 }

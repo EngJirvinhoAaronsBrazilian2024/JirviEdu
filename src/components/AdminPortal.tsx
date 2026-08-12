@@ -25,7 +25,7 @@ import NotificationBell from './NotificationBell';
 import AdminActivityLogs from './admin/AdminActivityLogs';
 import TeacherManagement from './admin/TeacherManagement';
 import Timetable from './Timetable';
-import appIcon from '../assets/logo.png';
+import appIcon from '../assets/logo.jpg';
 
 export default function AdminPortal({ setRole }: { setRole: (role: string | null) => void }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);

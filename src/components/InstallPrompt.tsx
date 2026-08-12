@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Download } from 'lucide-react';
-import appIcon from '../assets/logo.png';
+import appIcon from '../assets/logo.jpg';
 
 export default function InstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
