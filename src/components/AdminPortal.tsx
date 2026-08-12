@@ -248,7 +248,7 @@ function AdminDashboard() {
         });
         setStudentsMap(sMap);
       } catch (err) {
-        console.error("Failed to fetch students in dashboard", err);
+        console.warn("Failed to fetch students in dashboard", err);
       }
 
       try {
@@ -314,7 +314,7 @@ function AdminDashboard() {
           }
         }
       } catch (err) {
-        console.error("Failed to fetch modules in dashboard", err);
+        console.warn("Failed to fetch modules in dashboard", err);
       }
 
       try {

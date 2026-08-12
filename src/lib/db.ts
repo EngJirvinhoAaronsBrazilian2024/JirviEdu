@@ -236,12 +236,16 @@ export function onSnapshot(ref: any, callback: Function, errorCb?: Function) {
         lastData = newData;
         callback(snap);
       }
-    } catch (err) {
-      if (isMounted && errorCb) errorCb(err);
+    } catch (err: any) {
+      if (err?.message?.includes('timed out')) {
+        // ignore polling timeouts silently
+      } else if (isMounted && errorCb) {
+        errorCb(err);
+      }
     } finally {
       isFetching = false;
       if (isMounted) {
-        timeoutId = setTimeout(fetchData, 7500); // Wait 7.5s before polling again to reduce load
+        timeoutId = setTimeout(fetchData, 30000); // Wait 7.5s before polling again to reduce load
       }
     }
   };

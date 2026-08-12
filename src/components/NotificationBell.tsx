@@ -21,7 +21,7 @@ export default function NotificationBell({ userId }: { userId: string }) {
       setNotifications(notifs);
       setUnreadCount(notifs.filter(n => !n.read).length);
     }, (err) => {
-      console.error("Failed to fetch notifications", err);
+      console.warn("Failed to fetch notifications", err);
     });
 
     return () => unsubscribe();

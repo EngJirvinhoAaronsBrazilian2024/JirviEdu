@@ -321,7 +321,7 @@ function StudentDashboard({ student }: { student: Student | null }) {
           results: resultsCount
         });
       } catch (err) {
-        console.error(err);
+        console.warn(err);
       } finally {
         setLoading(false);
       }

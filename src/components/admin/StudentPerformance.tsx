@@ -50,7 +50,7 @@ export default function StudentPerformance({ student, onClose }: { student: Stud
         setAverageGrade(avg);
         setRiskFailing(avg < 40 && count > 0);
       } catch (err) {
-        console.error("Failed to fetch performance", err);
+        console.warn("Failed to fetch performance", err);
       } finally {
         setLoading(false);
       }
