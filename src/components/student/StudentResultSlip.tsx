@@ -5,7 +5,7 @@ import { toJpeg } from 'html-to-image';
 import { jsPDF } from 'jspdf';
 import { motion } from 'motion/react';
 import { QRCodeCanvas } from 'qrcode.react';
-import logoImage from '../../assets/images/modern_logo_1786033475396.jpg';
+import logoImage from '../../assets/logo.jpg';
 
 interface ResultSlipProps {
   student: Student;

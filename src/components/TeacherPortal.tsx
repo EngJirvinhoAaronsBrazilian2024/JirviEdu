@@ -14,7 +14,7 @@ import Timetable from './Timetable';
 import TeacherDashboard from './teacher/TeacherDashboard';
 import { db, doc, getDoc } from '../lib/db';
 import { Teacher } from '../types';
-import appIcon from '../assets/logo.jpg';
+import { GraduationCap } from 'lucide-react';
 
 export default function TeacherPortal({ setRole }: { setRole: (role: string | null) => void }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -78,7 +78,7 @@ export default function TeacherPortal({ setRole }: { setRole: (role: string | nu
             >
               <div className="p-6 flex items-center justify-between border-b border-[var(--border-subtle)] bg-[var(--bg-app)]">
                 <div className="flex items-center gap-3">
-                  <img src={appIcon} alt="Logo" className="w-10 h-10 object-contain drop-shadow-md" />
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center shrink-0 border border-blue-400/20 shadow-sm"><GraduationCap className="w-6 h-6 text-white" /></div>
                   <span className="text-xl font-bold tracking-tight text-[var(--text-main)]">Teacher</span>
                 </div>
                 <button onClick={() => setSidebarOpen(false)} className="text-muted hover:text-[var(--text-main)] p-2 bg-[var(--bg-card)] rounded-xl border border-[var(--border-strong)]">
@@ -132,7 +132,7 @@ export default function TeacherPortal({ setRole }: { setRole: (role: string | nu
       {/* Desktop sidebar */}
       <div className="hidden lg:flex lg:w-72 lg:flex-col lg:fixed lg:inset-y-0 bg-[var(--bg-card)] border-r border-[var(--border-strong)] z-40 print:hidden shadow-lg">
         <div className="p-6 flex items-center gap-3 border-b border-[var(--border-subtle)] bg-[var(--bg-app)]">
-          <img src={appIcon} alt="Logo" className="w-10 h-10 object-contain drop-shadow-md" />
+          <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center shrink-0 border border-blue-400/20 shadow-sm"><GraduationCap className="w-6 h-6 text-white" /></div>
           <span className="text-xl font-bold tracking-tight text-[var(--text-main)]">Teacher</span>
         </div>
         <div className="flex-1 overflow-y-auto py-6 px-4 space-y-1.5">

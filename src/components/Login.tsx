@@ -6,7 +6,6 @@ import ThemeToggle from './ThemeToggle';
 import { logActivity } from '../lib/activity-logger';
 import { motion, AnimatePresence } from 'motion/react';
 import loginCover from '../assets/images/login_cover_1786033509563.jpg';
-import appIcon from '../assets/logo.jpg';
 
 export default function Login({ setRole }: { setRole: (role: string | null) => void }) {
   const [regNumber, setRegNumber] = useState(localStorage.getItem('jirvi_saved_reg') || '');
@@ -166,8 +165,10 @@ export default function Login({ setRole }: { setRole: (role: string | null) => v
         {/* Right Side: Login Form */}
         <div className="w-full md:w-1/2 p-8 sm:p-12 lg:p-16 flex flex-col justify-center bg-[var(--bg-card)]">
           <div className="flex flex-col items-center justify-center mb-10 text-center">
-            <img src={appIcon} alt="JIRVI EDU Logo" className="w-16 h-16 object-contain drop-shadow-md mb-4" />
-            <span className="text-2xl font-bold tracking-tight text-[var(--text-main)] mb-6">JIRVI EDU</span>
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl flex items-center justify-center shadow-xl shadow-blue-500/30 mb-5 border border-blue-400/20">
+              <GraduationCap className="w-10 h-10 text-white" />
+            </div>
+            <span className="text-3xl font-extrabold tracking-tight text-[var(--text-main)] mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">JIRVI EDU</span>
             <h2 className="text-3xl font-bold text-[var(--text-main)] mb-2">Welcome Back</h2>
             <p className="text-muted">Please sign in to your account</p>
           </div>

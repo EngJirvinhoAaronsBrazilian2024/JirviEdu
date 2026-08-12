@@ -80,8 +80,8 @@ export default function NotificationBell({ userId }: { userId: string }) {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 bg-[var(--bg-card)] rounded-xl shadow-lg border border-[var(--border-subtle)] overflow-hidden z-50">
-          <div className="p-4 border-b border-[var(--border-subtle)] flex items-center justify-between bg-[var(--bg-app)]">
+        <div className="fixed inset-x-4 top-[70px] sm:absolute sm:inset-auto sm:right-0 sm:mt-2 sm:w-96 bg-[var(--bg-card)] rounded-xl shadow-2xl sm:shadow-lg border border-[var(--border-subtle)] overflow-hidden z-50 max-h-[80vh] flex flex-col">
+          <div className="p-4 border-b border-[var(--border-subtle)] flex items-center justify-between bg-[var(--bg-app)] shrink-0">
             <h3 className="font-bold text-[var(--text-main)]">Notifications</h3>
             {unreadCount > 0 && (
               <button 
@@ -93,7 +93,7 @@ export default function NotificationBell({ userId }: { userId: string }) {
             )}
           </div>
           
-          <div className="max-h-80 overflow-y-auto">
+          <div className="overflow-y-auto flex-1">
             {notifications.length === 0 ? (
               <div className="p-6 text-center text-muted text-sm">
                 No notifications yet.
@@ -109,7 +109,7 @@ export default function NotificationBell({ userId }: { userId: string }) {
                       <p className={`text-sm ${!notif.read ? 'font-bold text-[var(--text-main)]' : 'font-medium text-[var(--text-main)]'}`}>
                         {notif.title}
                       </p>
-                      <p className="text-xs text-muted mt-1">{notif.message}</p>
+                      <p className="text-xs text-muted mt-1 break-words whitespace-pre-wrap">{notif.message}</p>
                       <p className="text-[10px] text-muted mt-2 font-medium">
                         {notif.createdAt ? new Date(notif.createdAt).toLocaleString() : 'Just now'}
                       </p>

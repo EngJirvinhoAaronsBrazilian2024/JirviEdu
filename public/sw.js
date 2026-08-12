@@ -1,4 +1,4 @@
-const CACHE_NAME = 'jirvi-edu-v4';
+const CACHE_NAME = 'jirvi-edu-v5';
 const urlsToCache = [
   '/',
   '/index.html',

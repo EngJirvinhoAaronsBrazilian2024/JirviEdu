@@ -22,7 +22,7 @@ import StudentResults from './student/StudentResults';
 import StudentSettings from './student/StudentSettings';
 import Timetable from './Timetable';
 import { Award, GraduationCap } from 'lucide-react';
-import appIcon from '../assets/logo.jpg';
+import { GraduationCap } from 'lucide-react';
 
 export default function StudentPortal({ setRole }: { setRole: (role: string | null) => void }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -106,7 +106,7 @@ export default function StudentPortal({ setRole }: { setRole: (role: string | nu
             >
               <div className="flex items-center justify-between h-20 px-6 border-b border-slate-600 dark:border-[var(--border-subtle)]">
                 <span className="text-xl font-bold text-white flex items-center gap-3 tracking-tight">
-                  <img src={appIcon} alt="Logo" className="w-8 h-8 object-contain drop-shadow-md" />
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center shrink-0 border border-blue-400/20 shadow-sm"><GraduationCap className="w-6 h-6 text-white" /></div>
                   JIRVI EDU
                 </span>
                 <button onClick={() => setSidebarOpen(false)} className="text-slate-300 hover:text-white transition-colors p-2 rounded-full hover:bg-slate-600">
@@ -147,7 +147,7 @@ export default function StudentPortal({ setRole }: { setRole: (role: string | nu
       <div className="hidden lg:flex lg:flex-col lg:w-72 lg:fixed lg:inset-y-0 bg-slate-700 dark:bg-[#1a1a1a] text-white overflow-hidden lg:border-r border-slate-600 dark:border-[var(--border-subtle)] shadow-sm print:hidden z-20">
         <div className="flex items-center h-20 px-8">
           <span className="text-2xl font-bold text-white flex items-center gap-3 tracking-tight">
-            <img src={appIcon} alt="Logo" className="w-10 h-10 object-contain drop-shadow-lg" />
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center shrink-0 border border-blue-400/20 shadow-sm"><GraduationCap className="w-6 h-6 text-white" /></div>
             JIRVI EDU
           </span>
         </div>
