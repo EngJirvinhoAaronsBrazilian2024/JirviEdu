@@ -18,8 +18,19 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
   const slipRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = React.useState(false);
   const [photoBase64, setPhotoBase64] = React.useState<string | null>(null);
+  const [logoBase64, setLogoBase64] = React.useState<string>(logoImage);
 
   React.useEffect(() => {
+    // Convert logo to base64 to prevent html-to-image CORS/fetch issues on some environments
+    fetch(logoImage)
+      .then(res => res.blob())
+      .then(blob => {
+        const reader = new FileReader();
+        reader.onloadend = () => setLogoBase64(reader.result as string);
+        reader.readAsDataURL(blob);
+      })
+      .catch(err => console.warn("Could not convert logo to base64", err));
+
     if (student.photoUrl) {
       fetch(student.photoUrl)
         .then(res => res.blob())
@@ -55,6 +66,8 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
         quality: 1.0,
         backgroundColor: '#ffffff',
         pixelRatio: 2,
+        skipFonts: true,
+        fontEmbedCSS: '',
         style: {
           transform: 'scale(1)',
           transformOrigin: 'top left',
@@ -77,12 +90,12 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
       let heightLeft = pdfHeight;
       
       // Add first page
-      pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, Math.min(pdfHeight, pageHeight));
+      pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
       heightLeft -= pageHeight;
       
       // Add subsequent pages if content overflows one A4 page
       while (heightLeft > 0) {
-        position = heightLeft - pdfHeight;
+        position = position - pageHeight;
         pdf.addPage();
         pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
         heightLeft -= pageHeight;
@@ -141,20 +154,20 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
           style={isDownloading ? { boxSizing: 'border-box' } : {}}
         >
           {/* Header */}
-          <div className="flex flex-col items-center border-b-4 border-black pb-8 mb-8 text-center space-y-4">
-            <img src={logoImage} alt="Logo" className="w-32 h-32 sm:w-40 sm:h-40 object-contain shadow-sm rounded-2xl p-3 bg-white border border-slate-100" />
-            <div>
-              <h1 className="font-extrabold tracking-tight uppercase text-black text-3xl sm:text-4xl">Jirvinho Software World</h1>
-              <p className="font-bold tracking-widest uppercase mt-1 text-black text-sm sm:text-base">Excellence in Education Technology</p>
+          <div className="flex flex-col items-center border-b-4 border-black pb-8 mb-8 text-center space-y-5" style={{ borderColor: '#000000' }}>
+            <img src={logoBase64} alt="Logo" className="w-32 h-32 sm:w-40 sm:h-40 object-contain shadow-sm rounded-2xl p-3 bg-white border border-slate-100" />
+            <div className="flex flex-col items-center justify-center">
+              <h1 className="font-extrabold tracking-normal text-black text-4xl sm:text-5xl pb-2" style={{ color: '#000000', lineHeight: '1.3', fontFamily: "Georgia, 'Times New Roman', serif" }}>Jirvinho Software World</h1>
+              <p className="font-bold tracking-widest uppercase mt-2 text-black text-sm sm:text-base" style={{ color: '#000000', lineHeight: '1.4' }}>Excellence in Education Technology</p>
             </div>
-            <div className="w-24 h-1 bg-black rounded-full my-4"></div>
-            <div>
-              <h2 className="font-extrabold mb-4 text-black text-2xl sm:text-3xl">OFFICIAL STUDENT RESULT SLIP</h2>
-              <div className={`flex items-center justify-center gap-3 text-sm font-bold text-black ${isDownloading ? 'flex-row' : 'flex-col sm:flex-row'}`}>
-                <span className="bg-gray-100 text-black px-4 py-1.5 rounded-full border border-gray-300 shadow-sm">
+            <div className="w-24 h-1 bg-black rounded-full my-5" style={{ backgroundColor: '#000000' }}></div>
+            <div className="flex flex-col items-center justify-center">
+              <h2 className="font-extrabold pb-3 text-black text-2xl sm:text-3xl uppercase" style={{ color: '#000000', lineHeight: '1.4' }}>OFFICIAL STUDENT RESULT SLIP</h2>
+              <div className={`flex flex-wrap text-sm font-bold text-black items-center justify-center gap-3 mt-2 ${isDownloading ? 'flex-row' : 'flex-col sm:flex-row print:flex-row'}`}>
+                <span className="bg-gray-100 text-black px-4 py-1.5 rounded-full border border-gray-300 shadow-sm" style={{ color: '#000000', backgroundColor: '#f3f4f6', borderColor: '#d1d5db' }}>
                   Academic Year: {new Date().getFullYear()}/{new Date().getFullYear() + 1}
                 </span>
-                <span className="bg-gray-100 text-black px-4 py-1.5 rounded-full border border-gray-300 shadow-sm">
+                <span className="bg-gray-100 text-black px-4 py-1.5 rounded-full border border-gray-300 shadow-sm" style={{ color: '#000000', backgroundColor: '#f3f4f6', borderColor: '#d1d5db' }}>
                   Generated: {new Date().toLocaleDateString()}
                 </span>
               </div>
@@ -162,7 +175,7 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
           </div>
 
           {/* Student Information */}
-          <div className={`bg-slate-50 border border-slate-200 rounded-xl mb-8 flex shadow-sm ${isDownloading ? 'p-6 flex-row items-start space-y-0 space-x-6 text-left' : 'p-4 sm:p-6 flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-6 text-center sm:text-left'}`}>
+          <div className={`bg-slate-50 border border-slate-200 rounded-xl mb-8 flex shadow-sm ${isDownloading ? 'p-6 flex-row items-start space-y-0 space-x-6 text-left' : 'p-4 sm:p-6 print:p-6 flex-col sm:flex-row print:flex-row items-center sm:items-start print:items-start space-y-4 sm:space-y-0 print:space-y-0 sm:space-x-6 print:space-x-6 text-center sm:text-left print:text-left'}`}>
             <div className="w-24 h-24 bg-blue-100 border-2 border-blue-200 rounded-lg flex items-center justify-center shrink-0 overflow-hidden relative z-10 student-photo">
               {photoBase64 ? (
                 <img src={photoBase64} alt={student.fullName} className="w-full h-full object-cover" />
@@ -298,17 +311,17 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
           </div>
 
           {/* Footer */}
-          <div className={`mt-auto pt-8 pb-4 w-full print:grayscale`}>
-            <div className={`border-t border-gray-200 pt-6 flex text-xs text-gray-500 font-medium ${isDownloading ? 'flex-row justify-between items-center space-y-0' : 'flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0'}`}>
-              <div className={`space-y-1 ${isDownloading ? 'text-left' : 'text-center sm:text-left'}`}>
+          <div className="mt-auto pt-8 pb-4 w-full print:grayscale">
+            <div className={`border-t border-gray-200 pt-6 flex text-xs text-gray-500 font-medium ${isDownloading ? 'flex-row justify-between items-center space-y-0' : 'flex-col sm:flex-row print:flex-row justify-between items-center space-y-4 sm:space-y-0 print:space-y-0'}`}>
+              <div className={`space-y-1 ${isDownloading ? 'text-left' : 'text-center sm:text-left print:text-left'}`}>
                 <p className="font-bold text-gray-700">Jirvinho software world</p>
                 <p>jirvinhosoftwareworld@gmail.com</p>
               </div>
-              <div className={`space-y-1 ${isDownloading ? 'text-center' : 'text-center sm:text-left'}`}>
+              <div className={`space-y-1 ${isDownloading ? 'text-center' : 'text-center print:text-center'}`}>
                 <p>Tel: 0700400063 / 0760289823</p>
                 <p>www.jirvinhosoftwareworld.com</p>
               </div>
-              <div className={`space-y-1 ${isDownloading ? 'text-right' : 'text-center sm:text-right'}`}>
+              <div className={`space-y-1 ${isDownloading ? 'text-right' : 'text-center sm:text-right print:text-right'}`}>
                 <p>&copy; {new Date().getFullYear()} All rights reserved.</p>
                 <p>Ref: JSW-RSLIP-{new Date().getFullYear()}</p>
               </div>
