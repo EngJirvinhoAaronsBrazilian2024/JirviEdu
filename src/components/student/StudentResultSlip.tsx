@@ -5,8 +5,8 @@ import { Printer, Download, X } from 'lucide-react';
 import { toPng } from 'html-to-image';
 import { jsPDF } from 'jspdf';
 import { motion } from 'motion/react';
-import { QRCodeCanvas } from 'qrcode.react';
-import logoImage from '../../assets/logo.jpg';
+import { QRCodeSVG } from 'qrcode.react';
+import logoImage from '../../assets/images/jirvinho_software_logo_1786624907286.jpg';
 
 interface ResultSlipProps {
   student: Student;
@@ -30,7 +30,9 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
         })
         .catch(err => {
           console.warn("Could not load student photo as base64 for PDF", err);
-          setPhotoBase64(student.photoUrl || null); // fallback
+          // If we fallback to the raw URL and it has CORS issues, html-to-image will crash with Unknown error.
+          // It's safer to just not show the photo if we can't base64 it for PDF generation.
+          setPhotoBase64(null); 
         });
     }
   }, [student.photoUrl]);
@@ -163,7 +165,7 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
           <div className={`bg-slate-50 border border-slate-200 rounded-xl mb-8 flex shadow-sm ${isDownloading ? 'p-6 flex-row items-start space-y-0 space-x-6 text-left' : 'p-4 sm:p-6 flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-6 text-center sm:text-left'}`}>
             <div className="w-24 h-24 bg-blue-100 border-2 border-blue-200 rounded-lg flex items-center justify-center shrink-0 overflow-hidden relative z-10 student-photo">
               {photoBase64 ? (
-                <img src={photoBase64} alt={student.fullName} className="w-full h-full object-cover" crossOrigin="anonymous" />
+                <img src={photoBase64} alt={student.fullName} className="w-full h-full object-cover" />
               ) : (
                 <span className="text-blue-500 font-bold text-xs p-2">No Photo<br/>Provided</span>
               )}
@@ -280,7 +282,7 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
             </div>
             <div className="flex flex-col items-center">
               <div className="w-20 h-20 bg-gray-100 border border-gray-300 rounded-lg flex items-center justify-center mb-2 shadow-inner">
-                 <QRCodeCanvas value={`https://www.jirvinhosoftwareworld.com/verify/${student.regNumber}`} size={64} level={"M"} />
+                 <QRCodeSVG value={`https://www.jirvinhosoftwareworld.com/verify/${student.regNumber}`} size={64} level={"M"} />
               </div>
               <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Scan to Verify</span>
             </div>
