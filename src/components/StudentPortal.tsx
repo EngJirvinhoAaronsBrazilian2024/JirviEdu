@@ -131,7 +131,7 @@ export default function StudentPortal({ setRole }: { setRole: (role: string | nu
                   );
                 })}
               </nav>
-              <div className="p-6 border-t border-slate-600 dark:border-[var(--border-subtle)]">
+              <div className="p-6 border-t border-slate-600 dark:border-[var(--border-subtle)] shrink-0">
                 <button onClick={handleLogout} className="flex items-center justify-center w-full px-4 py-3 text-sm font-semibold text-white bg-red-500 hover:bg-red-600 rounded-xl transition-colors shadow-sm">
                   <LogOut className="mr-3 h-4 w-4" />
                   Sign Out
@@ -170,6 +170,25 @@ export default function StudentPortal({ setRole }: { setRole: (role: string | nu
             );
           })}
         </nav>
+        <div className="p-6 border-t border-slate-600 dark:border-[var(--border-subtle)] shrink-0">
+          <div className="flex items-center gap-3 mb-4">
+            {student?.photoUrl ? (
+              <img src={student.photoUrl} alt="" className="w-10 h-10 rounded-full object-cover border border-slate-500 shadow-sm" />
+            ) : (
+              <div className="w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold shadow-sm">
+                {student?.fullName?.charAt(0) || 'S'}
+              </div>
+            )}
+            <div className="overflow-hidden">
+              <p className="text-sm font-semibold text-white leading-none mb-1 truncate">{student?.fullName || 'Student'}</p>
+              <p className="text-xs text-slate-300 leading-none font-medium truncate">{student?.regNumber || 'Not Registered'}</p>
+            </div>
+          </div>
+          <button onClick={handleLogout} className="flex items-center justify-center w-full px-4 py-3 text-sm font-semibold text-white bg-red-500 hover:bg-red-600 rounded-xl transition-colors shadow-sm">
+            <LogOut className="mr-3 h-4 w-4" />
+            Sign Out
+          </button>
+        </div>
       </div>
 
       {/* Main content */}

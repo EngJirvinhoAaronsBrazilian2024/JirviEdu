@@ -105,7 +105,7 @@ export default function TeacherPortal({ setRole }: { setRole: (role: string | nu
                   );
                 })}
               </div>
-              <div className="p-4 border-t border-[var(--border-subtle)] bg-[var(--bg-app)]">
+              <div className="p-4 border-t border-[var(--border-subtle)] bg-[var(--bg-app)] shrink-0">
                 <div className="flex items-center mb-4 px-2">
                   <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold mr-3 shadow-inner">
                     {teacher?.fullName?.charAt(0) || 'T'}
@@ -154,7 +154,7 @@ export default function TeacherPortal({ setRole }: { setRole: (role: string | nu
             );
           })}
         </div>
-        <div className="p-6 border-t border-[var(--border-subtle)] bg-[var(--bg-app)]">
+        <div className="p-6 border-t border-[var(--border-subtle)] bg-[var(--bg-app)] shrink-0">
           <div className="flex items-center mb-6">
             <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold mr-3 shadow-inner">
               {teacher?.fullName?.charAt(0) || 'T'}

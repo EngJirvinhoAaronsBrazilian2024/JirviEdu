@@ -100,7 +100,7 @@ export default function AdminPortal({ setRole }: { setRole: (role: string | null
                   );
                 })}
               </nav>
-              <div className="p-6 border-t border-slate-600 dark:border-[var(--border-subtle)]">
+              <div className="p-6 border-t border-slate-600 dark:border-[var(--border-subtle)] shrink-0">
                 <button onClick={handleLogout} className="flex items-center justify-center w-full px-4 py-3 text-sm font-semibold text-white bg-red-500 hover:bg-red-600 rounded-xl transition-colors shadow-sm">
                   <LogOut className="mr-3 h-4 w-4" />
                   Sign Out
@@ -139,7 +139,7 @@ export default function AdminPortal({ setRole }: { setRole: (role: string | null
             );
           })}
         </nav>
-        <div className="p-6 border-t border-slate-600 dark:border-[var(--border-subtle)]">
+        <div className="p-6 border-t border-slate-600 dark:border-[var(--border-subtle)] shrink-0">
           <div className="flex items-center gap-3 cursor-pointer p-2 rounded-xl border border-transparent hover:border-slate-500 hover:bg-slate-600 transition-all mb-4">
             <div className="w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold shadow-sm">
               AD
