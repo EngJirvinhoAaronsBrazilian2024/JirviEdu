@@ -14,7 +14,7 @@ export default function InstallPrompt() {
     if (isStandalone) return;
 
     // Check if prompt was dismissed recently (e.g., within 7 days)
-    const dismissedTime = localStorage.getItem('pwa_prompt_dismissed');
+    const dismissedTime = localStorage.getItem('pwa_prompt_dismissed_v2');
     if (dismissedTime && Date.now() - parseInt(dismissedTime, 10) < 7 * 24 * 60 * 60 * 1000) {
       return;
     }
@@ -58,7 +58,7 @@ export default function InstallPrompt() {
 
   const handleDismiss = () => {
     setShowPrompt(false);
-    localStorage.setItem('pwa_prompt_dismissed', Date.now().toString());
+    localStorage.setItem('pwa_prompt_dismissed_v2', Date.now().toString());
   };
 
   if (!showPrompt) return null;
