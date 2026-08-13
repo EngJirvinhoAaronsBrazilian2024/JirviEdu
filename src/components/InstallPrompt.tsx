@@ -14,13 +14,20 @@ export default function InstallPrompt() {
     if (isStandalone) return;
 
     // Check if prompt was dismissed recently (e.g., within 7 days)
-    const dismissedTime = localStorage.getItem('pwa_prompt_dismissed_v2');
+    const dismissedTime = localStorage.getItem('pwa_prompt_dismissed_v3');
     if (dismissedTime && Date.now() - parseInt(dismissedTime, 10) < 7 * 24 * 60 * 60 * 1000) {
       return;
     }
 
+    // Check if the event was already captured by index.html before React mounted
+    if ((window as any).deferredPWAInstallPrompt) {
+      setDeferredPrompt((window as any).deferredPWAInstallPrompt);
+      setShowPrompt(true);
+    }
+
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault(); // Prevent automatic prompting
+      (window as any).deferredPWAInstallPrompt = e;
       setDeferredPrompt(e);
       setShowPrompt(true);
     };
@@ -58,7 +65,7 @@ export default function InstallPrompt() {
 
   const handleDismiss = () => {
     setShowPrompt(false);
-    localStorage.setItem('pwa_prompt_dismissed_v2', Date.now().toString());
+    localStorage.setItem('pwa_prompt_dismissed_v3', Date.now().toString());
   };
 
   if (!showPrompt) return null;
