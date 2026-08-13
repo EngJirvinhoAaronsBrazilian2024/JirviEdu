@@ -1,7 +1,8 @@
 import React, { useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Student } from '../../types';
 import { Printer, Download, X } from 'lucide-react';
-import { toJpeg } from 'html-to-image';
+import { toPng } from 'html-to-image';
 import { jsPDF } from 'jspdf';
 import { motion } from 'motion/react';
 import { QRCodeCanvas } from 'qrcode.react';
@@ -48,15 +49,13 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
     try {
       const element = slipRef.current;
       
-      const imgData = await toJpeg(element, { 
+      const imgData = await toPng(element, { 
         quality: 1.0,
         backgroundColor: '#ffffff',
         pixelRatio: 2,
-        width: 794,
         style: {
           transform: 'scale(1)',
           transformOrigin: 'top left',
-          margin: '0',
         }
       });
       
@@ -69,12 +68,6 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
       
-      const img = new Image();
-      img.src = imgData;
-      await new Promise((resolve) => {
-        img.onload = resolve;
-      });
-      
       const imgProps = pdf.getImageProperties(imgData);
       const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
       
@@ -82,14 +75,14 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
       let heightLeft = pdfHeight;
       
       // Add first page
-      pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, pdfHeight);
+      pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, Math.min(pdfHeight, pageHeight));
       heightLeft -= pageHeight;
       
       // Add subsequent pages if content overflows one A4 page
       while (heightLeft > 0) {
         position = heightLeft - pdfHeight;
         pdf.addPage();
-        pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, pdfHeight);
+        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
         heightLeft -= pageHeight;
       }
       
@@ -117,12 +110,12 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
     window.print();
   };
 
-  return (
+  return createPortal(
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex justify-center bg-black/60 backdrop-blur-sm p-4 sm:p-8 print:p-0 print:bg-white overflow-y-auto"
+      className="fixed inset-0 z-[9999] flex justify-center bg-black/60 backdrop-blur-sm p-4 sm:p-8 print:p-0 print:bg-white overflow-y-auto"
     >
       <div className="fixed top-4 right-4 flex space-x-3 print:hidden z-[60]">
         <button onClick={handlePrint} className="flex items-center px-4 py-2 bg-white text-gray-800 rounded-lg shadow hover:bg-gray-50 font-semibold transition-colors">
@@ -146,21 +139,20 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
           style={isDownloading ? { boxSizing: 'border-box' } : {}}
         >
           {/* Header */}
-          <div className="flex flex-col items-center border-b-4 border-blue-600 pb-8 mb-8 text-center space-y-4 relative">
-            <div className={`absolute top-0 left-0 w-full h-32 bg-blue-50/50 -z-10 rounded-t-2xl print:grayscale`}></div>
-            <img src={logoImage} alt="Logo" className="w-32 h-32 sm:w-40 sm:h-40 object-contain shadow-sm rounded-2xl p-3 bg-white border border-slate-100 relative z-10" />
-            <div className="relative z-10">
-              <h1 className={`font-extrabold tracking-tight uppercase ${isDownloading ? 'text-black text-3xl' : 'text-blue-900 text-3xl sm:text-4xl'}`}>Jirvinho Software World</h1>
-              <p className={`font-bold tracking-widest uppercase mt-1 ${isDownloading ? 'text-black text-base' : 'text-gray-500 text-sm sm:text-base'}`}>Excellence in Education Technology</p>
+          <div className="flex flex-col items-center border-b-4 border-black pb-8 mb-8 text-center space-y-4">
+            <img src={logoImage} alt="Logo" className="w-32 h-32 sm:w-40 sm:h-40 object-contain shadow-sm rounded-2xl p-3 bg-white border border-slate-100" />
+            <div>
+              <h1 className="font-extrabold tracking-tight uppercase text-black text-3xl sm:text-4xl">Jirvinho Software World</h1>
+              <p className="font-bold tracking-widest uppercase mt-1 text-black text-sm sm:text-base">Excellence in Education Technology</p>
             </div>
-            <div className={`w-24 h-1 bg-blue-500 rounded-full my-4 relative z-10 print:grayscale`}></div>
-            <div className="relative z-10">
-              <h2 className={`font-extrabold mb-4 ${isDownloading ? 'text-black text-2xl' : 'text-gray-800 text-2xl sm:text-3xl'}`}>OFFICIAL STUDENT RESULT SLIP</h2>
-              <div className={`flex items-center justify-center gap-3 text-sm font-semibold text-gray-600 ${isDownloading ? 'flex-row' : 'flex-col sm:flex-row'}`}>
-                <span className="bg-blue-50 text-blue-800 px-4 py-1.5 rounded-full border border-blue-200 shadow-sm">
+            <div className="w-24 h-1 bg-black rounded-full my-4"></div>
+            <div>
+              <h2 className="font-extrabold mb-4 text-black text-2xl sm:text-3xl">OFFICIAL STUDENT RESULT SLIP</h2>
+              <div className={`flex items-center justify-center gap-3 text-sm font-bold text-black ${isDownloading ? 'flex-row' : 'flex-col sm:flex-row'}`}>
+                <span className="bg-gray-100 text-black px-4 py-1.5 rounded-full border border-gray-300 shadow-sm">
                   Academic Year: {new Date().getFullYear()}/{new Date().getFullYear() + 1}
                 </span>
-                <span className="bg-slate-50 text-slate-700 px-4 py-1.5 rounded-full border border-slate-200 shadow-sm">
+                <span className="bg-gray-100 text-black px-4 py-1.5 rounded-full border border-gray-300 shadow-sm">
                   Generated: {new Date().toLocaleDateString()}
                 </span>
               </div>
@@ -360,6 +352,7 @@ export default function StudentResultSlip({ student, results, onClose }: ResultS
           }
         }
       `}</style>
-    </motion.div>
+    </motion.div>,
+    document.body
   );
 }

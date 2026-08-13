@@ -174,7 +174,7 @@ export default function StudentPortal({ setRole }: { setRole: (role: string | nu
       </div>
 
       {/* Main content */}
-      <div className="flex-1 lg:pl-72 flex flex-col min-h-screen relative z-10 w-full overflow-hidden">
+      <div className="flex-1 lg:pl-72 flex flex-col min-h-screen relative z-10 w-full">
         {/* Top Header */}
         <header className="sticky top-0 z-30 flex h-20 bg-[var(--bg-card)]/80 backdrop-blur-xl border-b border-[var(--border-subtle)] px-4 sm:px-6 lg:px-8 justify-between items-center shadow-sm print:hidden">
           <div className="flex items-center lg:hidden">
@@ -402,44 +402,44 @@ function StudentDashboard({ student }: { student: Student | null }) {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="bg-[var(--bg-card)] p-5 rounded-2xl border border-[var(--border-subtle)] shadow-sm flex items-center gap-4 relative overflow-hidden group hover:shadow-md transition-all">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 lg:grid-cols-2">
+        <div className="bg-[var(--bg-card)] p-4 sm:p-5 rounded-2xl border border-[var(--border-subtle)] shadow-sm flex items-center gap-4 relative overflow-hidden group hover:shadow-md transition-all">
           <div className="p-3 rounded-xl shrink-0 bg-orange-50 text-orange-600 dark:bg-orange-500/10 dark:text-orange-400">
             <BookOpen className="w-6 h-6" strokeWidth={2} />
           </div>
-          <div className="flex flex-col">
-            <p className="text-xs font-semibold text-muted uppercase tracking-wider">Enrolled Modules</p>
-            <span className="text-2xl font-bold text-[var(--text-main)] mt-0.5">{stats.modules}</span>
+          <div className="flex flex-col flex-1">
+            <p className="text-[10px] sm:text-xs font-semibold text-muted uppercase tracking-wide leading-tight">Enrolled Modules</p>
+            <span className="text-xl sm:text-2xl font-bold text-[var(--text-main)] mt-0.5">{stats.modules}</span>
           </div>
         </div>
 
-        <div className="bg-[var(--bg-card)] p-5 rounded-2xl border border-[var(--border-subtle)] shadow-sm flex items-center gap-4 relative overflow-hidden group hover:shadow-md transition-all">
+        <div className="bg-[var(--bg-card)] p-4 sm:p-5 rounded-2xl border border-[var(--border-subtle)] shadow-sm flex items-center gap-4 relative overflow-hidden group hover:shadow-md transition-all">
           <div className="p-3 rounded-xl shrink-0 bg-purple-50 text-purple-600 dark:bg-purple-500/10 dark:text-purple-400">
             <FileText className="w-6 h-6" strokeWidth={2} />
           </div>
-          <div className="flex flex-col">
-            <p className="text-xs font-semibold text-muted uppercase tracking-wider">Total Assignments</p>
-            <span className="text-2xl font-bold text-[var(--text-main)] mt-0.5">{stats.assignments}</span>
+          <div className="flex flex-col flex-1">
+            <p className="text-[10px] sm:text-xs font-semibold text-muted uppercase tracking-wide leading-tight">Total Assignments</p>
+            <span className="text-xl sm:text-2xl font-bold text-[var(--text-main)] mt-0.5">{stats.assignments}</span>
           </div>
         </div>
 
-        <div className="bg-[var(--bg-card)] p-5 rounded-2xl border border-[var(--border-subtle)] shadow-sm flex items-center gap-4 relative overflow-hidden group hover:shadow-md transition-all">
+        <div className="bg-[var(--bg-card)] p-4 sm:p-5 rounded-2xl border border-[var(--border-subtle)] shadow-sm flex items-center gap-4 relative overflow-hidden group hover:shadow-md transition-all">
           <div className="p-3 rounded-xl shrink-0 bg-pink-50 text-pink-600 dark:bg-pink-500/10 dark:text-pink-400">
             <Video className="w-6 h-6" strokeWidth={2} />
           </div>
-          <div className="flex flex-col">
-            <p className="text-xs font-semibold text-muted uppercase tracking-wider">Upcoming Lectures</p>
-            <span className="text-2xl font-bold text-[var(--text-main)] mt-0.5">{stats.upcomingLectures}</span>
+          <div className="flex flex-col flex-1">
+            <p className="text-[10px] sm:text-xs font-semibold text-muted uppercase tracking-wide leading-tight">Upcoming Lectures</p>
+            <span className="text-xl sm:text-2xl font-bold text-[var(--text-main)] mt-0.5">{stats.upcomingLectures}</span>
           </div>
         </div>
 
-        <div className="bg-[var(--bg-card)] p-5 rounded-2xl border border-[var(--border-subtle)] shadow-sm flex items-center gap-4 relative overflow-hidden group hover:shadow-md transition-all">
+        <div className="bg-[var(--bg-card)] p-4 sm:p-5 rounded-2xl border border-[var(--border-subtle)] shadow-sm flex items-center gap-4 relative overflow-hidden group hover:shadow-md transition-all">
           <div className="p-3 rounded-xl shrink-0 bg-teal-50 text-teal-600 dark:bg-teal-500/10 dark:text-teal-400">
             <PieChart className="w-6 h-6" strokeWidth={2} />
           </div>
-          <div className="flex flex-col">
-            <p className="text-xs font-semibold text-muted uppercase tracking-wider">Published Results</p>
-            <span className="text-2xl font-bold text-[var(--text-main)] mt-0.5">{stats.results || 'N/A'}</span>
+          <div className="flex flex-col flex-1">
+            <p className="text-[10px] sm:text-xs font-semibold text-muted uppercase tracking-wide leading-tight">Published Results</p>
+            <span className="text-xl sm:text-2xl font-bold text-[var(--text-main)] mt-0.5">{stats.results || 'N/A'}</span>
           </div>
         </div>
       </div>

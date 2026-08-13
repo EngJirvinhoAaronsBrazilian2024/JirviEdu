@@ -75,30 +75,30 @@ export default function TeacherDashboard({ teacher }: { teacher: Teacher | null 
         <p className="mt-2 text-muted font-medium">Here's what's happening with your modules today.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         <motion.div 
           initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-          className="bg-[var(--bg-card)] p-5 rounded-2xl border border-[var(--border-subtle)] shadow-sm flex items-center gap-4 relative overflow-hidden group hover:shadow-md transition-all"
+          className="bg-[var(--bg-card)] p-4 sm:p-5 rounded-2xl border border-[var(--border-subtle)] shadow-sm flex items-center gap-4 relative overflow-hidden group hover:shadow-md transition-all"
         >
           <div className="p-3 rounded-xl shrink-0 bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400">
             <BookOpen className="w-6 h-6" strokeWidth={2} />
           </div>
-          <div>
-            <p className="text-xs font-semibold text-muted uppercase tracking-wider">Assigned Modules</p>
-            <p className="text-2xl font-bold text-[var(--text-main)] mt-0.5">{modules.length}</p>
+          <div className="flex flex-col flex-1">
+            <p className="text-[10px] sm:text-xs font-semibold text-muted uppercase tracking-wide leading-tight">Assigned Modules</p>
+            <p className="text-xl sm:text-2xl font-bold text-[var(--text-main)] mt-0.5">{modules.length}</p>
           </div>
         </motion.div>
 
         <motion.div 
           initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-          className="bg-[var(--bg-card)] p-5 rounded-2xl border border-[var(--border-subtle)] shadow-sm flex items-center gap-4 relative overflow-hidden group hover:shadow-md transition-all"
+          className="bg-[var(--bg-card)] p-4 sm:p-5 rounded-2xl border border-[var(--border-subtle)] shadow-sm flex items-center gap-4 relative overflow-hidden group hover:shadow-md transition-all"
         >
           <div className="p-3 rounded-xl shrink-0 bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400">
             <Video className="w-6 h-6" strokeWidth={2} />
           </div>
-          <div>
-            <p className="text-xs font-semibold text-muted uppercase tracking-wider">Upcoming Lectures</p>
-            <p className="text-2xl font-bold text-[var(--text-main)] mt-0.5">{upcomingLectures.length}</p>
+          <div className="flex flex-col flex-1">
+            <p className="text-[10px] sm:text-xs font-semibold text-muted uppercase tracking-wide leading-tight">Upcoming Lectures</p>
+            <p className="text-xl sm:text-2xl font-bold text-[var(--text-main)] mt-0.5">{upcomingLectures.length}</p>
           </div>
         </motion.div>
       </div>
