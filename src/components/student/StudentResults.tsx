@@ -29,28 +29,21 @@ export default function StudentResults({ student }: { student: Student | null })
         if (!isMounted) return;
         const mods = snap.docs.map(d => ({ id: d.id, ...d.data() } as Module));
 
-        const gradedSubmissions: {mod: Module, asn: any, sub: any}[] = [];
-        
-        for (const m of mods) {
+        const gradedSubmissions = (await Promise.all(mods.map(async m => {
           const asnSnap = await getDocs(collection(db, `modules/${m.id}/assignments`));
-          for (const asnDoc of asnSnap.docs) {
+          const subs = await Promise.all(asnSnap.docs.map(async asnDoc => {
             const asnData = { id: asnDoc.id, ...asnDoc.data() };
-            // Check for submission
-            const subDocRef = doc(db, `modules/${m.id}/assignments/${asnDoc.id}/submissions`, student.id);
-            const subDocSnap = await getDoc(subDocRef);
-            
+            const subDocSnap = await getDoc(doc(db, `modules/${m.id}/assignments/${asnDoc.id}/submissions`, student.id));
             if (subDocSnap.exists()) {
               const subData = subDocSnap.data() as any;
               if (subData.grade !== undefined && subData.grade !== null) {
-                 gradedSubmissions.push({ 
-                  mod: m, 
-                  asn: asnData,
-                  sub: subData
-                });
+                return { mod: m, asn: asnData, sub: subData };
               }
             }
-          }
-        }
+            return null;
+          }));
+          return subs.filter(Boolean);
+        }))).flat();
         if (!isMounted) return;
         
         const sorted = gradedSubmissions.sort((a,b) => b.sub.submittedAt - a.sub.submittedAt);
@@ -68,12 +61,9 @@ export default function StudentResults({ student }: { student: Student | null })
     };
     
     fetchResults();
-    const interval = setInterval(fetchResults, 3000);
     const unsub = mutationEmitter.subscribe(fetchResults);
-
     return () => {
       isMounted = false;
-      clearInterval(interval);
       unsub();
     };
   }, [student?.id]);

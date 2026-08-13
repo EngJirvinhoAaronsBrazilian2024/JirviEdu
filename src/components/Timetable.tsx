@@ -26,13 +26,11 @@ export default function Timetable({ studentId, assignedModules }: { studentId?: 
 
         const enrolledMods: Module[] = [];
         if (studentId) {
-          for (const m of mods) {
-            const docRef = doc(db, `modules/${m.id}/enrollments`, studentId);
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
-              enrolledMods.push(m);
-            }
-          }
+          const validMods = await Promise.all(mods.map(async m => {
+            const docSnap = await getDoc(doc(db, `modules/${m.id}/enrollments`, studentId));
+            return docSnap.exists() ? m : null;
+          }));
+          enrolledMods.push(...validMods.filter(Boolean));
         } else if (assignedModules) {
           for (const m of mods) {
             if (assignedModules.includes(m.id)) {
@@ -41,13 +39,11 @@ export default function Timetable({ studentId, assignedModules }: { studentId?: 
           }
         }
 
-        const allLecs: {mod: Module, lec: any}[] = [];
-        for (const m of (studentId || assignedModules) ? enrolledMods : mods) {
+        const targetMods = (studentId || assignedModules) ? enrolledMods : mods;
+        const allLecs = (await Promise.all(targetMods.map(async m => {
           const lecsSnap = await getDocs(collection(db, `modules/${m.id}/lectures`));
-          lecsSnap.docs.forEach(d => {
-            allLecs.push({ mod: m, lec: { id: d.id, ...d.data() } });
-          });
-        }
+          return lecsSnap.docs.map(d => ({ mod: m, lec: { id: d.id, ...d.data() } }));
+        }))).flat();
         
         if (!isMounted) return;
 
@@ -66,12 +62,9 @@ export default function Timetable({ studentId, assignedModules }: { studentId?: 
     
     fetchLectures();
     
-    const interval = setInterval(fetchLectures, 3000);
     const unsub = mutationEmitter.subscribe(fetchLectures);
-
     return () => {
       isMounted = false;
-      clearInterval(interval);
       unsub();
     };
   }, [studentId]);

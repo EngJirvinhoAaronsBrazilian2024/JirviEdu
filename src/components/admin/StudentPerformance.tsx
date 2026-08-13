@@ -19,14 +19,11 @@ export default function StudentPerformance({ student, onClose }: { student: Stud
         let totalPct = 0;
         let count = 0;
 
-        for (const modDoc of modulesSnap.docs) {
-          const modData = modDoc.data();
+        await Promise.all(modulesSnap.docs.map(async modDoc => {
           const assignmentsSnap = await getDocs(collection(db, `modules/${modDoc.id}/assignments`));
-          
-          for (const aDoc of assignmentsSnap.docs) {
+          await Promise.all(assignmentsSnap.docs.map(async aDoc => {
             const aData = aDoc.data();
             const subDoc = await getDoc(doc(db, `modules/${modDoc.id}/assignments/${aDoc.id}/submissions`, student.id));
-            
             if (subDoc.exists()) {
               const subData = subDoc.data();
               if (subData.grade !== undefined && aData.marks) {
@@ -40,8 +37,8 @@ export default function StudentPerformance({ student, onClose }: { student: Stud
                 count++;
               }
             }
-          }
-        }
+          }));
+        }));
 
         grades.sort((a, b) => a.date - b.date);
         setPerformanceData(grades.map(g => ({ ...g, date: new Date(g.date).toLocaleDateString() })));

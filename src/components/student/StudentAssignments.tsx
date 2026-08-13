@@ -177,31 +177,19 @@ export default function StudentAssignments({ studentId }: { studentId: string })
         
         const mods = snap.docs.map(d => ({ id: d.id, ...d.data() } as Module));
 
-        const enrolledMods: Module[] = [];
-        for (const m of mods) {
-          const docRef = doc(db, `modules/${m.id}/enrollments`, studentId);
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            enrolledMods.push(m);
-          }
-        }
+        const enrolledMods = (await Promise.all(mods.map(async m => {
+          const docSnap = await getDoc(doc(db, `modules/${m.id}/enrollments`, studentId));
+          return docSnap.exists() ? m : null;
+        }))).filter(Boolean) as Module[];
 
-        const allAsn: {mod: Module, asn: any, sub: any | null}[] = [];
-        for (const m of enrolledMods) {
+        const allAsn = (await Promise.all(enrolledMods.map(async m => {
           const asnSnap = await getDocs(collection(db, `modules/${m.id}/assignments`));
-          for (const asnDoc of asnSnap.docs) {
+          return Promise.all(asnSnap.docs.map(async asnDoc => {
             const asnData = { id: asnDoc.id, ...asnDoc.data() };
-            // Check for submission
-            const subDocRef = doc(db, `modules/${m.id}/assignments/${asnDoc.id}/submissions`, studentId);
-            const subDocSnap = await getDoc(subDocRef);
-            
-            allAsn.push({ 
-              mod: m, 
-              asn: asnData,
-              sub: subDocSnap.exists() ? subDocSnap.data() : null
-            });
-          }
-        }
+            const subDocSnap = await getDoc(doc(db, `modules/${m.id}/assignments/${asnDoc.id}/submissions`, studentId));
+            return { mod: m, asn: asnData, sub: subDocSnap.exists() ? subDocSnap.data() : null };
+          }));
+        }))).flat();
         
         if (!isMounted) return;
         
@@ -219,12 +207,9 @@ export default function StudentAssignments({ studentId }: { studentId: string })
     };
     
     fetchAssignments();
-    const interval = setInterval(fetchAssignments, 3000);
     const unsub = mutationEmitter.subscribe(fetchAssignments);
-
     return () => {
       isMounted = false;
-      clearInterval(interval);
       unsub();
     };
   }, [studentId]);

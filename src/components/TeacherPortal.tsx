@@ -14,7 +14,6 @@ import Timetable from './Timetable';
 import TeacherDashboard from './teacher/TeacherDashboard';
 import { db, doc, getDoc } from '../lib/db';
 import { Teacher } from '../types';
-import { GraduationCap } from 'lucide-react';
 
 export default function TeacherPortal({ setRole }: { setRole: (role: string | null) => void }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);

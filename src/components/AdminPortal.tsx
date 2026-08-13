@@ -25,7 +25,6 @@ import NotificationBell from './NotificationBell';
 import AdminActivityLogs from './admin/AdminActivityLogs';
 import TeacherManagement from './admin/TeacherManagement';
 import Timetable from './Timetable';
-import { GraduationCap } from 'lucide-react';
 
 export default function AdminPortal({ setRole }: { setRole: (role: string | null) => void }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -255,10 +254,9 @@ function AdminDashboard() {
         const modulesSnap = await getDocs(collection(db, 'modules'));
         mCount = modulesSnap.docs.length;
         
-        for (const modDoc of modulesSnap.docs) {
+        await Promise.all(modulesSnap.docs.map(async modDoc => {
           const modData = modDoc.data() as any;
           modGrades[modData.code] = { total: 0, count: 0 };
-          
           try {
             const [assignmentsSnap, lecturesSnap] = await Promise.all([
               getDocs(collection(db, `modules/${modDoc.id}/assignments`)).catch(() => ({ docs: [] })),
@@ -268,7 +266,7 @@ function AdminDashboard() {
             assignmentsCount += assignmentsSnap.docs.length;
             lecturesCount += lecturesSnap.docs.length;
 
-            for (const aDoc of assignmentsSnap.docs) {
+            await Promise.all(assignmentsSnap.docs.map(async aDoc => {
               const aData = aDoc.data() as any;
               try {
                 const subsSnap = await getDocs(collection(db, `modules/${modDoc.id}/assignments/${aDoc.id}/submissions`));
@@ -308,11 +306,11 @@ function AdminDashboard() {
               } catch (subErr) {
                 console.error("Failed fetching submissions for assignment", aDoc.id, subErr);
               }
-            }
+            }));
           } catch (err) {
             console.error("Failed fetching assignments/lectures for module", modDoc.id, err);
           }
-        }
+        }));
       } catch (err) {
         console.warn("Failed to fetch modules in dashboard", err);
       }

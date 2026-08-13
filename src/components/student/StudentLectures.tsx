@@ -26,14 +26,10 @@ export default function StudentLectures({ studentId }: { studentId: string }) {
         
         const mods = snap.docs.map(d => ({ id: d.id, ...d.data() } as Module));
         
-        const enrolledMods: Module[] = [];
-        for (const m of mods) {
-          const docRef = doc(db, `modules/${m.id}/enrollments`, studentId);
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            enrolledMods.push(m);
-          }
-        }
+        const enrolledMods = (await Promise.all(mods.map(async m => {
+          const docSnap = await getDoc(doc(db, `modules/${m.id}/enrollments`, studentId));
+          return docSnap.exists() ? m : null;
+        }))).filter(Boolean) as Module[];
         
         setModules(enrolledMods);
 
@@ -80,12 +76,9 @@ export default function StudentLectures({ studentId }: { studentId: string }) {
     };
     
     fetchLectures();
-    const interval = setInterval(fetchLectures, 3000);
     const unsub = mutationEmitter.subscribe(fetchLectures);
-
     return () => {
       isMounted = false;
-      clearInterval(interval);
       unsub();
     };
   }, [studentId]);

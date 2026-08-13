@@ -22,7 +22,6 @@ import StudentResults from './student/StudentResults';
 import StudentSettings from './student/StudentSettings';
 import Timetable from './Timetable';
 import { Award, GraduationCap } from 'lucide-react';
-import { GraduationCap } from 'lucide-react';
 
 export default function StudentPortal({ setRole }: { setRole: (role: string | null) => void }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -270,32 +269,27 @@ function StudentDashboard({ student }: { student: Student | null }) {
         const snap = await getDocs(q);
         const mods = snap.docs.map(d => ({ id: d.id, ...d.data() } as Module));
 
-        const enrolledMods: Module[] = [];
-        for (const m of mods) {
-          const docRef = doc(db, `modules/${m.id}/enrollments`, student.id);
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            enrolledMods.push(m);
-          }
-        }
+        const enrolledMods = (await Promise.all(mods.map(async m => {
+          const docSnap = await getDoc(doc(db, `modules/${m.id}/enrollments`, student.id));
+          return docSnap.exists() ? m : null;
+        }))).filter(Boolean) as Module[];
 
         const allLecs: {mod: Module, lec: any}[] = [];
         let assignmentsCount = 0;
         let resultsCount = 0;
 
-        for (const m of enrolledMods) {
-          const lecsSnap = await getDocs(collection(db, `modules/${m.id}/lectures`));
+        await Promise.all(enrolledMods.map(async m => {
+          const [lecsSnap, assignmentsSnap] = await Promise.all([
+            getDocs(collection(db, `modules/${m.id}/lectures`)),
+            getDocs(collection(db, `modules/${m.id}/assignments`))
+          ]);
           lecsSnap.docs.forEach(d => {
             allLecs.push({ mod: m, lec: { id: d.id, ...d.data() } });
           });
-
-          const assignmentsSnap = await getDocs(collection(db, `modules/${m.id}/assignments`));
           assignmentsCount += assignmentsSnap.docs.length;
-
-          // For results we can just mock or fetch
-          const resultsSnap = await getDocs(collection(db, `students/${student.id}/results`)).catch(() => ({ docs: [] }));
-          resultsCount = resultsSnap.docs.length || 0;
-        }
+        }));
+        const resultsSnap = await getDocs(collection(db, `students/${student.id}/results`)).catch(() => ({ docs: [] }));
+        resultsCount = resultsSnap.docs.length || 0;
 
         allLecs.sort((a,b) => {
           const dateA = new Date(`${a.lec.date}T${a.lec.time}`).getTime();

@@ -65,12 +65,9 @@ export default function StudentMaterials({ studentId }: { studentId: string }) {
     };
     
     fetchMaterials();
-    const interval = setInterval(fetchMaterials, 3000);
     const unsub = mutationEmitter.subscribe(fetchMaterials);
-
     return () => {
       isMounted = false;
-      clearInterval(interval);
       unsub();
     };
   }, [studentId]);
