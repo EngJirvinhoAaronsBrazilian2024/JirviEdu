@@ -367,7 +367,7 @@ export default function StudentAssignments({ studentId }: { studentId: string })
             const isWriting = activeSheet === item.asn.id;
             const isSubmitted = !!item.sub;
             
-            let data = { text: item.asn.description, start: item.asn.createdAt || Date.now() };
+            let data = { text: item.asn.description, start: item.asn.startTime || item.asn.createdAt || Date.now() };
             if (typeof item.asn.description === 'string' && item.asn.description.startsWith('{')) {
               try { data = JSON.parse(item.asn.description); } catch(e) {}
             }

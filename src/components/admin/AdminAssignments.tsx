@@ -54,10 +54,8 @@ export default function AdminAssignments({ assignedModules }: { assignedModules?
         fileUrl = await getDownloadURL(fileRef);
       }
 
-      const payloadDesc = JSON.stringify({ text: desc, start: new Date(startTime).getTime() });
-
       const newAssignment = {
-        title, description: payloadDesc, deadline: new Date(deadline).getTime(), marks: Number(marks), fileUrl, createdAt: Date.now()
+        title, description: desc, startTime: new Date(startTime).getTime(), deadline: new Date(deadline).getTime(), marks: Number(marks), fileUrl, createdAt: Date.now()
       };
       await setDoc(doc(db, `modules/${selectedModule}/assignments`, id), newAssignment);
       
@@ -254,8 +252,7 @@ export default function AdminAssignments({ assignedModules }: { assignedModules?
                       {assignments
                         .filter(ast => ast.title?.toLowerCase().includes(searchQuery.toLowerCase()))
                         .map(ast => {
-                        const isJson = typeof ast.description === 'string' && ast.description.startsWith('{');
-                        const data = isJson ? JSON.parse(ast.description) : { text: ast.description, start: ast.createdAt || Date.now() };
+                        const data = { text: ast.description, start: ast.startTime || ast.createdAt || Date.now() };
                         return (
                         <tr key={ast.id} className="hover:bg-[var(--bg-app)] transition-colors group">
                           <td className="px-6 py-5 whitespace-nowrap text-sm text-[var(--text-main)]">

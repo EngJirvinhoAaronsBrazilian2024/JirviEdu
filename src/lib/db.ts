@@ -19,7 +19,7 @@ function camelToSnake(obj: any) {
   const newObj: any = {};
   for (const [key, value] of Object.entries(obj)) {
     const snakeKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
-    if (typeof value === 'number' && (key.endsWith('At') || key === 'deadline')) {
+    if (typeof value === 'number' && (key.endsWith('At') || key.endsWith('Time') || key === 'deadline')) {
       newObj[snakeKey] = new Date(value).toISOString();
     } else {
       newObj[snakeKey] = camelToSnake(value);
@@ -33,7 +33,7 @@ function snakeToCamel(obj: any) {
   const newObj: any = {};
   for (const [key, value] of Object.entries(obj)) {
     const camelKey = key.replace(/_([a-z])/g, (g) => g[1].toUpperCase());
-    if (typeof value === 'string' && value.match(/^\d{4}-\d{2}-\d{2}T/) && (camelKey.endsWith('At') || camelKey === 'deadline')) {
+    if (typeof value === 'string' && value.match(/^\d{4}-\d{2}-\d{2}T/) && (camelKey.endsWith('At') || camelKey.endsWith('Time') || camelKey === 'deadline')) {
       newObj[camelKey] = new Date(value).getTime();
     } else {
       newObj[camelKey] = snakeToCamel(value);
