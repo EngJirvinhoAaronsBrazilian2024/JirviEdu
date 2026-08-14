@@ -173,8 +173,8 @@ export default function TeacherManagement() {
       <AnimatePresence>
         {modalOpen && (
           <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-            <motion.div initial={{scale:0.95}} animate={{scale:1}} exit={{scale:0.95}} className="bg-[var(--bg-card)] rounded-2xl w-full max-w-lg overflow-hidden border border-[var(--border-strong)] shadow-2xl">
-              <div className="px-6 py-4 border-b border-[var(--border-subtle)] flex justify-between items-center bg-[var(--bg-app)]">
+            <motion.div initial={{scale:0.95}} animate={{scale:1}} exit={{scale:0.95}} className="bg-[var(--bg-card)] rounded-2xl w-full max-w-lg overflow-visible border border-[var(--border-strong)] shadow-2xl">
+              <div className="px-6 py-4 border-b border-[var(--border-subtle)] flex justify-between items-center bg-[var(--bg-app)] rounded-t-2xl">
                 <h3 className="text-lg font-bold text-[var(--text-main)] flex items-center">
                   <Shield className="w-5 h-5 mr-2 text-indigo-500"/>
                   {editingTeacher ? 'Edit Teacher' : 'Add Teacher'}
