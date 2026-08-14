@@ -9,7 +9,7 @@ import Login from './components/Login';
 import AdminPortal from './components/AdminPortal';
 import StudentPortal from './components/StudentPortal';
 import TeacherPortal from './components/TeacherPortal';
-import InstallPrompt from './components/InstallPrompt';
+import PWAInstallPrompt from './components/PWAInstallPrompt';
 
 export default function App() {
   const [role, setRole] = useState<string | null>(sessionStorage.getItem('jirvi_role') || localStorage.getItem('jirvi_role'));
@@ -52,7 +52,7 @@ export default function App() {
 
   return (
     <Router>
-      <InstallPrompt />
+      <PWAInstallPrompt />
       <Routes>
         <Route path="/" element={role ? <Navigate to={role === 'admin' ? "/admin" : role === 'teacher' ? "/teacher" : "/student"} /> : <Login setRole={setRole} />} />
         <Route path="/admin/*" element={role === 'admin' ? <AdminPortal setRole={setRole} /> : <Navigate to="/" />} />

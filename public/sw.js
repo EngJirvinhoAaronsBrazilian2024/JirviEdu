@@ -1,5 +1,5 @@
-const CACHE_NAME = 'jirvi-edu-v7';
-const ASSET_CACHE = 'jirvi-edu-assets-v1';
+const CACHE_NAME = 'jirvi-edu-v8';
+const ASSET_CACHE = 'jirvi-edu-assets-v2';
 
 const urlsToCache = [
   '/',
