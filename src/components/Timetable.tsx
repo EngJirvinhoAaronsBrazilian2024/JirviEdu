@@ -172,7 +172,7 @@ export default function Timetable({ studentId, assignedModules }: { studentId?: 
                     const isPast = lecDateTime.getTime() < Date.now();
 
                     return (
-                      <div key={i} className={`p-3 rounded-xl border ${isPast ? 'bg-[var(--bg-app)] border-[var(--border-subtle)] opacity-60' : 'bg-[var(--bg-card)] border-[var(--border-subtle)]'} flex flex-col gap-2`}>
+                      <div key={i} className={`p-3 rounded-xl border bg-[var(--bg-card)] border-[var(--border-subtle)] flex flex-col gap-2`}>
                         <div className="flex justify-between items-start">
                           <span className="text-xs font-bold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded text-center">{item.lec.time}</span>
                           <span className="text-xs font-medium text-muted flex items-center gap-1"><BookOpen className="w-3 h-3"/>{item.mod.code}</span>
@@ -180,10 +180,16 @@ export default function Timetable({ studentId, assignedModules }: { studentId?: 
                         <div>
                           <p className="text-sm font-bold text-[var(--text-main)] leading-tight">{item.lec.title}</p>
                         </div>
-                        {studentId && !isPast && (
-                          <a href={item.lec.meetLink} target="_blank" rel="noreferrer" className="mt-2 w-full flex items-center justify-center py-1.5 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
-                            <Video className="w-3 h-3 mr-1" /> Join Focus
-                          </a>
+                        {studentId && (
+                          isPast ? (
+                            <a href={item.lec.meetLink} target="_blank" rel="noreferrer" className="mt-2 w-full flex items-center justify-center py-1.5 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
+                              <Video className="w-3 h-3 mr-1" /> Join Class
+                            </a>
+                          ) : (
+                            <button disabled className="mt-2 w-full flex items-center justify-center py-1.5 text-xs font-medium text-muted bg-[var(--bg-app)] border border-[var(--border-strong)] rounded-lg cursor-not-allowed opacity-80">
+                              Starts Later
+                            </button>
+                          )
                         )}
                       </div>
                     );

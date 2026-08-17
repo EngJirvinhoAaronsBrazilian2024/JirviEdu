@@ -477,7 +477,12 @@ function StudentDashboard({ student }: { student: Student | null }) {
             </div>
           ) : upcomingLectures.length > 0 ? (
             <div className="space-y-4 flex-1 relative z-10">
-              {upcomingLectures.map((item, idx) => (
+              {upcomingLectures.map((item, idx) => {
+                const lecDate = new Date(`${item.lec.date}T${item.lec.time}`).getTime();
+                const now = Date.now();
+                const isPastTime = lecDate <= now;
+
+                return (
                 <div key={idx} className="flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-[var(--bg-app)] rounded-2xl border border-[var(--border-subtle)] hover:border-blue-300 dark:hover:border-blue-700/50 transition-colors shadow-sm group/item">
                   <div className="flex items-start sm:items-center mb-4 sm:mb-0">
                     <div className="w-12 h-12 bg-white dark:bg-neutral-800 rounded-xl flex items-center justify-center mr-4 shadow-sm border border-[var(--border-subtle)] shrink-0">
@@ -488,9 +493,14 @@ function StudentDashboard({ student }: { student: Student | null }) {
                       <p className="text-sm font-medium text-muted mt-1">{item.mod.code} • <span className="text-blue-600 dark:text-blue-400 font-semibold">{item.lec.date} at {item.lec.time}</span></p>
                     </div>
                   </div>
-                  <a href={item.lec.meetLink} target="_blank" rel="noreferrer" className="px-5 py-2.5 bg-[var(--bg-card)] text-[var(--text-main)] border border-[var(--border-strong)] rounded-xl hover:bg-blue-600 hover:text-white hover:border-transparent text-sm font-semibold transition-all shadow-sm text-center">Join Class</a>
+                  {isPastTime ? (
+                    <a href={item.lec.meetLink} target="_blank" rel="noreferrer" className="px-5 py-2.5 bg-blue-600 text-white border border-transparent rounded-xl hover:bg-blue-700 text-sm font-bold transition-all shadow-sm text-center active:scale-95">Join Class</a>
+                  ) : (
+                    <button disabled className="px-5 py-2.5 bg-[var(--bg-card)] text-muted border border-[var(--border-strong)] rounded-xl text-sm font-bold cursor-not-allowed opacity-80 text-center">Starts Later</button>
+                  )}
                 </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div className="bg-[var(--bg-app)] rounded-2xl border border-[var(--border-subtle)] border-dashed p-8 text-center text-muted flex-1 flex items-center justify-center flex-col min-h-[200px]">
