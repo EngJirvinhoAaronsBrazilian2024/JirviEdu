@@ -875,7 +875,7 @@ function StudentManagement() {
               </div>
               <div className="space-y-1.5">
                 <label className="block text-sm font-semibold text-[var(--text-main)]">Full Name</label>
-                <input required value={newName} onChange={e=>setNewName(e.target.value)} type="text" className="block w-full rounded-xl border border-[var(--border-strong)] px-4 py-2.5 placeholder:text-muted focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 text-[var(--text-main)] bg-[var(--bg-app)] transition-all shadow-sm" placeholder="John Doe" />
+                <input required value={newName} onChange={e=>setNewName(e.target.value)} type="text" className="block w-full rounded-xl border border-[var(--border-strong)] px-4 py-2.5 placeholder:text-muted focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 text-[var(--text-main)] bg-[var(--bg-app)] transition-all shadow-sm" />
               </div>
               <div className="space-y-1.5">
                 <label className="block text-sm font-semibold text-[var(--text-main)]">Course</label>
