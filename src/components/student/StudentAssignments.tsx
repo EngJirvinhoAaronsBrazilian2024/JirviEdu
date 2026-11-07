@@ -296,7 +296,7 @@ export default function StudentAssignments({ studentId }: { studentId: string })
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-[var(--text-main)] flex items-center">
           <FileText className="w-8 h-8 mr-3 text-green-500" />
-          Coursework & Assignments
+          Exams and assignment
         </h1>
         <p className="mt-2 text-muted font-medium max-w-2xl">
           Complete and submit tasks for your enrolled modules before the deadline.
